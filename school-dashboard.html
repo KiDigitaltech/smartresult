@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>School Dashboard - SmartResult</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #eef6ff;
+      color: #333;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      user-select: none;
+    }
+
+    #sidebar {
+      background: #0056b3;
+      color: white;
+      width: 220px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding-top: 1rem;
+    }
+
+    #sidebar nav a {
+      color: white;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      border-left: 4px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: #003d80;
+      border-left-color: #ffd54f;
+    }
+
+    main {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+      position: relative;
+    }
+
+    .loader {
+      text-align: center;
+      font-size: 1rem;
+      color: #007bff;
+      padding: 30px;
+      display: none;
+    }
+
+    .instructions-box {
+      background-color: #f0f8ff;
+      border-left: 5px solid #007bff;
+      padding: 15px 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+      font-family: 'Segoe UI', sans-serif;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .instructions-box h3 {
+      margin-top: 0;
+      color: #007bff;
+      font-size: 18px;
+    }
+
+    .instructions-box ul {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .instructions-box li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    footer {
+      background: #f1f5f9;
+      color: #555;
+      text-align: center;
+      padding: 1rem 2rem;
+      font-size: 0.9rem;
+      border-top: 1px solid #ddd;
+      margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      #sidebar {
+        width: 100%;
+        flex-direction: row;
+        padding: 0;
+      }
+
+      #sidebar nav a {
+        flex-grow: 1;
+        padding: 1rem 0;
+        text-align: center;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        justify-content: center;
+      }
+
+      #sidebar nav a:hover,
+      #sidebar nav a.active {
+        border-bottom-color: #ffd54f;
+        background: #004a99;
+      }
+
+      main {
+        padding: 1rem;
+        max-width: 100%;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fa-solid fa-school"></i> SmartResult - School Dashboard</h1>
+  <button id="btnLogout" title="Logout" style="background:#dc3545; color:#fff; border:none; padding:0.5rem 1rem; border-radius:5px; cursor:pointer;">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout
+  </button>
+</header>
+
+<div style="display:flex; flex-grow:1; min-height:0;">
+  <aside id="sidebar">
+    <nav>
+      <a href="school-dashboard.html" class="active"><i class="fa-solid fa-house"></i> Nyumbani</a>
+      <a href="register-students.html"><i class="fa-solid fa-user-graduate"></i> Sajili Wanafunzi</a>
+      <a href="register-subjects.html"><i class="fa-solid fa-book"></i> Sajili Masomo</a>
+      <a href="register-classes.html"><i class="fa-solid fa-chalkboard"></i> Sajili Madarasa</a>
+      <a href="enter-results.html"><i class="fa-solid fa-pen-to-square"></i> Ingiza Matokeo</a>
+      <a href="view-results.html"><i class="fa-solid fa-eye"></i> Tazama Matokeo</a>
+	  <a href="contact-help.html"><i class="fa-solid fa-headset"></i> Msaada wa Mfumo</a>
+      <a href="profile.html"><i class="fa-solid fa-user"></i> Profaili</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="loader" id="loader">
+      <i class="fa-solid fa-spinner fa-spin fa-2x"></i><br/>
+      Inapakia taarifa za shule...
+    </div>
+    <div id="welcomeBox" style="display:none;">
+      <h2 id="welcomeTitle">Karibu!</h2>
+      <p id="schoolDescription">Ahsante kwa kuchagua Huduma hii ya Uandaaji wa Matokeo. Tafadhali chagua sehemu kutoka kwenye menu ya kushoto kuendelea.</p>
+
+      <div class="instructions-box">
+        <h3><i class="fa fa-info-circle"></i> Maelekezo ya Matumizi</h3>
+        <ul>
+          <li><strong>Hatua ya 1:</strong> Tumia menu ya kushoto ili kufanya Usajili wa Wanafunzi, Kujaza Matokeo, pamoja na Taarifa mbalimbali.</li>
+          <li><strong>Hatua ya 2:</strong> Hakikisha katika shule yako Umesajili madarasa na masomo kabla ya kuingiza wanafunzi au matokeo.</li>
+          <li><strong>Hatua ya 3:</strong> Hakikisha Unapofanya usajili wa Wanafunzi unazingatia Darasa husika.</li>
+		  <li><strong>MUHIMU :</strong> TUNZA NENO LAKO LA SIRI NA USIMPE MTU YEYOTE, UKISAHAU HUTOWEZA KUUFIKIA TENA MFUMO WAKO! UTALAZIMIKA KUSAJILIWA UPYA</li>
+          <li><strong>Msaada:</strong> Ikiwa unapata changamoto yoyote, wasiliana na msimamizi au fungua sehemu ya msaada wa mfumo.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer>
+  &copy; 2025 SmartResult. Haki zote zimehifadhiwa.
+</footer>
+
+<script type="module">
+  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.appspot.com",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+    measurementId: "G-3W13B73TQS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const btnLogout = document.getElementById('btnLogout');
+  const loader = document.getElementById("loader");
+  const welcomeBox = document.getElementById("welcomeBox");
+  const welcomeTitle = document.getElementById("welcomeTitle");
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = 'index.html';
+    } else {
+      const uid = user.uid;
+
+      loader.style.display = "block";
+      welcomeBox.style.display = "none";
+
+      try {
+        const userRef = doc(db, "users", uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const schoolName = userData.schoolName || "Shule Yako";
+          welcomeTitle.innerText = `Karibu ${schoolName}!`;
+        } else {
+          welcomeTitle.innerText = `Karibu Mwalimu!`;
+        }
+
+        loader.style.display = "none";
+        welcomeBox.style.display = "block";
+      } catch (error) {
+        loader.innerHTML = "Hitilafu katika kupakia taarifa.";
+        console.error(error);
+      }
+    }
+  });
+
+  btnLogout.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  });
+</script>
+
+</body>
+</html>

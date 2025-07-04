@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chapisha Matokeo - SmartResult</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: white;
+      color: #000;
+      padding: 20px;
+    }
+    h2, h3 {
+      text-align: center;
+      margin: 5px 0;
+    }
+    .info {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .print-btn {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 6px 10px;
+      text-align: center;
+    }
+    td.name {
+      text-align: left;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: visible;
+    }
+    @media print {
+      .print-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <button class="print-btn" onclick="window.print()"><i class="fa fa-print"></i> Chapisha</button>
+
+  <h2 id="mainTitle">KICHWA CHA MATOKEO</h2>
+  <div class="info" id="infoSection">
+    <p id="schoolInfo">JINA LA SHULE, KATA, HALMASHAURI</p>
+    <p id="examInfo">KIPINDI: ... | DARASA: ... | TAREHE: ...</p>
+  </div>
+
+  <table id="resultsTable">
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import {
+      getFirestore, collection, query, where, getDocs
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    import {
+      getAuth, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const council = localStorage.getItem("council") || "HALMASHAURI";
+    const ward = localStorage.getItem("ward") || "KATA";
+    const school = localStorage.getItem("school") || "SHULE";
+    const title = localStorage.getItem("title") || "MATOKEO YA MTIHANI";
+
+    const classId = localStorage.getItem("print_classId");
+    const term = localStorage.getItem("print_term");
+
+    const tableHead = document.getElementById("tableHead");
+    const tableBody = document.getElementById("tableBody");
+
+    document.getElementById("mainTitle").textContent = title.toUpperCase();
+    document.getElementById("schoolInfo").textContent = `${school.toUpperCase()}, ${ward.toUpperCase()}, ${council.toUpperCase()}`;
+    document.getElementById("examInfo").textContent = `KIPINDI: ${term} | DARASA: ${classId} | TAREHE: ${new Date().toLocaleDateString()}`;
+
+    function getGrade(avg) {
+      if (avg >= 80) return 'A';
+      if (avg >= 65) return 'B';
+      if (avg >= 50) return 'C';
+      return 'D';
+    }
+
+    let currentUser;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        alert("Huna ruhusa ya kufungua ukurasa huu.");
+        window.location.href = "index.html";
+        return;
+      }
+      currentUser = user;
+      await loadResults();
+    });
+
+    async function loadResults() {
+      const subjectsMap = {};
+      const qSubjects = query(collection(db, 'subjects'), where('uid', '==', currentUser.uid), where('classId', '==', classId));
+      const snapSubjects = await getDocs(qSubjects);
+      snapSubjects.forEach(doc => subjectsMap[doc.id] = doc.data().name);
+
+      const qStudents = query(collection(db, 'students'), where('uid', '==', currentUser.uid), where('classId', '==', classId));
+      const snapStudents = await getDocs(qStudents);
+      const studentsMap = {};
+      snapStudents.forEach(doc => {
+        const data = doc.data();
+        studentsMap[doc.id] = { name: data.name, gender: data.gender || "-" };
+      });
+
+      const qResults = query(collection(db, 'results'),
+        where('uid', '==', currentUser.uid),
+        where('classId', '==', classId),
+        where('term', '==', term));
+      const snapResults = await getDocs(qResults);
+
+      const subjectIds = Object.keys(subjectsMap);
+
+      let headHtml = "<tr><th>S/N</th><th>Jina la Mwanafunzi</th><th>Jinsia</th>";
+      subjectIds.forEach(id => headHtml += `<th>${subjectsMap[id]}</th>`);
+      headHtml += "<th>Jumla</th><th>Wastani</th><th>Grade</th><th>Nafasi</th></tr>";
+      tableHead.innerHTML = headHtml;
+
+      const data = [];
+      snapResults.forEach(doc => {
+        const r = doc.data();
+        const student = studentsMap[r.studentId] || { name: "Haijulikani", gender: "-" };
+        let total = 0, count = 0;
+        subjectIds.forEach(id => {
+          if (r.results && r.results[id] !== undefined) {
+            total += r.results[id];
+            count++;
+          }
+        });
+        const avg = count ? total / count : 0;
+        data.push({
+          name: student.name,
+          gender: student.gender,
+          results: r.results || {},
+          total,
+          avg,
+          grade: getGrade(avg)
+        });
+      });
+
+      data.sort((a, b) => b.total - a.total);
+
+      tableBody.innerHTML = "";
+      data.forEach((row, i) => {
+        let html = `<tr><td>${i + 1}</td><td class="name">${row.name}</td><td>${row.gender}</td>`;
+        subjectIds.forEach(id => {
+          html += `<td>${row.results[id] !== undefined ? row.results[id] : "-"}</td>`;
+        });
+        html += `<td>${row.total}</td><td>${row.avg.toFixed(2)}</td><td>${row.grade}</td><td>${i + 1}</td></tr>`;
+        tableBody.innerHTML += html;
+      });
+    }
+  </script>
+</body>
+</html>

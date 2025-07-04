@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ingiza Matokeo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4faff;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #007bff;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+    }
+    #msg {
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Ingiza Matokeo ya Mtihani</h2>
+
+  <select id="studentSelect" required>
+    <option value="">Chagua Mwanafunzi</option>
+  </select>
+
+  <select id="subjectSelect" required>
+    <option value="">Chagua Somo</option>
+  </select>
+
+  <input type="number" id="marks" placeholder="Weka Alama (mfano 75)" required>
+  
+  <select id="term" required>
+    <option value="">Chagua Muhula</option>
+    <option value="Machi">Machi</option>
+    <option value="Mei">Mei</option>
+    <option value="Agosti">Agosti</option>
+    <option value="Novemba">Novemba</option>
+  </select>
+
+  <input type="number" id="year" placeholder="Mwaka (mfano 2025)" required>
+
+  <button onclick="submitResult()">Hifadhi Matokeo</button>
+
+  <p id="msg"></p>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, addDoc, query, where } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.firebasestorage.app",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+    measurementId: "G-3W13B73TQS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let schoolId = null;
+
+  onAuthStateChanged(auth, async user => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    schoolId = user.uid;
+
+    // Fetch students
+    const studentQuery = query(collection(db, "students"), where("schoolId", "==", schoolId));
+    const studentSnap = await getDocs(studentQuery);
+    const studentSelect = document.getElementById("studentSelect");
+    studentSnap.forEach(doc => {
+      const data = doc.data();
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = data.name + " - " + data.class;
+      studentSelect.appendChild(option);
+    });
+
+    // Fetch subjects
+    const subjectQuery = query(collection(db, "subjects"), where("schoolId", "==", schoolId));
+    const subjectSnap = await getDocs(subjectQuery);
+    const subjectSelect = document.getElementById("subjectSelect");
+    subjectSnap.forEach(doc => {
+      const data = doc.data();
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = data.name + " - " + data.class;
+      subjectSelect.appendChild(option);
+    });
+  });
+
+  async function submitResult() {
+    const studentId = document.getElementById("studentSelect").value;
+    const subjectId = document.getElementById("subjectSelect").value;
+    const marks = parseInt(document.getElementById("marks").value);
+    const term = document.getElementById("term").value;
+    const year = parseInt(document.getElementById("year").value);
+    const msg = document.getElementById("msg");
+
+    if (!studentId || !subjectId || isNaN(marks) || !term || isNaN(year)) {
+      msg.style.color = "red";
+      msg.textContent = "Tafadhali jaza taarifa zote.";
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "results"), {
+        studentId,
+        subjectId,
+        marks,
+        term,
+        year,
+        schoolId,
+        createdAt: new Date()
+      });
+
+      msg.style.color = "green";
+      msg.textContent = "Matokeo yamehifadhiwa kikamilifu ✅";
+    } catch (err) {
+      msg.style.color = "red";
+      msg.textContent = "Hitilafu: " + err.message;
+    }
+  }
+</script>
+</body>
+</html>

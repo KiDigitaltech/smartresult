@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tathmini ya Matokeo - SmartResult</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f9ff;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .back-btn {
+      background: #ffc107;
+      color: #333;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: auto;
+      padding: 2rem;
+    }
+
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    select {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 200px;
+      background: white;
+      padding: 1.2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #007bff;
+    }
+
+    .card p {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+
+    canvas {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 2rem;
+      padding-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fa-solid fa-chart-line"></i> Tathmini ya Matokeo</h1>
+  <a href="school-dashboard.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+</header>
+
+<main>
+  <div class="filters">
+    <select id="classSelect">
+      <option value="">Chagua Darasa</option>
+      <option value="Darasa la 1">Darasa la 1</option>
+      <option value="Darasa la 2">Darasa la 2</option>
+      <option value="Darasa la 3">Darasa la 3</option>
+      <option value="Darasa la 4">Darasa la 4</option>
+      <option value="Darasa la 5">Darasa la 5</option>
+      <option value="Darasa la 6">Darasa la 6</option>
+      <option value="Darasa la 7">Darasa la 7</option>
+    </select>
+    <select id="termSelect">
+      <option value="">Chagua Kipindi</option>
+      <option value="Term 1">Term 1</option>
+      <option value="Term 2">Term 2</option>
+      <option value="Term 3">Term 3</option>
+    </select>
+    <button onclick="loadAssessment()">Tathmini</button>
+  </div>
+
+  <div class="summary">
+    <div class="card"><h3>Jumla ya Wanafunzi</h3><p id="total">0</p></div>
+    <div class="card"><h3>Waliofaulu</h3><p id="passed">0</p></div>
+    <div class="card"><h3>Chini ya Wastani</h3><p id="failed">0</p></div>
+  </div>
+
+  <canvas id="chart" height="100"></canvas>
+</main>
+
+<footer>
+  &copy; 2025 SmartResult. Haki zote zimehifadhiwa.
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.appspot.com",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  let currentUid = null;
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      currentUid = user.uid;
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+
+  window.loadAssessment = async () => {
+    const classId = document.getElementById("classSelect").value;
+    const term = document.getElementById("termSelect").value;
+    if (!classId || !term || !currentUid) return alert("Chagua darasa na kipindi");
+
+    const q = query(collection(db, "results"),
+      where("uid", "==", currentUid),
+      where("classId", "==", classId),
+      where("term", "==", term)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    let total = 0, passed = 0, failed = 0;
+    let subjectSums = {};
+    let subjectCounts = {};
+
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      total++;
+
+      let sum = 0;
+      let count = 0;
+
+      for (let [subject, mark] of Object.entries(data.subjects || {})) {
+        sum += mark;
+        count++;
+
+        if (!subjectSums[subject]) {
+          subjectSums[subject] = 0;
+          subjectCounts[subject] = 0;
+        }
+
+        subjectSums[subject] += mark;
+        subjectCounts[subject]++;
+      }
+
+      const avg = sum / count;
+      if (avg >= 50) passed++; else failed++;
+    });
+
+    document.getElementById("total").textContent = total;
+    document.getElementById("passed").textContent = passed;
+    document.getElementById("failed").textContent = failed;
+
+    const labels = Object.keys(subjectSums);
+    const averages = labels.map(subj => (subjectSums[subj] / subjectCounts[subj]).toFixed(1));
+
+    new Chart(document.getElementById("chart"), {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Wastani wa Alama",
+          data: averages,
+          backgroundColor: "#007bff"
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true, max: 100 }
+        }
+      }
+    });
+  };
+</script>
+
+</body>
+</html>

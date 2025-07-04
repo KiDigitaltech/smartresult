@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sajili Wanafunzi - SmartResult</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* Style kama nilivyosema awali */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #eef6ff; color: #333; display: flex; min-height: 100vh; flex-direction: column; }
+    header { background: #007bff; color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    #sidebar { background: #0056b3; color: white; width: 220px; flex-shrink: 0; display: flex; flex-direction: column; padding-top: 1rem; }
+    #sidebar nav a { color: white; padding: 1rem 1.5rem; text-decoration: none; font-weight: 600; border-left: 4px solid transparent; display: flex; align-items: center; gap: 0.8rem; transition: background 0.3s, border-color 0.3s; }
+    #sidebar nav a:hover, #sidebar nav a.active { background: #003d80; border-left-color: #ffd54f; }
+    main { flex-grow: 1; padding: 2rem; max-width: 900px; margin: auto; }
+    footer { background: #f1f5f9; color: #555; text-align: center; padding: 1rem 2rem; font-size: 0.9rem; border-top: 1px solid #ddd; margin-top: auto; }
+    #loaderOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; visibility: hidden; opacity: 0; transition: opacity 0.3s ease; }
+    #loaderOverlay.active { visibility: visible; opacity: 1; }
+    .loader { border: 8px solid #f3f3f3; border-top: 8px solid #007bff; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+    form { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+    h2 { color: #007bff; margin-bottom: 1.5rem; text-align: center; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+    input, select { width: 100%; padding: 10px 14px; margin-bottom: 1.2rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+    input:focus, select:focus { border-color: #007bff; outline: none; box-shadow: 0 0 5px rgba(0,123,255,0.5); }
+    button { background: #007bff; color: white; font-weight: 700; border: none; cursor: pointer; padding: 12px 20px; border-radius: 6px; width: 100%; font-size: 1.1rem; transition: background 0.3s; }
+    button:hover { background: #0056b3; }
+    #msg, #uploadMsg { text-align: center; margin-top: 1rem; font-weight: 600; min-height: 1.5em; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background-color: #007bff; color: white; font-weight: 600; }
+    tr:hover { background-color: #f1f5f9; }
+    .actions i { margin-right: 10px; cursor: pointer; color: #007bff; transition: color 0.3s; }
+    .actions i.delete { color: #dc3545; }
+    .actions i:hover { color: #0056b3; }
+    .actions i.delete:hover { color: #a71d2a; }
+    #editPopup { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 10000; }
+    #editPopup .popup { background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    #editPopup label { font-weight: 600; margin-top: 1rem; display: block; }
+    #editPopup input, #editPopup select { width: 100%; padding: 10px 14px; margin-top: 0.5rem; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
+    #editPopup button { margin-top: 1.5rem; }
+    @media (max-width: 768px) {
+      #sidebar { width: 100%; flex-direction: row; padding: 0; }
+      #sidebar nav a { flex-grow: 1; padding: 1rem 0; text-align: center; border-left: none; border-bottom: 3px solid transparent; justify-content: center; }
+      #sidebar nav a:hover, #sidebar nav a.active { border-bottom-color: #ffd54f; background: #004a99; }
+      main { padding: 1rem; max-width: 100%; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fa-solid fa-school"></i> SmartResult - Sajili Wanafunzi</h1>
+  <button id="btnLogout" style="background:#dc3545; color:#fff; border:none; padding:0.5rem 1rem; border-radius:5px; cursor:pointer;">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout
+  </button>
+</header>
+
+<div style="display:flex; flex-grow:1;">
+  <aside id="sidebar">
+    <nav>
+      <a href="school-dashboard.html"><i class="fa-solid fa-house"></i> Nyumbani</a>
+      <a href="register-students.html" class="active"><i class="fa-solid fa-user-graduate"></i> Sajili Wanafunzi</a>
+      <a href="register-subjects.html"><i class="fa-solid fa-book"></i> Sajili Masomo</a>
+      <a href="register-classes.html"><i class="fa-solid fa-chalkboard"></i> Sajili Madarasa</a>
+      <a href="enter-results.html"><i class="fa-solid fa-pen-to-square"></i> Ingiza Matokeo</a>
+      <a href="view-results.html"><i class="fa-solid fa-eye"></i> Tazama Matokeo</a>
+      <a href="profile.html"><i class="fa-solid fa-user"></i> Profaili</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h2>Sajili Mwanafunzi Mpya</h2>
+    <form id="studentForm">
+      <label for="studentName">Jina Kamili</label>
+      <input type="text" id="studentName" placeholder="Jina la mwanafunzi" required />
+
+      <label for="gender">Jinsia</label>
+      <select id="gender" required>
+        <option value="">-- Chagua jinsia --</option>
+        <option value="Me">Me</option>
+        <option value="Ke">Ke</option>
+      </select>
+
+      <label for="classSelect">Darasa</label>
+      <select id="classSelect" required>
+        <option value="">-- Chagua darasa --</option>
+      </select>
+
+      <button type="submit"><i class="fa-solid fa-plus"></i> Sajili</button>
+      <p id="msg"></p>
+    </form>
+
+    <hr style="margin:2rem 0;" />
+
+    <h2>Sajili Wanafunzi kwa Kupakia Excel</h2>
+    <form id="uploadForm">
+      <input type="file" id="excelFile" accept=".xls,.xlsx" required />
+      <button type="submit"><i class="fa-solid fa-file-import"></i> Pakia Excel</button>
+      <p id="uploadMsg"></p>
+    </form>
+
+    <h2>Orodha ya Wanafunzi</h2>
+    <label for="filterClass">Chagua Darasa Kuona Wanafunzi</label>
+    <select id="filterClass">
+      <option value="">-- Chagua darasa --</option>
+    </select>
+
+    <table id="studentsTable" style="margin-top:1rem;">
+      <thead>
+        <tr>
+          <th>Jina Kamili</th>
+          <th>Jinsia</th>
+          <th>Darasa</th>
+          <th>Vitendo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Wanafunzi watajazwa hapa -->
+      </tbody>
+    </table>
+  </main>
+</div>
+
+<footer>
+  &copy; 2025 SmartResult. Haki zote zimehifadhiwa.
+</footer>
+
+<!-- Loader -->
+<div id="loaderOverlay">
+  <div class="loader"></div>
+</div>
+
+<!-- Edit Popup -->
+<div id="editPopup">
+  <div class="popup">
+    <h3>Hariri Mwanafunzi</h3>
+    <form id="editForm">
+      <label for="editStudentName">Jina Kamili</label>
+      <input type="text" id="editStudentName" required />
+
+      <label for="editGender">Jinsia</label>
+      <select id="editGender" required>
+        <option value="">-- Chagua jinsia --</option>
+        <option value="Me">Me</option>
+        <option value="Ke">Ke</option>
+      </select>
+
+      <label for="editClassSelect">Darasa</label>
+      <select id="editClassSelect" required>
+        <option value="">-- Chagua darasa --</option>
+      </select>
+
+      <button type="submit">Hifadhi Mabadiliko</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { 
+    getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, updateDoc 
+  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Elements
+  const btnLogout = document.getElementById('btnLogout');
+  const studentForm = document.getElementById('studentForm');
+  const studentName = document.getElementById('studentName');
+  const gender = document.getElementById('gender');
+  const classSelect = document.getElementById('classSelect');
+  const msg = document.getElementById('msg');
+  const loaderOverlay = document.getElementById('loaderOverlay');
+  const studentsTableBody = document.querySelector('#studentsTable tbody');
+  const filterClass = document.getElementById('filterClass');
+
+  const uploadForm = document.getElementById('uploadForm');
+  const excelFile = document.getElementById('excelFile');
+  const uploadMsg = document.getElementById('uploadMsg');
+
+  // Edit popup elements
+  const editPopup = document.getElementById('editPopup');
+  const editForm = document.getElementById('editForm');
+  const editStudentName = document.getElementById('editStudentName');
+  const editGender = document.getElementById('editGender');
+  const editClassSelect = document.getElementById('editClassSelect');
+
+  let currentUser = null;
+  let editStudentId = null;
+
+  function showLoader() {
+    loaderOverlay.classList.add('active');
+  }
+  function hideLoader() {
+    loaderOverlay.classList.remove('active');
+  }
+  function showMsg(text, color = 'green') {
+    msg.textContent = text;
+    msg.style.color = color;
+    setTimeout(() => {
+      msg.textContent = '';
+    }, 4000);
+  }
+  function showUploadMsg(text, color = 'green') {
+    uploadMsg.textContent = text;
+    uploadMsg.style.color = color;
+    setTimeout(() => {
+      uploadMsg.textContent = '';
+    }, 4000);
+  }
+
+  // Load madarasa ya user
+  async function loadClasses() {
+    classSelect.innerHTML = '<option value="">-- Chagua darasa --</option>';
+    filterClass.innerHTML = '<option value="">-- Chagua darasa --</option>';
+    editClassSelect.innerHTML = '<option value="">-- Chagua darasa --</option>';
+
+    if (!currentUser) return;
+
+    const q = query(collection(db, 'classes'), where('uid', '==', currentUser.uid));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(docSnap => {
+      const cls = docSnap.data();
+      const option = `<option value="${docSnap.id}">${cls.name}</option>`;
+      classSelect.insertAdjacentHTML('beforeend', option);
+      filterClass.insertAdjacentHTML('beforeend', option);
+      editClassSelect.insertAdjacentHTML('beforeend', option);
+    });
+    await refreshClassesMap();
+  }
+
+  // Map ya darasa id kwenda jina
+  let classesMap = {};
+  async function refreshClassesMap() {
+    classesMap = {};
+    if (!currentUser) return;
+    const q = query(collection(db, 'classes'), where('uid', '==', currentUser.uid));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(docSnap => {
+      classesMap[docSnap.id] = docSnap.data().name;
+    });
+  }
+
+  function getClassNameById(id) {
+    return classesMap[id] || 'Unknown';
+  }
+
+  // Load wanafunzi wa user, optionally filter by darasa
+  async function loadStudents(classId = '') {
+    studentsTableBody.innerHTML = '';
+    showLoader();
+    if (!currentUser) return;
+
+    let q = query(collection(db, 'students'), where('uid', '==', currentUser.uid));
+    if (classId) {
+      q = query(collection(db, 'students'), 
+        where('uid', '==', currentUser.uid),
+        where('classId', '==', classId)
+      );
+    }
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      studentsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">Hakuna mwanafunzi</td></tr>`;
+      hideLoader();
+      return;
+    }
+
+    snapshot.forEach(docSnap => {
+      const s = docSnap.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${s.name}</td>
+        <td>${s.gender}</td>
+        <td>${getClassNameById(s.classId)}</td>
+        <td class="actions">
+          <i class="fa fa-edit" title="Hariri" style="color:#28a745;" onclick="openEdit('${docSnap.id}')"></i>
+          <i class="fa fa-trash delete" title="Futa" onclick="deleteStudent('${docSnap.id}')"></i>
+        </td>
+      `;
+      studentsTableBody.appendChild(tr);
+    });
+    hideLoader();
+  }
+
+  // Check duplicate student by name + classId + uid
+  async function isDuplicateStudent(name, classId) {
+    if (!currentUser) return false;
+    const q = query(collection(db, 'students'),
+      where('uid', '==', currentUser.uid),
+      where('name', '==', name),
+      where('classId', '==', classId)
+    );
+    const snap = await getDocs(q);
+    return !snap.empty;
+  }
+
+  // Sajili mwanafunzi mpya
+  studentForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nameVal = studentName.value.trim();
+    const genderVal = gender.value;
+    const classVal = classSelect.value;
+
+    if (!nameVal || !genderVal || !classVal) {
+      showMsg('Tafadhali jaza taarifa zote.', 'red');
+      return;
+    }
+
+    showLoader();
+
+    // Angalia duplicate
+    if (await isDuplicateStudent(nameVal, classVal)) {
+      showMsg('Mwanafunzi huyu tayari yupo darasani hapo.', 'red');
+      hideLoader();
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'students'), {
+        uid: currentUser.uid,
+        name: nameVal,
+        gender: genderVal,
+        classId: classVal,
+        createdAt: new Date()
+      });
+      showMsg('Mwanafunzi amesajiliwa kwa mafanikio!');
+      studentForm.reset();
+      loadStudents(filterClass.value);
+    } catch (error) {
+      console.error(error);
+      showMsg('Imeshindikana kusajili mwanafunzi.', 'red');
+    }
+    hideLoader();
+  });
+
+  // Delete student
+  window.deleteStudent = async function(id) {
+    if (!confirm('Una uhakika unataka kufuta mwanafunzi huyu?')) return;
+    showLoader();
+    try {
+      await deleteDoc(doc(db, 'students', id));
+      showMsg('Mwanafunzi amefutwa.');
+      loadStudents(filterClass.value);
+    } catch (error) {
+      console.error(error);
+      showMsg('Imeshindikana kufuta mwanafunzi.', 'red');
+    }
+    hideLoader();
+  };
+
+  // Edit popup functions
+  window.openEdit = async function(id) {
+    editStudentId = id;
+    showLoader();
+    try {
+      const docSnap = await getDocs(query(collection(db, 'students'), where('__name__', '==', id)));
+      const sDoc = doc(db, 'students', id);
+      const sDataSnap = await sDoc.get();
+      // Better way:
+      const sDocSnap = await sDoc.get ? await sDoc.get() : null;
+      // Instead, just getDoc:
+      // We'll use getDoc instead
+      import("https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js").then(({getDoc})=>{
+        getDoc(doc(db,'students',id)).then(docSnap=>{
+          if(docSnap.exists()){
+            const s=docSnap.data();
+            editStudentName.value = s.name;
+            editGender.value = s.gender;
+            editClassSelect.value = s.classId;
+            editPopup.style.display = 'flex';
+          }else{
+            alert('Mwanafunzi haipo.');
+          }
+          hideLoader();
+        });
+      });
+    } catch (error) {
+      console.error(error);
+      hideLoader();
+      alert('Imeshindikana kupakia taarifa za mwanafunzi.');
+    }
+  };
+
+  editForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nameVal = editStudentName.value.trim();
+    const genderVal = editGender.value;
+    const classVal = editClassSelect.value;
+
+    if (!nameVal || !genderVal || !classVal) {
+      alert('Tafadhali jaza taarifa zote.');
+      return;
+    }
+
+    showLoader();
+
+    // Angalia duplicate isipokuwa yeye mwenyewe
+    const q = query(collection(db, 'students'),
+      where('uid', '==', currentUser.uid),
+      where('name', '==', nameVal),
+      where('classId', '==', classVal)
+    );
+    const snap = await getDocs(q);
+
+    const duplicates = snap.docs.filter(doc => doc.id !== editStudentId);
+    if (duplicates.length > 0) {
+      alert('Mwanafunzi huyu tayari yupo darasani hapo.');
+      hideLoader();
+      return;
+    }
+
+    try {
+      const sDocRef = doc(db, 'students', editStudentId);
+      await updateDoc(sDocRef, {
+        name: nameVal,
+        gender: genderVal,
+        classId: classVal
+      });
+      showMsg('Mwanafunzi amesasishwa.');
+      editPopup.style.display = 'none';
+      loadStudents(filterClass.value);
+    } catch (error) {
+      console.error(error);
+      alert('Imeshindikana kusasisha mwanafunzi.');
+    }
+    hideLoader();
+  });
+
+  // Close popup on click outside form
+  editPopup.addEventListener('click', e => {
+    if (e.target === editPopup) {
+      editPopup.style.display = 'none';
+    }
+  });
+
+  // Filter students by class
+  filterClass.addEventListener('change', e => {
+    loadStudents(e.target.value);
+  });
+
+  // Upload Excel and parse
+  uploadForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const file = excelFile.files[0];
+    if (!file) {
+      showUploadMsg('Tafadhali chagua faili la Excel.', 'red');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type: 'array'});
+
+      // Assume first sheet contains data
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+
+      // Convert sheet to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ''});
+
+      if (jsonData.length === 0) {
+        showUploadMsg('Hakuna data katika Excel.', 'red');
+        return;
+      }
+
+      // Check required columns: name, gender, class
+      const requiredCols = ['name', 'gender', 'class'];
+      const missingCols = requiredCols.filter(c => !Object.keys(jsonData[0]).map(k=>k.toLowerCase()).includes(c));
+      if (missingCols.length > 0) {
+        showUploadMsg('Excel haijajumuisha safu za: ' + missingCols.join(', '), 'red');
+        return;
+      }
+
+      showLoader();
+      let addedCount = 0;
+      let skippedCount = 0;
+
+      // Map madarasa to IDs for user
+      const classNameToId = {};
+      for (const id in classesMap) {
+        classNameToId[classesMap[id].toLowerCase()] = id;
+      }
+
+      for (const row of jsonData) {
+        const nameVal = (row.name || '').trim();
+        const genderVal = (row.gender || '').trim();
+        const classNameVal = (row.class || '').trim();
+
+        if (!nameVal || !genderVal || !classNameVal) {
+          skippedCount++;
+          continue;
+        }
+
+        const classId = classNameToId[classNameVal.toLowerCase()];
+        if (!classId) {
+          skippedCount++;
+          continue; // darasa halipo kwa user huyu
+        }
+
+        // Check duplicate
+        if (await isDuplicateStudent(nameVal, classId)) {
+          skippedCount++;
+          continue;
+        }
+
+        try {
+          await addDoc(collection(db, 'students'), {
+            uid: currentUser.uid,
+            name: nameVal,
+            gender: genderVal,
+            classId: classId,
+            createdAt: new Date()
+          });
+          addedCount++;
+        } catch {
+          skippedCount++;
+        }
+      }
+      hideLoader();
+      showUploadMsg(`Wanafunzi ${addedCount} waliongezwa, ${skippedCount} walirudishwa (duplicate/invalid).`);
+      excelFile.value = '';
+      loadStudents(filterClass.value);
+    };
+
+    reader.readAsArrayBuffer(file);
+  });
+
+  // Check authentication
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      currentUser = user;
+      loadClasses().then(() => loadStudents());
+    } else {
+      location.href = 'login.html';
+    }
+  });
+
+  btnLogout.addEventListener('click', () => {
+    signOut(auth);
+  });
+</script>
+
+</body>
+</html>

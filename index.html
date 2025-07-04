@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shule Login - SmartResult</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-image: url('wallpaper.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+
+    p.description {
+      text-align: center;
+      color: #333;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #msg {
+      margin-top: 15px;
+      text-align: center;
+      color: red;
+      font-size: 14px;
+    }
+
+    .loader-box {
+      margin-top: 15px;
+      display: none;
+      text-align: center;
+    }
+
+    .loader-progress {
+      width: 100%;
+      height: 10px;
+      background-color: #eee;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .loader-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #007bff, #00c6ff);
+      transition: width 0.2s ease;
+    }
+
+    .percent-text {
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .instructions {
+      margin-top: 25px;
+      background: #f9f9f9;
+      border-left: 4px solid #007bff;
+      padding: 15px;
+      font-size: 14px;
+      border-radius: 10px;
+    }
+
+    .help-desk {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-top: 25px;
+    }
+
+    .help-desk span {
+      display: block;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login ya Shule</h2>
+    <p class="description">Tafadhali ingiza barua pepe na nenosiri ulilosajiliwa.</p>
+    <input type="email" id="email" placeholder="Barua Pepe" required />
+    <input type="password" id="password" placeholder="Nenosiri" required />
+    <button id="btnLogin">Ingia</button>
+
+    <div class="loader-box" id="loaderBox">
+      <span class="percent-text" id="percentText">Inapakia... 0%</span>
+      <div class="loader-progress">
+        <div class="loader-fill" id="loaderFill"></div>
+      </div>
+    </div>
+
+    <p id="msg"></p>
+
+    <div class="instructions">
+      <strong>Jinsi ya kutumia mfumo:</strong>
+      <ul>
+        <li>Weka barua pepe ya shule iliyoandikishwa.</li>
+        <li>Weka nenosiri sahihi kama ulivyopokea wakati wa usajili.</li>
+        <li>Bonyeza "Ingia" kusafirishwa kwenda kwenye dashboard ya shule.</li>
+        <li>Ukisahau nenosiri, wasiliana na Help Desk hapa chini.</li>
+      </ul>
+    </div>
+
+    <div class="help-desk">
+      <strong>Help Desk / Msaada:</strong>
+      <span>Simu: +255 712 345 678</span>
+      <span>Email: support@smartresult.co.tz</span>
+      <span>WhatsApp: +255 789 123 456</span>
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.appspot.com",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+    measurementId: "G-3W13B73TQS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const btnLogin = document.getElementById("btnLogin");
+  const msg = document.getElementById("msg");
+  const loaderBox = document.getElementById("loaderBox");
+  const loaderFill = document.getElementById("loaderFill");
+  const percentText = document.getElementById("percentText");
+
+  btnLogin.addEventListener("click", async () => {
+    msg.textContent = "";
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+      msg.textContent = "Tafadhali jaza barua pepe na nenosiri.";
+      return;
+    }
+
+    loaderBox.style.display = "block";
+    let percent = 0;
+    loaderFill.style.width = "0%";
+    percentText.textContent = "Inapakia... 0%";
+
+    const simulateLoading = () => {
+      return new Promise(resolve => {
+        const interval = setInterval(() => {
+          percent += 5;
+          loaderFill.style.width = percent + "%";
+          percentText.textContent = "Inapakia... " + percent + "%";
+          if (percent >= 100) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 40);
+      });
+    };
+
+    try {
+      await simulateLoading();
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
+
+      const docRef = doc(db, "users", uid);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        msg.textContent = "Mtumiaji hana ruhusa kwenye mfumo.";
+        await auth.signOut();
+        loaderBox.style.display = "none";
+        return;
+      }
+
+      const data = docSnap.data();
+      if (data.role === "school") {
+        window.location.href = "school-dashboard.html";
+      } else {
+        msg.textContent = "Huna ruhusa ya kuingia hapa.";
+        await auth.signOut();
+        loaderBox.style.display = "none";
+      }
+
+    } catch (error) {
+      msg.textContent = "Hitilafu: " + error.message;
+      loaderBox.style.display = "none";
+    }
+  });
+</script>
+</body>
+</html>

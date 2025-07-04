@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Matokeo ya Darasa - SmartResult</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #eef6ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #sidebar {
+      background: #0056b3;
+      color: white;
+      width: 220px;
+      padding-top: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    #sidebar nav a {
+      color: white;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      border-left: 4px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    #sidebar nav a.active,
+    #sidebar nav a:hover {
+      background: #003d80;
+      border-left-color: #ffd54f;
+    }
+    main {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+    footer {
+      text-align: center;
+      background: #f1f5f9;
+      color: #555;
+      padding: 1rem 2rem;
+      border-top: 1px solid #ddd;
+    }
+    label {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    select {
+      padding: 8px 10px;
+      width: 300px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 1rem;
+    }
+    button {
+      cursor: pointer;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background: #007bff;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 8px 6px;
+      border: 1px solid #444;
+    }
+    /* Jina la mwanafunzi, single line no wrap, truncate with ellipsis */
+    th.name-col, td.name-col {
+      text-align: left;
+      max-width: 280px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-left: 12px;
+    }
+    /* Rotate headers for specific columns */
+    th.vertical-header {
+      height: 140px;
+      white-space: nowrap;
+      padding: 5px 3px;
+      vertical-align: bottom;
+      position: relative;
+    }
+    th.vertical-header > div {
+      transform: rotate(-90deg);
+      transform-origin: bottom left;
+      position: absolute;
+      bottom: 8px;
+      left: 5px;
+      white-space: nowrap;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    /* Body cells for these columns */
+    td.vertical-cell {
+      white-space: nowrap;
+    }
+
+    /* Adjust column widths */
+    th.name-col {
+      width: 280px;
+    }
+    th.gender-col {
+      width: 60px;
+    }
+    th.subject-col {
+      width: 55px;
+    }
+    th.total-col, th.avg-col, th.grade-col, th.rank-col {
+      width: 70px;
+    }
+
+    /* Grade colors */
+    .grade-A { background-color: #d4edda; }
+    .grade-B { background-color: #fff3cd; }
+    .grade-C { background-color: #f8d7da; }
+    .grade-D { background-color: #f5f5f5; }
+
+    #loaderOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.8);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #loaderOverlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #007bff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% {transform: rotate(0deg);}
+      100% {transform: rotate(360deg);}
+    }
+    #msg {
+      margin-top: 1rem;
+      font-weight: 600;
+      color: red;
+      text-align: center;
+    }
+    #openSettings, #printBtn {
+      background: #ffc107;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    /* Popup styles */
+    #settingsPopup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    #settingsPopup .popup {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+    }
+    #settingsPopup input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    #settingsPopup button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      margin-right: 10px;
+    }
+    #saveSettings { background: #007bff; }
+    #closeSettings { background: #6c757d; }
+
+    /* Print Styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printArea, #printArea * {
+        visibility: visible;
+      }
+      #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white;
+        padding: 1rem;
+      }
+      #printArea table {
+        font-size: 12pt;
+      }
+      #printHeader {
+        margin-bottom: 1rem;
+        text-align: center;
+        font-weight: 700;
+      }
+      /* Rotate headers reset for print */
+      th.vertical-header > div {
+        transform: rotate(0);
+        position: static;
+        white-space: normal;
+        font-size: 10pt;
+      }
+      th.vertical-header {
+        height: auto;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1><i class="fa-solid fa-table-list"></i> Matokeo ya Darasa</h1>
+  <button id="btnLogout" style="background:#dc3545; color:#fff; border:none; padding:0.5rem 1rem; border-radius:5px; cursor:pointer;">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout
+  </button>
+</header>
+<div style="display: flex; min-height: 80vh;">
+  <aside id="sidebar">
+    <nav>
+      <a href="school-dashboard.html"><i class="fa-solid fa-house"></i> Nyumbani</a>
+      <a href="register-students.html"><i class="fa-solid fa-user-graduate"></i> Wanafunzi</a>
+      <a href="register-subjects.html"><i class="fa-solid fa-book"></i> Masomo</a>
+      <a href="register-classes.html"><i class="fa-solid fa-chalkboard"></i> Madarasa</a>
+      <a href="enter-results.html"><i class="fa-solid fa-pen-to-square"></i> Ingiza Matokeo</a>
+      <a href="view-results.html" class="active"><i class="fa-solid fa-eye"></i> Tazama Matokeo</a>
+    </nav>
+  </aside>
+  <main>
+    <button id="openSettings"><i class="fa-solid fa-gear"></i> Mpangilio</button>
+    <button id="printBtn"><i class="fa-solid fa-print"></i> Chapisha Matokeo</button>
+
+    <label for="classSelect">Chagua Darasa</label>
+    <select id="classSelect"><option value="">-- Chagua Darasa --</option></select>
+
+    <label for="termSelect">Chagua Kipindi (Term)</label>
+    <select id="termSelect">
+      <option value="">-- Chagua Kipindi --</option>
+      <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+      <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+      <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+      <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+      <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+      <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+      <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+      <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+    </select>
+
+    <div id="msg"></div>
+    <div style="overflow-x:auto;">
+      <table id="resultsTable" style="display:none;">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+<footer>&copy; 2025 SmartResult. Haki zote zimehifadhiwa.</footer>
+<div id="loaderOverlay"><div class="loader"></div></div>
+
+<!-- Settings Popup -->
+<div id="settingsPopup">
+  <div class="popup">
+    <h3><i class="fa-solid fa-sliders"></i> Mpangilio wa Taarifa</h3>
+    <label>Jina la Halmashauri</label>
+    <input type="text" id="councilInput" placeholder="Andika Jina la Halmashauri" />
+    <label>Jina la Kata</label>
+    <input type="text" id="wardInput" placeholder="Andika Jina la Kata" />
+    <label>Jina la Shule</label>
+    <input type="text" id="schoolInput" placeholder="Andika Jina la Shule" />
+    <label>Kichwa cha Matokeo</label>
+    <input type="text" id="titleInput" placeholder="Andika Kichwa cha Matokeo" />
+    <div style="margin-top:10px;">
+      <button id="saveSettings">Hifadhi</button>
+      <button id="closeSettings">Funga</button>
+      <div id="settingSaved" style="color:green; margin-top:10px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Print area hidden, dynamically filled -->
+<div id="printArea" style="display:none;">
+  <div id="printHeader" style="margin-bottom:1rem; text-align:center; font-weight:bold; font-size:18px;"></div>
+  <table id="printTable" style="border-collapse: collapse; width: 100%; font-size: 12pt;">
+    <thead id="printTableHead"></thead>
+    <tbody id="printTableBody"></tbody>
+  </table>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import {
+    getFirestore, collection, query, where, getDocs
+  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const classSelect = document.getElementById('classSelect');
+  const termSelect = document.getElementById('termSelect');
+  const msg = document.getElementById('msg');
+  const resultsTable = document.getElementById('resultsTable');
+  const tableHead = document.getElementById('tableHead');
+  const tableBody = document.getElementById('tableBody');
+  const loaderOverlay = document.getElementById('loaderOverlay');
+  const btnLogout = document.getElementById('btnLogout');
+
+  const openSettingsBtn = document.getElementById("openSettings");
+  const settingsPopup = document.getElementById("settingsPopup");
+  const closeSettingsBtn = document.getElementById("closeSettings");
+  const saveSettingsBtn = document.getElementById("saveSettings");
+
+  const councilInput = document.getElementById("councilInput");
+  const wardInput = document.getElementById("wardInput");
+  const schoolInput = document.getElementById("schoolInput");
+  const titleInput = document.getElementById("titleInput");
+  const settingSaved = document.getElementById("settingSaved");
+
+  const printBtn = document.getElementById("printBtn");
+  const printArea = document.getElementById("printArea");
+  const printHeader = document.getElementById("printHeader");
+  const printTableHead = document.getElementById("printTableHead");
+  const printTableBody = document.getElementById("printTableBody");
+
+  let currentUser = null;
+  let subjectsMap = {};
+
+  function showLoader() { loaderOverlay.classList.add('active'); }
+  function hideLoader() { loaderOverlay.classList.remove('active'); }
+  function getGrade(avg) {
+    if (avg >= 80) return 'A';
+    if (avg >= 65) return 'B';
+    if (avg >= 50) return 'C';
+    return 'D';
+  }
+
+  async function loadSubjectsByClass(classId) {
+    subjectsMap = {};
+    const q = query(collection(db, 'subjects'), where('uid', '==', currentUser.uid), where('classId', '==', classId));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(doc => {
+      subjectsMap[doc.id] = doc.data().name;
+    });
+  }
+
+  async function loadAvailableClassesFromResults() {
+    classSelect.innerHTML = '<option value="">-- Chagua Darasa --</option>';
+    const resultsQuery = query(collection(db, 'results'), where('uid', '==', currentUser.uid));
+    const resultsSnap = await getDocs(resultsQuery);
+    const classIds = new Set();
+    resultsSnap.forEach(doc => classIds.add(doc.data().classId));
+    const classQuery = query(collection(db, 'classes'), where('uid', '==', currentUser.uid));
+    const classSnap = await getDocs(classQuery);
+    const classMap = {};
+    classSnap.forEach(doc => classMap[doc.id] = doc.data().name);
+    classIds.forEach(id => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = classMap[id] || id;
+      classSelect.appendChild(option);
+    });
+    msg.textContent = classIds.size === 0 ? "Hakuna madarasa yenye matokeo." : "";
+  }
+
+  async function loadResults(classId, term) {
+    msg.textContent = '';
+    resultsTable.style.display = 'none';
+    tableHead.innerHTML = '';
+    tableBody.innerHTML = '';
+    if (!classId) return;
+    if (!term) { msg.textContent = "Tafadhali chagua Kipindi (Term)."; return; }
+
+    showLoader();
+    await loadSubjectsByClass(classId);
+
+    const resultsQuery = query(
+      collection(db, 'results'),
+      where('uid', '==', currentUser.uid),
+      where('classId', '==', classId),
+      where('term', '==', term)
+    );
+
+    const resultsSnap = await getDocs(resultsQuery);
+
+    if (resultsSnap.empty) {
+      msg.textContent = "Hakuna matokeo kwa darasa hili na kipindi ulivyotaja.";
+      hideLoader();
+      return;
+    }
+
+    const studentsQuery = query(collection(db, 'students'), where('uid', '==', currentUser.uid), where('classId', '==', classId));
+    const studentsSnap = await getDocs(studentsQuery);
+    const studentsMap = {};
+    studentsSnap.forEach(doc => studentsMap[doc.id] = doc.data().name);
+    // Also gender for student
+    const genderMap = {};
+    studentsSnap.forEach(doc => genderMap[doc.id] = doc.data().gender || '');
+
+    const subjectIds = Object.keys(subjectsMap);
+    let headHtml = `<tr>
+      <th>S/N</th>
+      <th class="name-col">Jina la Mwanafunzi</th>
+      <th class="gender-col vertical-header"><div>JINSI</div></th>`;
+    subjectIds.forEach(id => {
+      headHtml += `<th class="subject-col vertical-header"><div>${subjectsMap[id]}</div></th>`;
+    });
+    headHtml += `
+      <th class="total-col vertical-header"><div>JUMLA</div></th>
+      <th class="avg-col vertical-header"><div>WASTANI</div></th>
+      <th class="grade-col vertical-header"><div>GRADE</div></th>
+      <th class="rank-col vertical-header"><div>NAFASI</div></th>
+    </tr>`;
+    tableHead.innerHTML = headHtml;
+
+    const data = [];
+    resultsSnap.forEach(doc => {
+      const r = doc.data();
+      let total = 0;
+      let count = 0;
+      subjectIds.forEach(id => {
+        if (r.results && r.results[id] !== undefined) {
+          total += r.results[id];
+          count++;
+        }
+      });
+      const avg = count > 0 ? total / count : 0;
+      const grade = getGrade(avg);
+      data.push({
+        name: studentsMap[r.studentId] || 'Haijulikani',
+        gender: genderMap[r.studentId] || '',
+        results: r.results || {},
+        total,
+        avg,
+        grade
+      });
+    });
+
+    data.sort((a, b) => b.total - a.total);
+    tableBody.innerHTML = ''; // Clear before filling
+    data.forEach((row, i) => {
+      let rowHtml = `<tr>
+        <td>${i + 1}</td>
+        <td class="name-col" title="${row.name}">${row.name}</td>
+        <td class="gender-col vertical-cell">${row.gender}</td>`;
+      subjectIds.forEach(id => {
+        rowHtml += `<td class="subject-col vertical-cell">${row.results[id] !== undefined ? row.results[id] : '-'}</td>`;
+      });
+      rowHtml += `<td class="total-col vertical-cell">${row.total}</td>
+        <td class="avg-col vertical-cell">${row.avg.toFixed(2)}</td>
+        <td class="grade-col vertical-cell grade-${row.grade}">${row.grade}</td>
+        <td class="rank-col vertical-cell">${i + 1}</td>
+      </tr>`;
+      tableBody.innerHTML += rowHtml;
+    });
+
+    resultsTable.style.display = 'table';
+    hideLoader();
+  }
+
+  onAuthStateChanged(auth, user => {
+    if (!user) { location.href = 'index.html'; return; }
+    currentUser = user;
+    loadAvailableClassesFromResults();
+  });
+
+  [classSelect, termSelect].forEach(select => {
+    select.addEventListener('change', () => {
+      loadResults(classSelect.value, termSelect.value);
+    });
+  });
+
+  btnLogout.onclick = async () => {
+    await signOut(auth);
+    location.href = 'index.html';
+  };
+
+  // Settings popup logic
+  openSettingsBtn.onclick = () => {
+    councilInput.value = localStorage.getItem("council") || "";
+    wardInput.value = localStorage.getItem("ward") || "";
+    schoolInput.value = localStorage.getItem("school") || "";
+    titleInput.value = localStorage.getItem("title") || "";
+    settingSaved.textContent = "";
+    settingsPopup.style.display = "flex";
+  };
+
+  closeSettingsBtn.onclick = () => {
+    settingsPopup.style.display = "none";
+  };
+
+  saveSettingsBtn.onclick = () => {
+    localStorage.setItem("council", councilInput.value);
+    localStorage.setItem("ward", wardInput.value);
+    localStorage.setItem("school", schoolInput.value);
+    localStorage.setItem("title", titleInput.value);
+    settingSaved.textContent = "✅ Taarifa zimehifadhiwa!";
+  };
+
+  // Print functionality
+  printBtn.onclick = () => {
+    if (!resultsTable.style.display || resultsTable.style.display === "none") {
+      alert("Tafadhali chagua darasa na kipindi ili kuona matokeo kabla ya kuchapisha.");
+      return;
+    }
+    // Create header for print
+    const council = localStorage.getItem("council") || "";
+    const ward = localStorage.getItem("ward") || "";
+    const school = localStorage.getItem("school") || "";
+    const title = localStorage.getItem("title") || "";
+
+    let headerHtml = "";
+    if (council) headerHtml += `<div>${council}</div>`;
+    if (ward) headerHtml += `<div>${ward}</div>`;
+    if (school) headerHtml += `<div>${school}</div>`;
+    if (title) headerHtml += `<div style="font-weight: bold; margin-top: 10px; font-size: 1.2em;">${title}</div>`;
+
+    printHeader.innerHTML = headerHtml;
+
+    // Copy thead and tbody content from resultsTable to printTable
+    printTableHead.innerHTML = tableHead.innerHTML;
+    printTableBody.innerHTML = tableBody.innerHTML;
+
+    printArea.style.display = "block";
+    window.print();
+    printArea.style.display = "none";
+  };
+</script>
+</body>
+</html>
