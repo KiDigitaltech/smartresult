@@ -6,7 +6,6 @@
   <title>Sajili Wanafunzi - SmartResult</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
-    /* Style kama nilivyosema awali */
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #eef6ff; color: #333; display: flex; min-height: 100vh; flex-direction: column; }
     header { background: #007bff; color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -46,6 +45,58 @@
       #sidebar nav a { flex-grow: 1; padding: 1rem 0; text-align: center; border-left: none; border-bottom: 3px solid transparent; justify-content: center; }
       #sidebar nav a:hover, #sidebar nav a.active { border-bottom-color: #ffd54f; background: #004a99; }
       main { padding: 1rem; max-width: 100%; margin: 0; }
+    }
+
+    /* Popup Styles */
+    #popupMessage {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 250px;
+      max-width: 320px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+    }
+    #popupMessage.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    #popupMessage .icon {
+      font-size: 20px;
+    }
+    #popupMessage.success {
+      background-color: #28a745;
+    }
+    #popupMessage.error {
+      background-color: #dc3545;
+    }
+    #popupMessage.info {
+      background-color: #17a2b8;
+    }
+    #popupMessage.warning {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    #popupMessage .closeBtn {
+      margin-left: auto;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 1;
     }
   </style>
 </head>
@@ -128,9 +179,16 @@
   &copy; 2025 SmartResult. Haki zote zimehifadhiwa.
 </footer>
 
-<!-- Loader -->
+<!-- Loader Overlay -->
 <div id="loaderOverlay">
   <div class="loader"></div>
+</div>
+
+<!-- Popup Message -->
+<div id="popupMessage">
+  <i class="icon"></i>
+  <span id="popupText"></span>
+  <span class="closeBtn" title="Funga">&times;</span>
 </div>
 
 <!-- Edit Popup -->
@@ -161,399 +219,360 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-  import { 
-    getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, updateDoc 
-  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
-    authDomain: "smartresult-6c09c.firebaseapp.com",
-    projectId: "smartresult-6c09c"
-  };
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+  authDomain: "smartresult-6c09c.firebaseapp.com",
+  projectId: "smartresult-6c09c",
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+let currentUser = null;
+let schoolId = null;
 
-  // Elements
-  const btnLogout = document.getElementById('btnLogout');
-  const studentForm = document.getElementById('studentForm');
-  const studentName = document.getElementById('studentName');
-  const gender = document.getElementById('gender');
-  const classSelect = document.getElementById('classSelect');
-  const msg = document.getElementById('msg');
-  const loaderOverlay = document.getElementById('loaderOverlay');
-  const studentsTableBody = document.querySelector('#studentsTable tbody');
-  const filterClass = document.getElementById('filterClass');
+// HTML Elements
+const studentForm = document.getElementById("studentForm");
+const studentName = document.getElementById("studentName");
+const gender = document.getElementById("gender");
+const classSelect = document.getElementById("classSelect");
+const msg = document.getElementById("msg");
+const loaderOverlay = document.getElementById("loaderOverlay");
+const studentsTableBody = document.querySelector("#studentsTable tbody");
+const filterClass = document.getElementById("filterClass");
+const uploadForm = document.getElementById("uploadForm");
+const excelFile = document.getElementById("excelFile");
+const uploadMsg = document.getElementById("uploadMsg");
 
-  const uploadForm = document.getElementById('uploadForm');
-  const excelFile = document.getElementById('excelFile');
-  const uploadMsg = document.getElementById('uploadMsg');
+const popupMessage = document.getElementById("popupMessage");
+const popupText = document.getElementById("popupText");
+const popupIcon = popupMessage.querySelector(".icon");
+const popupCloseBtn = popupMessage.querySelector(".closeBtn");
 
-  // Edit popup elements
-  const editPopup = document.getElementById('editPopup');
-  const editForm = document.getElementById('editForm');
-  const editStudentName = document.getElementById('editStudentName');
-  const editGender = document.getElementById('editGender');
-  const editClassSelect = document.getElementById('editClassSelect');
+let classesMap = {};
+let editingStudentId = null;
 
-  let currentUser = null;
-  let editStudentId = null;
+// Show loader
+function showLoader() {
+  loaderOverlay.classList.add("active");
+}
+// Hide loader
+function hideLoader() {
+  loaderOverlay.classList.remove("active");
+}
 
-  function showLoader() {
-    loaderOverlay.classList.add('active');
+// Show popup message
+// types: success, error, info, warning
+function showPopup(text, type = "info") {
+  popupText.textContent = text;
+  popupMessage.className = ""; // reset classes
+  popupMessage.classList.add(type, "show");
+
+  // Set icon based on type
+  let iconClass = "";
+  switch(type) {
+    case "success": iconClass = "fa-solid fa-circle-check"; break;
+    case "error": iconClass = "fa-solid fa-circle-xmark"; break;
+    case "info": iconClass = "fa-solid fa-info-circle"; break;
+    case "warning": iconClass = "fa-solid fa-triangle-exclamation"; break;
+    default: iconClass = "fa-solid fa-info-circle";
   }
-  function hideLoader() {
-    loaderOverlay.classList.remove('active');
-  }
-  function showMsg(text, color = 'green') {
-    msg.textContent = text;
-    msg.style.color = color;
-    setTimeout(() => {
-      msg.textContent = '';
-    }, 4000);
-  }
-  function showUploadMsg(text, color = 'green') {
-    uploadMsg.textContent = text;
-    uploadMsg.style.color = color;
-    setTimeout(() => {
-      uploadMsg.textContent = '';
-    }, 4000);
-  }
+  popupIcon.className = `icon fa ${iconClass}`;
 
-  // Load madarasa ya user
-  async function loadClasses() {
-    classSelect.innerHTML = '<option value="">-- Chagua darasa --</option>';
-    filterClass.innerHTML = '<option value="">-- Chagua darasa --</option>';
-    editClassSelect.innerHTML = '<option value="">-- Chagua darasa --</option>';
+  // Auto hide after 4 seconds
+  clearTimeout(popupMessage._timeout);
+  popupMessage._timeout = setTimeout(() => {
+    popupMessage.classList.remove("show");
+  }, 4000);
+}
+popupCloseBtn.addEventListener("click", () => {
+  popupMessage.classList.remove("show");
+});
 
-    if (!currentUser) return;
+// Load classes for selects
+async function loadClasses() {
+  classSelect.innerHTML = '<option value="">-- Chagua darasa --</option>';
+  filterClass.innerHTML = '<option value="">-- Chagua darasa --</option>';
+  editClassSelect.innerHTML = '<option value="">-- Chagua darasa --</option>';
 
-    const q = query(collection(db, 'classes'), where('uid', '==', currentUser.uid));
-    const snapshot = await getDocs(q);
-    snapshot.forEach(docSnap => {
-      const cls = docSnap.data();
-      const option = `<option value="${docSnap.id}">${cls.name}</option>`;
-      classSelect.insertAdjacentHTML('beforeend', option);
-      filterClass.insertAdjacentHTML('beforeend', option);
-      editClassSelect.insertAdjacentHTML('beforeend', option);
-    });
-    await refreshClassesMap();
-  }
-
-  // Map ya darasa id kwenda jina
-  let classesMap = {};
-  async function refreshClassesMap() {
-    classesMap = {};
-    if (!currentUser) return;
-    const q = query(collection(db, 'classes'), where('uid', '==', currentUser.uid));
-    const snapshot = await getDocs(q);
-    snapshot.forEach(docSnap => {
-      classesMap[docSnap.id] = docSnap.data().name;
-    });
-  }
-
-  function getClassNameById(id) {
-    return classesMap[id] || 'Unknown';
-  }
-
-  // Load wanafunzi wa user, optionally filter by darasa
-  async function loadStudents(classId = '') {
-    studentsTableBody.innerHTML = '';
-    showLoader();
-    if (!currentUser) return;
-
-    let q = query(collection(db, 'students'), where('uid', '==', currentUser.uid));
-    if (classId) {
-      q = query(collection(db, 'students'), 
-        where('uid', '==', currentUser.uid),
-        where('classId', '==', classId)
-      );
-    }
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      studentsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">Hakuna mwanafunzi</td></tr>`;
-      hideLoader();
-      return;
-    }
-
-    snapshot.forEach(docSnap => {
-      const s = docSnap.data();
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${s.name}</td>
-        <td>${s.gender}</td>
-        <td>${getClassNameById(s.classId)}</td>
-        <td class="actions">
-          <i class="fa fa-edit" title="Hariri" style="color:#28a745;" onclick="openEdit('${docSnap.id}')"></i>
-          <i class="fa fa-trash delete" title="Futa" onclick="deleteStudent('${docSnap.id}')"></i>
-        </td>
-      `;
-      studentsTableBody.appendChild(tr);
-    });
-    hideLoader();
-  }
-
-  // Check duplicate student by name + classId + uid
-  async function isDuplicateStudent(name, classId) {
-    if (!currentUser) return false;
-    const q = query(collection(db, 'students'),
-      where('uid', '==', currentUser.uid),
-      where('name', '==', name),
-      where('classId', '==', classId)
-    );
-    const snap = await getDocs(q);
-    return !snap.empty;
-  }
-
-  // Sajili mwanafunzi mpya
-  studentForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    const nameVal = studentName.value.trim();
-    const genderVal = gender.value;
-    const classVal = classSelect.value;
-
-    if (!nameVal || !genderVal || !classVal) {
-      showMsg('Tafadhali jaza taarifa zote.', 'red');
-      return;
-    }
-
-    showLoader();
-
-    // Angalia duplicate
-    if (await isDuplicateStudent(nameVal, classVal)) {
-      showMsg('Mwanafunzi huyu tayari yupo darasani hapo.', 'red');
-      hideLoader();
-      return;
-    }
-
-    try {
-      await addDoc(collection(db, 'students'), {
-        uid: currentUser.uid,
-        name: nameVal,
-        gender: genderVal,
-        classId: classVal,
-        createdAt: new Date()
-      });
-      showMsg('Mwanafunzi amesajiliwa kwa mafanikio!');
-      studentForm.reset();
-      loadStudents(filterClass.value);
-    } catch (error) {
-      console.error(error);
-      showMsg('Imeshindikana kusajili mwanafunzi.', 'red');
-    }
-    hideLoader();
+  const q = query(collection(db, "classes"), where("schoolId", "==", schoolId));
+  const snapshot = await getDocs(q);
+  snapshot.forEach((docSnap) => {
+    const cls = docSnap.data();
+    const option = `<option value="${docSnap.id}">${cls.name}</option>`;
+    classSelect.insertAdjacentHTML("beforeend", option);
+    filterClass.insertAdjacentHTML("beforeend", option);
+    editClassSelect.insertAdjacentHTML("beforeend", option);
+    classesMap[docSnap.id] = cls.name;
   });
+}
 
-  // Delete student
-  window.deleteStudent = async function(id) {
-    if (!confirm('Una uhakika unataka kufuta mwanafunzi huyu?')) return;
-    showLoader();
-    try {
-      await deleteDoc(doc(db, 'students', id));
-      showMsg('Mwanafunzi amefutwa.');
-      loadStudents(filterClass.value);
-    } catch (error) {
-      console.error(error);
-      showMsg('Imeshindikana kufuta mwanafunzi.', 'red');
-    }
+// Load students
+async function loadStudents(classId = "") {
+  studentsTableBody.innerHTML = "";
+  showLoader();
+  let q = query(collection(db, "students"), where("schoolId", "==", schoolId));
+  if (classId) {
+    q = query(
+      collection(db, "students"),
+      where("schoolId", "==", schoolId),
+      where("classId", "==", classId)
+    );
+  }
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) {
+    studentsTableBody.innerHTML =
+      '<tr><td colspan="4" style="text-align:center; color:#888;">Hakuna mwanafunzi</td></tr>';
     hideLoader();
-  };
+    return;
+  }
 
-  // Edit popup functions
-  window.openEdit = async function(id) {
-    editStudentId = id;
-    showLoader();
-    try {
-      const docSnap = await getDocs(query(collection(db, 'students'), where('__name__', '==', id)));
-      const sDoc = doc(db, 'students', id);
-      const sDataSnap = await sDoc.get();
-      // Better way:
-      const sDocSnap = await sDoc.get ? await sDoc.get() : null;
-      // Instead, just getDoc:
-      // We'll use getDoc instead
-      import("https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js").then(({getDoc})=>{
-        getDoc(doc(db,'students',id)).then(docSnap=>{
-          if(docSnap.exists()){
-            const s=docSnap.data();
-            editStudentName.value = s.name;
-            editGender.value = s.gender;
-            editClassSelect.value = s.classId;
-            editPopup.style.display = 'flex';
-          }else{
-            alert('Mwanafunzi haipo.');
-          }
-          hideLoader();
+  snapshot.forEach((docSnap) => {
+    const s = docSnap.data();
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${s.name}</td>
+      <td>${s.gender}</td>
+      <td>${classesMap[s.classId] || "?"}</td>
+      <td class="actions">
+        <i class="fa fa-edit" onclick="openEdit('${docSnap.id}')" title="Hariri" style="color:#28a745;"></i>
+        <i class="fa fa-trash delete" onclick="deleteStudent('${docSnap.id}')" title="Futa"></i>
+      </td>
+    `;
+    studentsTableBody.appendChild(tr);
+  });
+  hideLoader();
+}
+
+// Check duplicate
+async function isDuplicateStudent(name, classId) {
+  const q = query(
+    collection(db, "students"),
+    where("schoolId", "==", schoolId),
+    where("name", "==", name),
+    where("classId", "==", classId)
+  );
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
+// Submit new student
+studentForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nameVal = studentName.value.trim();
+  const genderVal = gender.value;
+  const classVal = classSelect.value;
+
+  if (!nameVal || !genderVal || !classVal) {
+    showPopup("Tafadhali jaza taarifa zote", "warning");
+    return;
+  }
+
+  showLoader();
+
+  if (await isDuplicateStudent(nameVal, classVal)) {
+    showPopup("Mwanafunzi huyu tayari yupo.", "error");
+    hideLoader();
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "students"), {
+      name: nameVal,
+      gender: genderVal,
+      classId: classVal,
+      schoolId: schoolId,
+      createdAt: new Date(),
+    });
+    showPopup("Mwanafunzi ameongezwa!", "success");
+    studentForm.reset();
+    loadStudents(filterClass.value);
+  } catch (err) {
+    console.error(err);
+    showPopup("Kosa la kusajili.", "error");
+  }
+  hideLoader();
+});
+
+// Delete student
+window.deleteStudent = async function (id) {
+  if (!confirm("Una uhakika unataka kufuta mwanafunzi huyu?")) return;
+  showLoader();
+  try {
+    await deleteDoc(doc(db, "students", id));
+    showPopup("Mwanafunzi amefutwa.", "success");
+    loadStudents(filterClass.value);
+  } catch (err) {
+    console.error(err);
+    showPopup("Imeshindikana kufuta.", "error");
+  }
+  hideLoader();
+};
+
+// Upload Excel
+uploadForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = excelFile.files[0];
+  if (!file) return showPopup("Chagua faili la Excel", "warning");
+
+  showLoader();
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    let added = 0, skipped = 0;
+
+    const classNameToId = {};
+    for (const id in classesMap) {
+      classNameToId[classesMap[id].toLowerCase()] = id;
+    }
+
+    for (const row of jsonData) {
+      const nameVal = row.name?.trim();
+      const genderVal = row.gender?.trim();
+      const classNameVal = row.class?.trim().toLowerCase();
+      const classId = classNameToId[classNameVal];
+
+      if (!nameVal || !genderVal || !classId) {
+        skipped++;
+        continue;
+      }
+
+      if (await isDuplicateStudent(nameVal, classId)) {
+        skipped++;
+        continue;
+      }
+
+      try {
+        await addDoc(collection(db, "students"), {
+          name: nameVal,
+          gender: genderVal,
+          classId,
+          schoolId,
+          createdAt: new Date(),
         });
-      });
-    } catch (error) {
-      console.error(error);
-      hideLoader();
-      alert('Imeshindikana kupakia taarifa za mwanafunzi.');
-    }
-  };
-
-  editForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    const nameVal = editStudentName.value.trim();
-    const genderVal = editGender.value;
-    const classVal = editClassSelect.value;
-
-    if (!nameVal || !genderVal || !classVal) {
-      alert('Tafadhali jaza taarifa zote.');
-      return;
+        added++;
+      } catch {
+        skipped++;
+      }
     }
 
-    showLoader();
-
-    // Angalia duplicate isipokuwa yeye mwenyewe
-    const q = query(collection(db, 'students'),
-      where('uid', '==', currentUser.uid),
-      where('name', '==', nameVal),
-      where('classId', '==', classVal)
-    );
-    const snap = await getDocs(q);
-
-    const duplicates = snap.docs.filter(doc => doc.id !== editStudentId);
-    if (duplicates.length > 0) {
-      alert('Mwanafunzi huyu tayari yupo darasani hapo.');
-      hideLoader();
-      return;
-    }
-
-    try {
-      const sDocRef = doc(db, 'students', editStudentId);
-      await updateDoc(sDocRef, {
-        name: nameVal,
-        gender: genderVal,
-        classId: classVal
-      });
-      showMsg('Mwanafunzi amesasishwa.');
-      editPopup.style.display = 'none';
-      loadStudents(filterClass.value);
-    } catch (error) {
-      console.error(error);
-      alert('Imeshindikana kusasisha mwanafunzi.');
-    }
+    showPopup(`${added} wameongezwa, ${skipped} wamerukwa.`, "success");
+    excelFile.value = "";
+    loadStudents(filterClass.value);
     hideLoader();
-  });
+  };
+  reader.readAsArrayBuffer(file);
+});
 
-  // Close popup on click outside form
-  editPopup.addEventListener('click', e => {
-    if (e.target === editPopup) {
-      editPopup.style.display = 'none';
-    }
-  });
+// Filter by class
+filterClass.addEventListener("change", (e) => {
+  loadStudents(e.target.value);
+});
 
-  // Filter students by class
-  filterClass.addEventListener('change', e => {
-    loadStudents(e.target.value);
-  });
-
-  // Upload Excel and parse
-  uploadForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const file = excelFile.files[0];
-    if (!file) {
-      showUploadMsg('Tafadhali chagua faili la Excel.', 'red');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, {type: 'array'});
-
-      // Assume first sheet contains data
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-
-      // Convert sheet to JSON
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ''});
-
-      if (jsonData.length === 0) {
-        showUploadMsg('Hakuna data katika Excel.', 'red');
-        return;
-      }
-
-      // Check required columns: name, gender, class
-      const requiredCols = ['name', 'gender', 'class'];
-      const missingCols = requiredCols.filter(c => !Object.keys(jsonData[0]).map(k=>k.toLowerCase()).includes(c));
-      if (missingCols.length > 0) {
-        showUploadMsg('Excel haijajumuisha safu za: ' + missingCols.join(', '), 'red');
-        return;
-      }
-
-      showLoader();
-      let addedCount = 0;
-      let skippedCount = 0;
-
-      // Map madarasa to IDs for user
-      const classNameToId = {};
-      for (const id in classesMap) {
-        classNameToId[classesMap[id].toLowerCase()] = id;
-      }
-
-      for (const row of jsonData) {
-        const nameVal = (row.name || '').trim();
-        const genderVal = (row.gender || '').trim();
-        const classNameVal = (row.class || '').trim();
-
-        if (!nameVal || !genderVal || !classNameVal) {
-          skippedCount++;
-          continue;
-        }
-
-        const classId = classNameToId[classNameVal.toLowerCase()];
-        if (!classId) {
-          skippedCount++;
-          continue; // darasa halipo kwa user huyu
-        }
-
-        // Check duplicate
-        if (await isDuplicateStudent(nameVal, classId)) {
-          skippedCount++;
-          continue;
-        }
-
-        try {
-          await addDoc(collection(db, 'students'), {
-            uid: currentUser.uid,
-            name: nameVal,
-            gender: genderVal,
-            classId: classId,
-            createdAt: new Date()
-          });
-          addedCount++;
-        } catch {
-          skippedCount++;
-        }
-      }
-      hideLoader();
-      showUploadMsg(`Wanafunzi ${addedCount} waliongezwa, ${skippedCount} walirudishwa (duplicate/invalid).`);
-      excelFile.value = '';
-      loadStudents(filterClass.value);
-    };
-
-    reader.readAsArrayBuffer(file);
-  });
-
-  // Check authentication
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      currentUser = user;
-      loadClasses().then(() => loadStudents());
+// Auth state check
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists()) {
+      schoolId = userDoc.data().schoolId;
+      await loadClasses();
+      await loadStudents();
     } else {
-      location.href = 'login.html';
+      alert("Taarifa za mtumiaji hazijapatikana.");
+      location.href = "login.html";
     }
-  });
+  } else {
+    location.href = "login.html";
+  }
+});
 
-  btnLogout.addEventListener('click', () => {
-    signOut(auth);
-  });
+// Logout
+document.getElementById("btnLogout").addEventListener("click", () => {
+  signOut(auth);
+});
+
+// EDIT functionality (optional enhancement)
+const editPopup = document.getElementById("editPopup");
+const editForm = document.getElementById("editForm");
+const editStudentName = document.getElementById("editStudentName");
+const editGender = document.getElementById("editGender");
+const editClassSelect = document.getElementById("editClassSelect");
+
+window.openEdit = async function(id) {
+  editingStudentId = id;
+  showLoader();
+  const docSnap = await getDoc(doc(db, "students", id));
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    editStudentName.value = data.name;
+    editGender.value = data.gender;
+    editClassSelect.value = data.classId;
+    editPopup.style.display = "flex";
+  } else {
+    showPopup("Mwanafunzi haipo", "error");
+  }
+  hideLoader();
+};
+
+editForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nameVal = editStudentName.value.trim();
+  const genderVal = editGender.value;
+  const classVal = editClassSelect.value;
+
+  if (!nameVal || !genderVal || !classVal) {
+    showPopup("Tafadhali jaza taarifa zote", "warning");
+    return;
+  }
+
+  showLoader();
+  try {
+    await updateDoc(doc(db, "students", editingStudentId), {
+      name: nameVal,
+      gender: genderVal,
+      classId: classVal,
+    });
+    showPopup("Mabadiliko yametunzwa", "success");
+    editPopup.style.display = "none";
+    loadStudents(filterClass.value);
+  } catch {
+    showPopup("Kosa la kuhifadhi mabadiliko", "error");
+  }
+  hideLoader();
+});
+
+// Close edit popup on click outside popup content
+editPopup.addEventListener("click", (e) => {
+  if (e.target === editPopup) {
+    editPopup.style.display = "none";
+  }
+});
 </script>
 
 </body>
