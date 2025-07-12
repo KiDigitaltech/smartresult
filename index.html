@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Karibu - SmartResult</title>
+  <title>Shule Login - SmartResult</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * {
@@ -137,7 +137,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Karibu Mwalimu!</h2>
+    <h2>Login ya Shule</h2>
     <p class="description">Tafadhali ingiza barua pepe na nenosiri ulilosajiliwa.</p>
     <input type="email" id="email" placeholder="Barua Pepe" required />
     <input type="password" id="password" placeholder="Nenosiri" required />
@@ -164,9 +164,9 @@
 
     <div class="help-desk">
       <strong>Help Desk / Msaada:</strong>
-      <span>Simu: +255 717 173 853</span>
-      <span>Email: marikiisaak@gmail.com</span>
-      <span>WhatsApp: +255 717 173 853</span>
+      <span>Simu: +255 712 345 678</span>
+      <span>Email: support@smartresult.co.tz</span>
+      <span>WhatsApp: +255 789 123 456</span>
     </div>
   </div>
 
@@ -241,7 +241,7 @@
       }
 
       const data = docSnap.data();
-      if (data.role === "school") {
+      if (data.role === "headTeacher") {
         window.location.href = "school-dashboard.html";
       } else {
         msg.textContent = "Huna ruhusa ya kuingia hapa.";
