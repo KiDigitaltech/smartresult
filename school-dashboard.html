@@ -6,543 +6,176 @@
   <title>SmartResult - School Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
-    * { box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      background: #eef6ff;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f8ff;
       color: #333;
       display: flex;
-      min-height: 100vh;
       flex-direction: column;
+      min-height: 100vh;
     }
     header {
       background: #007bff;
       color: white;
-      padding: 1rem 2rem;
+      padding: 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       position: sticky;
       top: 0;
-      z-index: 1100;
+      z-index: 1000;
     }
     header h1 {
-      margin: 0; 
-      font-size: 1.5rem; 
-      user-select: none;
+      margin: 0;
+      font-size: 1.3rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      flex-grow: 1;
     }
-
-    /* Toggle button for sidebar */
     #btnToggleSidebar {
-      background:none; 
-      border:none; 
-      color:white; 
-      font-size:1.6rem; 
-      cursor:pointer; 
-      margin-right:1rem;
-      display: flex;
-      align-items: center;
+      font-size: 1.4rem;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
     }
-
     #btnLogout {
-      background:#dc3545; 
-      color:#fff; 
-      border:none; 
-      padding:0.5rem 1rem; 
-      border-radius:5px; 
-      cursor:pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 600;
-      font-size: 1rem;
-    }
-
-    #sidebar {
-      background: #0056b3;
+      background: #dc3545;
       color: white;
-      width: 220px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      padding-top: 1rem;
-      transition: width 0.3s ease;
-      overflow-x: hidden;
-      height: calc(100vh - 58px); /* full height minus header height */
-      position: sticky;
-      top: 58px;
-    }
-    #sidebar.collapsed {
-      width: 0;
-      padding: 1rem 0;
-    }
-    #sidebar nav a {
-      color: white;
-      padding: 1rem 1.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      border-left: 4px solid transparent;
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      transition: background 0.3s, border-color 0.3s;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    #sidebar nav a:hover, #sidebar nav a.active {
-      background: #003d80;
-      border-left-color: #ffd54f;
+      padding: 0.4rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
     main {
-      flex-grow: 1;
       padding: 2rem;
+      flex-grow: 1;
       max-width: 1000px;
       margin: auto;
-      position: relative;
-      transition: margin-left 0.3s ease;
-    }
-
-    /* Adjust main margin when sidebar collapsed */
-    #sidebar.collapsed ~ main {
-      margin-left: 0 !important;
-    }
-
-    .loader {
-      text-align: center;
-      font-size: 1rem;
-      color: #007bff;
-      padding: 30px;
-      display: none;
-    }
-    .instructions-box {
-      background-color: #f0f8ff;
-      border-left: 5px solid #007bff;
-      padding: 15px 20px;
-      margin-top: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-    .instructions-box h3 {
-      margin-top: 0;
-      color: #007bff;
-      font-size: 18px;
-    }
-    .instructions-box ul {
-      padding-left: 20px;
-      margin: 10px 0;
-    }
-    .instructions-box li {
-      margin-bottom: 8px;
-      line-height: 1.6;
     }
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.2rem;
-      margin-top: 1rem;
+      gap: 1rem;
+      margin-top: 2rem;
     }
     .stat-card {
       background: white;
-      display: flex;
-      align-items: center;
       padding: 1rem;
       border-radius: 10px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-      transition: transform 0.2s ease;
-    }
-    .stat-card:hover {
-      transform: translateY(-3px);
-    }
-    .stat-icon {
-      font-size: 2.5rem;
-      color: #007bff;
-      margin-right: 1rem;
-    }
-    .stat-info {
-      font-size: 16px;
-      color: #333;
-    }
-    .stat-info strong {
-      font-size: 1.4rem;
-      color: #000;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
-      #sidebar {
-        position: fixed;
-        top: 58px;
-        left: 0;
-        height: calc(100% - 58px);
-        width: 220px;
-        z-index: 1000;
-        transform: translateX(0);
-        transition: transform 0.3s ease;
-        padding-top: 1rem;
-      }
-      #sidebar.collapsed {
-        transform: translateX(-100%);
-        width: 220px; /* Keep width for animation */
-        padding: 1rem 0;
-      }
-      main {
-        padding: 1rem;
-        max-width: 100%;
-        margin: 0;
-        transition: none;
-      }
-      /* Overlay for mobile when sidebar open */
-      #sidebarOverlay {
-        position: fixed;
-        top: 58px;
-        left: 0;
-        width: 100vw;
-        height: calc(100vh - 58px);
-        background: rgba(0,0,0,0.4);
-        z-index: 900;
-        display: none;
-      }
-      #sidebarOverlay.active {
-        display: block;
-      }
-    }
-
-    /* POPUP STYLES */
-    #popupMessage {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      min-width: 250px;
-      max-width: 300px;
-      padding: 15px 20px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 600;
-      font-size: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-20px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      z-index: 11000;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
       display: flex;
+      gap: 1rem;
       align-items: center;
-      gap: 10px;
     }
-    #popupMessage.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
+    .stat-card i {
+      font-size: 2rem;
+      color: #007bff;
     }
-    #popupMessage .icon {
-      font-size: 20px;
+    .popup {
+      display: none;
+      position: fixed;
+      top: 20px; right: 20px;
+      background: #28a745;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 10000;
     }
-    #popupMessage.success {
-      background-color: #28a745; /* Green */
-    }
-    #popupMessage.error {
-      background-color: #dc3545; /* Red */
-    }
-    #popupMessage.info {
-      background-color: #17a2b8; /* Blue */
-    }
-    #popupMessage.warning {
-      background-color: #ffc107; /* Yellow */
-      color: #212529;
-    }
-    #popupMessage .closeBtn {
-      margin-left: auto;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 18px;
-      line-height: 1;
-      user-select: none;
+    @media(max-width:768px){
+      main { padding: 1rem; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <button id="btnToggleSidebar" aria-label="Ongeza au ficha sidebar" title="Ongeza au ficha sidebar">
-    <i class="fas fa-bars"></i>
-  </button>
-  <h1><i class="fa-solid fa-school"></i> SmartResult - School Dashboard</h1>
-  <button id="btnLogout" title="Logout">
-    <i class="fa-solid fa-right-from-bracket"></i> Logout
-  </button>
+  <button id="btnToggleSidebar"><i class="fas fa-bars"></i></button>
+  <h1><i class="fas fa-school"></i> SmartResult</h1>
+  <button id="btnLogout"><i class="fas fa-sign-out-alt"></i> Toka</button>
 </header>
 
-<div style="display:flex; flex-grow:1; min-height:0;">
+<div style="display:flex; flex-grow:1;">
   <div id="sidebarContainer"></div>
   <main>
-    <div class="loader" id="loader">
-      <i class="fa-solid fa-spinner fa-spin fa-2x"></i><br/>
-      Inapakia taarifa za shule...
-    </div>
-
-    <div id="welcomeBox" style="display:none;">
-      <h2 id="welcomeTitle">Karibu!</h2>
-      <p id="schoolDescription">Ahsante kwa kuchagua Huduma hii ya Uandaaji wa Matokeo. Tafadhali chagua sehemu kutoka kwenye menu ya kushoto kuendelea.</p>
-
-      <div class="instructions-box">
-        <h3><i class="fa fa-info-circle"></i> Maelekezo ya Matumizi</h3>
-        <ul>
-          <li><strong>Hatua ya 1:</strong> Sajili Wanafunzi, Madarasa na Masomo kwa usahihi.</li>
-          <li><strong>Hatua ya 2:</strong> Hakikisha Masomo na Madarasa yako yamejazwa kabla ya kuingiza Matokeo.</li>
-          <li><strong>Hatua ya 3:</strong> Tumia menu ya kushoto ili kufikia vipengele vyote vya mfumo.</li>
-          <li><strong>MUHIMU:</strong> Tunza taarifa zako za kuingia salama.</li>
-        </ul>
-      </div>
-
-      <div id="statsBox" style="display:none; margin-top:2rem;">
-        <h3 style="color:#007bff;"><i class="fa fa-chart-bar"></i> Takwimu za Shule</h3>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-user-graduate"></i></div>
-            <div class="stat-info" id="totalStudents"><strong>0</strong><br>Wanafunzi Wote</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div>
-            <div class="stat-info" id="studentsWithResults"><strong>0</strong><br>Waliojaziwa Matokeo</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-chalkboard"></i></div>
-            <div class="stat-info" id="totalClasses"><strong>0</strong><br>Madarasa</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-book"></i></div>
-            <div class="stat-info" id="totalSubjects"><strong>0</strong><br>Masomo</div>
-          </div>
-        </div>
-      </div>
+    <h2 id="welcomeTitle">Karibu!</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><i class="fas fa-user-graduate"></i><div><strong id="totalStudents">0</strong><br>Wanafunzi</div></div>
+      <div class="stat-card"><i class="fas fa-check-circle"></i><div><strong id="studentsWithResults">0</strong><br>Waliojaziwa</div></div>
+      <div class="stat-card"><i class="fas fa-chalkboard"></i><div><strong id="totalClasses">0</strong><br>Madarasa</div></div>
+      <div class="stat-card"><i class="fas fa-book"></i><div><strong id="totalSubjects">0</strong><br>Masomo</div></div>
     </div>
   </main>
 </div>
 
-<!-- Sidebar Overlay for mobile -->
 <div id="sidebarOverlay"></div>
-
-<div id="footerContainer"></div>
-
-<!-- Popup Message -->
-<div id="popupMessage" role="alert" aria-live="assertive" aria-atomic="true">
-  <i class="icon"></i>
-  <span class="message"></span>
-  <span class="closeBtn" title="Funga">&times;</span>
-</div>
+<div id="popup" class="popup"></div>
 
 <script type="module">
   import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import {
-    getFirestore, doc, getDoc, collection, getDocs,
-    query, where
-  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-  const firebaseConfig = {
+  const app = initializeApp({
     apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
     authDomain: "smartresult-6c09c.firebaseapp.com",
     projectId: "smartresult-6c09c",
     storageBucket: "smartresult-6c09c.appspot.com",
     messagingSenderId: "77722866135",
-    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
-    measurementId: "G-3W13B73TQS"
-  };
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92"
+  });
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  const auth = getAuth();
   const db = getFirestore(app);
+  const popup = document.getElementById("popup");
 
-  const btnLogout = document.getElementById('btnLogout');
-  const loader = document.getElementById("loader");
-  const welcomeBox = document.getElementById("welcomeBox");
-  const welcomeTitle = document.getElementById("welcomeTitle");
-  const sidebarOverlay = document.getElementById("sidebarOverlay");
+  function showPopup(msg, color = "#28a745") {
+    popup.textContent = msg;
+    popup.style.background = color;
+    popup.style.display = "block";
+    setTimeout(() => popup.style.display = "none", 4000);
+  }
 
   async function loadStats(schoolId) {
-    const studentsSnap = await getDocs(query(collection(db, "students"), where("schoolId", "==", schoolId)));
+    const students = await getDocs(query(collection(db, "students"), where("schoolId", "==", schoolId)));
+    const results = await getDocs(query(collection(db, "results"), where("schoolId", "==", schoolId)));
+    const unique = new Set(); results.forEach(d => d.data().studentId && unique.add(d.data().studentId));
+    const classes = await getDocs(query(collection(db, "classes"), where("schoolId", "==", schoolId)));
+    const subjects = await getDocs(query(collection(db, "subjects"), where("schoolId", "==", schoolId)));
 
-    const resultsSnap = await getDocs(query(collection(db, "results"), where("schoolId", "==", schoolId)));
-    const uniqueStudentIds = new Set();
-    resultsSnap.forEach(docSnap => {
-      const data = docSnap.data();
-      if(data.studentId) uniqueStudentIds.add(data.studentId);
-    });
-
-    const classesSnap = await getDocs(query(collection(db, "classes"), where("schoolId", "==", schoolId)));
-    const subjectsSnap = await getDocs(query(collection(db, "subjects"), where("schoolId", "==", schoolId)));
-
-    document.getElementById("totalStudents").innerHTML = `<strong>${studentsSnap.size}</strong><br>Wanafunzi Wote`;
-    document.getElementById("studentsWithResults").innerHTML = `<strong>${uniqueStudentIds.size}</strong><br>Waliojaziwa Matokeo`;
-    document.getElementById("totalClasses").innerHTML = `<strong>${classesSnap.size}</strong><br>Madarasa`;
-    document.getElementById("totalSubjects").innerHTML = `<strong>${subjectsSnap.size}</strong><br>Masomo`;
-
-    document.getElementById("statsBox").style.display = "block";
+    document.getElementById("totalStudents").textContent = students.size;
+    document.getElementById("studentsWithResults").textContent = unique.size;
+    document.getElementById("totalClasses").textContent = classes.size;
+    document.getElementById("totalSubjects").textContent = subjects.size;
   }
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return window.location.href = 'index.html';
-
-    loader.style.display = "block";
-    welcomeBox.style.display = "none";
-
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        const schoolName = userData.schoolName || "Shule Yako";
-        const schoolId = userData.schoolId;
-
-        welcomeTitle.innerText = `Karibu ${schoolName}!`;
-
-        if (schoolId) {
-          await loadStats(schoolId);
-        } else {
-          showPopup("Hakuna taarifa za shule kwenye profile yako.", "warning");
-        }
-      } else {
-        welcomeTitle.innerText = `Karibu Mwalimu!`;
-      }
-
-      loader.style.display = "none";
-      welcomeBox.style.display = "block";
-    } catch (error) {
-      loader.innerHTML = "Hitilafu katika kupakia taarifa.";
-      console.error(error);
-      showPopup("Hitilafu katika kupakia taarifa.", "error");
+  onAuthStateChanged(auth, async user => {
+    if (!user) return location.href = "index.html";
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      document.getElementById("welcomeTitle").textContent = `Karibu ${data.schoolName || "Mwalimu"}!`;
+      if (data.schoolId) await loadStats(data.schoolId);
     }
   });
 
-  btnLogout.addEventListener('click', async () => {
-    try {
-      await signOut(auth);
-      showPopup("Umetoka kwenye mfumo kwa mafanikio.", "success");
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1500);
-    } catch (err) {
-      showPopup("Tatizo wakati wa kutoka: " + err.message, "error");
-    }
-  });
+  document.getElementById("btnLogout").onclick = async () => {
+    await signOut(auth);
+    showPopup("Umetoka kwenye mfumo.");
+    setTimeout(() => location.href = "index.html", 1000);
+  };
 
   // Load sidebar
-  fetch("sidebar.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("sidebarContainer").innerHTML = html;
-
-      const sidebar = document.getElementById("sidebar");
-      const current = window.location.pathname.split("/").pop();
-      document.querySelectorAll("#sidebar nav a").forEach(link => {
-        if (link.getAttribute("href") === current) {
-          link.classList.add("active");
-        }
-
-        // On mobile, close sidebar when a link clicked
-        link.addEventListener("click", () => {
-          if(window.innerWidth <= 768){
-            sidebar.classList.add("collapsed");
-            sidebarOverlay.classList.remove("active");
-          }
-        });
-      });
-
-      // Toggle sidebar button
-      const btnToggleSidebar = document.getElementById("btnToggleSidebar");
-      btnToggleSidebar.addEventListener("click", () => {
-        sidebar.classList.toggle("collapsed");
-        // Show/hide overlay on mobile
-        if(window.innerWidth <= 768){
-          sidebarOverlay.classList.toggle("active");
-        }
-      });
-
-      // Hide sidebar & overlay if clicked outside sidebar on mobile
-      sidebarOverlay.addEventListener("click", () => {
-        sidebar.classList.add("collapsed");
-        sidebarOverlay.classList.remove("active");
-      });
-
-      // Initially collapse sidebar on small screens
-      if(window.innerWidth <= 768){
-        sidebar.classList.add("collapsed");
-      }
-    });
-
-  // Load footer
-  fetch("footer.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("footerContainer").innerHTML = html;
-    });
-
-  // Session timeout
-  let inactivityTime = function () {
-    let time;
-    const logoutAfter = 10 * 60 * 1000;
-    window.onload = resetTimer;
-    document.onmousemove = resetTimer;
-    document.onkeydown = resetTimer;
-    document.ontouchstart = resetTimer;
-    function logout() {
-      showPopup("Umetoka kwenye mfumo kwa kuwa hukufanya kazi kwa muda mrefu.", "warning", 5000);
-      auth.signOut().then(() => setTimeout(() => window.location.href = "index.html", 1500));
-    }
-    function resetTimer() {
-      clearTimeout(time);
-      time = setTimeout(logout, logoutAfter);
-    }
-  };
-  inactivityTime();
-
-  // Popup functions
-  function showPopup(message, type = "info", duration = 4000) {
-    const popup = document.getElementById("popupMessage");
-    const iconEl = popup.querySelector(".icon");
-    const msgEl = popup.querySelector(".message");
-    const closeBtn = popup.querySelector(".closeBtn");
-
-    popup.className = "";
-    popup.classList.add(type, "show");
-    msgEl.textContent = message;
-
-    const icons = {
-      success: "✔️",
-      error: "❌",
-      info: "ℹ️",
-      warning: "⚠️"
+  fetch("sidebar.html").then(r => r.text()).then(html => {
+    document.getElementById("sidebarContainer").innerHTML = html;
+    const sidebar = document.getElementById("sidebar");
+    document.getElementById("btnToggleSidebar").onclick = () => {
+      sidebar.classList.toggle("collapsed");
+      document.getElementById("sidebarOverlay").classList.toggle("active");
     };
-    iconEl.textContent = icons[type] || "";
-    popup.style.display = "flex";
-
-    closeBtn.onclick = () => {
-      hidePopup();
-    };
-
-    clearTimeout(popup.hideTimeout);
-    popup.hideTimeout = setTimeout(() => {
-      hidePopup();
-    }, duration);
-  }
-
-  function hidePopup() {
-    const popup = document.getElementById("popupMessage");
-    popup.classList.remove("show");
-    setTimeout(() => {
-      popup.style.display = "none";
-    }, 300);
-  }
+  });
 </script>
 
 </body>
