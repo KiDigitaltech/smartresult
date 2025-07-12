@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SmartResult - School Dashboard</title>
+  <title>SmartResult - Dashboard ya Shule</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f8ff;
+      background: #f4f8fc;
       color: #333;
       display: flex;
       flex-direction: column;
@@ -34,7 +34,7 @@
       gap: 0.5rem;
     }
     #btnToggleSidebar {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       background: none;
       border: none;
       color: white;
@@ -43,7 +43,7 @@
     #btnLogout {
       background: #dc3545;
       color: white;
-      padding: 0.4rem 1rem;
+      padding: 0.5rem 1rem;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -54,38 +54,61 @@
       max-width: 1000px;
       margin: auto;
     }
+    .welcome {
+      background: #e6f0ff;
+      border-left: 5px solid #007bff;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .welcome h2 {
+      margin-top: 0;
+      color: #007bff;
+    }
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
+      gap: 1.5rem;
       margin-top: 2rem;
     }
     .stat-card {
       background: white;
-      padding: 1rem;
+      padding: 1.2rem;
       border-radius: 10px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.1);
       display: flex;
       gap: 1rem;
       align-items: center;
+      transition: transform 0.2s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
     }
     .stat-card i {
       font-size: 2rem;
       color: #007bff;
     }
-    .popup {
+    .stat-card div {
+      font-size: 15px;
+    }
+    .stat-card strong {
+      font-size: 1.6rem;
+      display: block;
+      color: #111;
+    }
+    #sidebarOverlay {
       display: none;
       position: fixed;
-      top: 20px; right: 20px;
-      background: #28a745;
-      color: #fff;
-      padding: 0.8rem 1.2rem;
-      border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      z-index: 10000;
+      top: 58px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 58px);
+      background: rgba(0,0,0,0.4);
+      z-index: 900;
     }
     @media(max-width:768px){
       main { padding: 1rem; }
+      #sidebarOverlay.active { display: block; }
     }
   </style>
 </head>
@@ -100,43 +123,44 @@
 <div style="display:flex; flex-grow:1;">
   <div id="sidebarContainer"></div>
   <main>
-    <h2 id="welcomeTitle">Karibu!</h2>
+    <div class="welcome">
+      <h2 id="welcomeTitle">Karibu!</h2>
+      <p>Asante kwa kutumia mfumo wa <strong>SmartResult</strong>. Hapa unaweza kudhibiti wanafunzi, masomo, madarasa na kuandaa matokeo kwa urahisi. Tafadhali chagua kipengele unachohitaji upande wa kushoto.</p>
+    </div>
+
     <div class="stats-grid">
-      <div class="stat-card"><i class="fas fa-user-graduate"></i><div><strong id="totalStudents">0</strong><br>Wanafunzi</div></div>
-      <div class="stat-card"><i class="fas fa-check-circle"></i><div><strong id="studentsWithResults">0</strong><br>Waliojaziwa</div></div>
-      <div class="stat-card"><i class="fas fa-chalkboard"></i><div><strong id="totalClasses">0</strong><br>Madarasa</div></div>
-      <div class="stat-card"><i class="fas fa-book"></i><div><strong id="totalSubjects">0</strong><br>Masomo</div></div>
+      <div class="stat-card"><i class="fas fa-user-graduate"></i><div><strong id="totalStudents">0</strong>Wanafunzi Wote</div></div>
+      <div class="stat-card"><i class="fas fa-check-circle"></i><div><strong id="studentsWithResults">0</strong>Waliojaziwa Matokeo</div></div>
+      <div class="stat-card"><i class="fas fa-chalkboard"></i><div><strong id="totalClasses">0</strong>Madarasa</div></div>
+      <div class="stat-card"><i class="fas fa-book"></i><div><strong id="totalSubjects">0</strong>Masomo</div></div>
     </div>
   </main>
 </div>
 
 <div id="sidebarOverlay"></div>
-<div id="popup" class="popup"></div>
 
 <script type="module">
   import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
   import { getFirestore, doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-  const app = initializeApp({
+  const firebaseConfig = {
     apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
     authDomain: "smartresult-6c09c.firebaseapp.com",
     projectId: "smartresult-6c09c",
     storageBucket: "smartresult-6c09c.appspot.com",
     messagingSenderId: "77722866135",
     appId: "1:77722866135:web:b0328dcc969b3264acbb92"
-  });
+  };
 
-  const auth = getAuth();
+  const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const popup = document.getElementById("popup");
+  const auth = getAuth();
 
-  function showPopup(msg, color = "#28a745") {
-    popup.textContent = msg;
-    popup.style.background = color;
-    popup.style.display = "block";
-    setTimeout(() => popup.style.display = "none", 4000);
-  }
+  const totalStudentsEl = document.getElementById("totalStudents");
+  const studentsWithResultsEl = document.getElementById("studentsWithResults");
+  const totalClassesEl = document.getElementById("totalClasses");
+  const totalSubjectsEl = document.getElementById("totalSubjects");
 
   async function loadStats(schoolId) {
     const students = await getDocs(query(collection(db, "students"), where("schoolId", "==", schoolId)));
@@ -145,36 +169,39 @@
     const classes = await getDocs(query(collection(db, "classes"), where("schoolId", "==", schoolId)));
     const subjects = await getDocs(query(collection(db, "subjects"), where("schoolId", "==", schoolId)));
 
-    document.getElementById("totalStudents").textContent = students.size;
-    document.getElementById("studentsWithResults").textContent = unique.size;
-    document.getElementById("totalClasses").textContent = classes.size;
-    document.getElementById("totalSubjects").textContent = subjects.size;
+    totalStudentsEl.textContent = students.size;
+    studentsWithResultsEl.textContent = unique.size;
+    totalClassesEl.textContent = classes.size;
+    totalSubjectsEl.textContent = subjects.size;
   }
 
-  onAuthStateChanged(auth, async user => {
+  onAuthStateChanged(auth, async (user) => {
     if (!user) return location.href = "index.html";
     const userSnap = await getDoc(doc(db, "users", user.uid));
     if (userSnap.exists()) {
-      const data = userSnap.data();
-      document.getElementById("welcomeTitle").textContent = `Karibu ${data.schoolName || "Mwalimu"}!`;
-      if (data.schoolId) await loadStats(data.schoolId);
+      const userData = userSnap.data();
+      document.getElementById("welcomeTitle").textContent = `Karibu ${userData.schoolName || "Mwalimu"}!`;
+      if (userData.schoolId) await loadStats(userData.schoolId);
     }
   });
 
-  document.getElementById("btnLogout").onclick = async () => {
+  document.getElementById("btnLogout").addEventListener("click", async () => {
     await signOut(auth);
-    showPopup("Umetoka kwenye mfumo.");
-    setTimeout(() => location.href = "index.html", 1000);
-  };
+    window.location.href = "index.html";
+  });
 
-  // Load sidebar
-  fetch("sidebar.html").then(r => r.text()).then(html => {
+  // Sidebar loading
+  fetch("sidebar.html").then(res => res.text()).then(html => {
     document.getElementById("sidebarContainer").innerHTML = html;
     const sidebar = document.getElementById("sidebar");
-    document.getElementById("btnToggleSidebar").onclick = () => {
+    document.getElementById("btnToggleSidebar").addEventListener("click", () => {
       sidebar.classList.toggle("collapsed");
       document.getElementById("sidebarOverlay").classList.toggle("active");
-    };
+    });
+    document.getElementById("sidebarOverlay").addEventListener("click", () => {
+      sidebar.classList.add("collapsed");
+      document.getElementById("sidebarOverlay").classList.remove("active");
+    });
   });
 </script>
 
