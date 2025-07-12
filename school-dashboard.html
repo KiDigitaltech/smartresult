@@ -68,7 +68,7 @@
     main {
       flex-grow: 1;
       padding: 2rem;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
       position: relative;
     }
@@ -87,7 +87,6 @@
       padding: 15px 20px;
       margin-top: 20px;
       border-radius: 8px;
-      font-family: 'Segoe UI', sans-serif;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
 
@@ -105,6 +104,43 @@
     .instructions-box li {
       margin-bottom: 8px;
       line-height: 1.6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    .stat-card {
+      background: white;
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      color: #007bff;
+      margin-right: 1rem;
+    }
+
+    .stat-info {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .stat-info strong {
+      font-size: 1.4rem;
+      color: #000;
     }
 
     footer {
@@ -161,24 +197,15 @@
 </header>
 
 <div style="display:flex; flex-grow:1; min-height:0;">
-  <aside id="sidebar">
-    <nav>
-      <a href="school-dashboard.html" class="active"><i class="fa-solid fa-house"></i> Nyumbani</a>
-      <a href="register-students.html"><i class="fa-solid fa-user-graduate"></i> Sajili Wanafunzi</a>
-      <a href="register-subjects.html"><i class="fa-solid fa-book"></i> Sajili Masomo</a>
-      <a href="register-classes.html"><i class="fa-solid fa-chalkboard"></i> Sajili Madarasa</a>
-      <a href="enter-results.html"><i class="fa-solid fa-pen-to-square"></i> Ingiza Matokeo</a>
-      <a href="view-results.html"><i class="fa-solid fa-eye"></i> Tazama Matokeo</a>
-	  <a href="contact-help.html"><i class="fa-solid fa-headset"></i> Msaada wa Mfumo</a>
-      <a href="profile.html"><i class="fa-solid fa-user"></i> Profaili</a>
-    </nav>
-  </aside>
+  <!-- Sidebar placeholder -->
+  <div id="sidebarContainer"></div>
 
   <main>
     <div class="loader" id="loader">
       <i class="fa-solid fa-spinner fa-spin fa-2x"></i><br/>
       Inapakia taarifa za shule...
     </div>
+
     <div id="welcomeBox" style="display:none;">
       <h2 id="welcomeTitle">Karibu!</h2>
       <p id="schoolDescription">Ahsante kwa kuchagua Huduma hii ya Uandaaji wa Matokeo. Tafadhali chagua sehemu kutoka kwenye menu ya kushoto kuendelea.</p>
@@ -186,12 +213,33 @@
       <div class="instructions-box">
         <h3><i class="fa fa-info-circle"></i> Maelekezo ya Matumizi</h3>
         <ul>
-          <li><strong>Hatua ya 1:</strong> Tumia menu ya kushoto ili kufanya Usajili wa Wanafunzi, Kujaza Matokeo, pamoja na Taarifa mbalimbali.</li>
-          <li><strong>Hatua ya 2:</strong> Hakikisha katika shule yako Umesajili madarasa na masomo kabla ya kuingiza wanafunzi au matokeo.</li>
-          <li><strong>Hatua ya 3:</strong> Hakikisha Unapofanya usajili wa Wanafunzi unazingatia Darasa husika.</li>
-		  <li><strong>MUHIMU :</strong> TUNZA NENO LAKO LA SIRI NA USIMPE MTU YEYOTE, UKISAHAU HUTOWEZA KUUFIKIA TENA MFUMO WAKO! UTALAZIMIKA KUSAJILIWA UPYA</li>
-          <li><strong>Msaada:</strong> Ikiwa unapata changamoto yoyote, wasiliana na msimamizi au fungua sehemu ya msaada wa mfumo.</li>
+          <li><strong>Hatua ya 1:</strong> Sajili Wanafunzi, Madarasa na Masomo kwa usahihi.</li>
+          <li><strong>Hatua ya 2:</strong> Hakikisha Masomo na Madarasa yako yamejazwa kabla ya kuingiza Matokeo.</li>
+          <li><strong>Hatua ya 3:</strong> Tumia menu ya kushoto ili kufikia vipengele vyote vya mfumo.</li>
+          <li><strong>MUHIMU:</strong> Tunza taarifa zako za kuingia salama. Ukisahau, utahitaji usaidizi wa msimamizi kusajiliwa upya.</li>
         </ul>
+      </div>
+
+      <div id="statsBox" style="display:none; margin-top:2rem;">
+        <h3 style="color:#007bff;"><i class="fa fa-chart-bar"></i> Takwimu za Shule</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-user-graduate"></i></div>
+            <div class="stat-info" id="totalStudents"><strong>0</strong><br>Wanafunzi Wote</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div>
+            <div class="stat-info" id="studentsWithResults"><strong>0</strong><br>Waliojaziwa Matokeo</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-chalkboard"></i></div>
+            <div class="stat-info" id="totalClasses"><strong>0</strong><br>Madarasa</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-book"></i></div>
+            <div class="stat-info" id="totalSubjects"><strong>0</strong><br>Masomo</div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -204,7 +252,7 @@
 <script type="module">
   import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
@@ -225,19 +273,31 @@
   const welcomeBox = document.getElementById("welcomeBox");
   const welcomeTitle = document.getElementById("welcomeTitle");
 
+  async function loadStats() {
+    const studentsSnap = await getDocs(collection(db, "students"));
+    const resultsSnap = await getDocs(collection(db, "results"));
+    const classesSnap = await getDocs(collection(db, "classes"));
+    const subjectsSnap = await getDocs(collection(db, "subjects"));
+
+    document.getElementById("totalStudents").innerHTML = `<strong>${studentsSnap.size}</strong><br>Wanafunzi Wote`;
+    document.getElementById("studentsWithResults").innerHTML = `<strong>${resultsSnap.size}</strong><br>Waliojaziwa Matokeo`;
+    document.getElementById("totalClasses").innerHTML = `<strong>${classesSnap.size}</strong><br>Madarasa`;
+    document.getElementById("totalSubjects").innerHTML = `<strong>${subjectsSnap.size}</strong><br>Masomo`;
+
+    document.getElementById("statsBox").style.display = "block";
+  }
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = 'index.html';
     } else {
       const uid = user.uid;
-
       loader.style.display = "block";
       welcomeBox.style.display = "none";
 
       try {
         const userRef = doc(db, "users", uid);
         const userSnap = await getDoc(userRef);
-
         if (userSnap.exists()) {
           const userData = userSnap.data();
           const schoolName = userData.schoolName || "Shule Yako";
@@ -245,7 +305,7 @@
         } else {
           welcomeTitle.innerText = `Karibu Mwalimu!`;
         }
-
+        await loadStats();
         loader.style.display = "none";
         welcomeBox.style.display = "block";
       } catch (error) {
@@ -259,6 +319,40 @@
     await signOut(auth);
     window.location.href = 'index.html';
   });
+
+  // Load sidebar dynamically
+  fetch("sidebar.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("sidebarContainer").innerHTML = html;
+      const current = window.location.pathname.split("/").pop();
+      document.querySelectorAll("#sidebar a").forEach(link => {
+        if (link.getAttribute("href") === current) {
+          link.classList.add("active");
+        }
+      });
+    });
+
+  // Session timeout after 10 minutes
+  let inactivityTime = function () {
+    let time;
+    const logoutAfter = 10 * 60 * 1000;
+    window.onload = resetTimer;
+    document.onmousemove = resetTimer;
+    document.onkeydown = resetTimer;
+    document.ontouchstart = resetTimer;
+    function logout() {
+      alert("Umetoka kwenye mfumo kwa kuwa hukufanya kazi kwa muda mrefu.");
+      auth.signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    }
+    function resetTimer() {
+      clearTimeout(time);
+      time = setTimeout(logout, logoutAfter);
+    }
+  };
+  inactivityTime();
 </script>
 
 </body>
