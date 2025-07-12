@@ -1,11 +1,95 @@
+<style>
+  /* Reset */
+  nav {
+    width: 250px;
+    background: linear-gradient(180deg, #2c3e50, #4b6584);
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+  }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    color: #d1d8e0;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 1.25rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    user-select: none;
+  }
+
+  nav a i {
+    margin-right: 12px;
+    font-size: 1.3rem;
+    min-width: 22px;
+    text-align: center;
+  }
+
+  nav a:hover,
+  nav a:focus,
+  nav a.active {
+    background-color: #1abc9c;
+    color: #fff;
+    box-shadow: 0 0 8px #1abc9ccc;
+  }
+
+  nav hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin: 1.5rem 0;
+  }
+
+  /* Responsive: small screens */
+  @media (max-width: 768px) {
+    nav {
+      position: relative;
+      width: 100%;
+      height: auto;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 1rem;
+      box-shadow: none;
+      background: #34495e;
+    }
+
+    nav a {
+      flex: 1 1 45%;
+      margin: 0.5rem 0.5rem;
+      border-radius: 6px;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    nav a i {
+      margin-right: 6px;
+      font-size: 1.1rem;
+    }
+
+    nav hr {
+      display: none;
+    }
+  }
+</style>
+
 <nav>
-  <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashibodi</a>
+  <a href="school-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashibodi</a>
   <a href="register-students.html"><i class="fas fa-user-plus"></i> Sajili Wanafunzi</a>
   <a href="register-classes.html"><i class="fas fa-layer-group"></i> Sajili Madarasa</a>
   <a href="register-subjects.html"><i class="fas fa-book"></i> Sajili Masomo</a>
   <a href="enter-results.html"><i class="fas fa-pen"></i> Jaza Matokeo</a>
-  <hr style="border-color: rgba(255,255,255,0.3); margin: 1rem 0;">
-
+  <hr>
   <a href="subject-results.html"><i class="fas fa-chart-bar"></i> Matokeo ya Somo</a>
   <a href="average-subjects.html"><i class="fas fa-percent"></i> Wastani wa Masomo</a>
   <a href="students-report.html"><i class="fas fa-file-alt"></i> Ripoti ya Mwanafunzi</a>
