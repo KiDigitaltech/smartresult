@@ -5,8 +5,8 @@
     color: #fff;
     font-family: 'Segoe UI', sans-serif;
     height: 100vh;
-    position: sticky;
-    top: 58px;
+    position: fixed;
+    top: 0;
     left: 0;
     padding: 1.3rem 1rem;
     box-sizing: border-box;
@@ -14,6 +14,7 @@
     flex-direction: column;
     box-shadow: 3px 0 10px rgba(0,0,0,0.15);
     z-index: 1000;
+    transform: translateX(0);
     transition: transform 0.3s ease;
   }
 
@@ -57,8 +58,9 @@
     margin: 1.2rem 0;
   }
 
-  /* Sidebar collapsed */
-  #sidebar.collapsed {
+  /* Sidebar hidden on mobile */
+  #sidebar.collapsed,
+  #sidebar:not(.show) {
     transform: translateX(-100%);
   }
 
@@ -67,14 +69,11 @@
     display: none;
   }
 
-  /* Mobile styles */
   @media (max-width: 768px) {
     #sidebar {
       position: fixed;
+      top: 0;
       height: 100vh;
-      top: 58px;
-      left: 0;
-      transform: translateX(-100%);
     }
 
     #sidebar.show {
@@ -84,16 +83,49 @@
     #sidebarOverlay.active {
       display: block;
       position: fixed;
-      top: 58px;
+      top: 0;
       left: 0;
       width: 100%;
-      height: calc(100vh - 58px);
+      height: 100vh;
       background: rgba(0, 0, 0, 0.4);
       z-index: 900;
     }
   }
+
+  /* Toggle Button */
+  #btnToggleSidebar {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+
+  #btnToggleSidebar i {
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    #btnToggleSidebar {
+      display: block;
+    }
+  }
 </style>
 
+<!-- Toggle Button -->
+<button id="btnToggleSidebar" title="Fungua Menu">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar -->
 <div id="sidebar">
   <nav>
     <a href="school-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashibodi</a>
@@ -107,17 +139,19 @@
     <a href="students-report.html"><i class="fas fa-file-alt"></i> Ripoti ya Mwanafunzi</a>
   </nav>
 </div>
+
+<!-- Overlay -->
 <div id="sidebarOverlay"></div>
 
 <script>
-  // On load: highlight active link
+  // Weka active link
   const currentPage = window.location.pathname.split("/").pop();
   document.querySelectorAll("#sidebar nav a").forEach(link => {
     if (link.getAttribute("href") === currentPage) {
       link.classList.add("active");
     }
 
-    // Hide sidebar on mobile after click
+    // Funga sidebar baada ya kubofya link (kwenye simu)
     link.addEventListener("click", () => {
       if (window.innerWidth <= 768) {
         document.getElementById("sidebar").classList.remove("show");
@@ -126,21 +160,18 @@
     });
   });
 
-  // Toggle button logic
-  if (document.getElementById("btnToggleSidebar")) {
-    document.getElementById("btnToggleSidebar").addEventListener("click", () => {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.classList.toggle("show");
-      document.getElementById("sidebarOverlay").classList.toggle("active");
-    });
-  }
-
-  // Hide sidebar when clicking outside (mobile)
+  // Toggle logic
+  const toggleBtn = document.getElementById("btnToggleSidebar");
+  const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebarOverlay");
-  if (overlay) {
-    overlay.addEventListener("click", () => {
-      document.getElementById("sidebar").classList.remove("show");
-      overlay.classList.remove("active");
-    });
-  }
+
+  toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("show");
+    overlay.classList.toggle("active");
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("show");
+    overlay.classList.remove("active");
+  });
 </script>
