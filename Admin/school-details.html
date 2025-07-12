@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maelezo ya Shule</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eef6ff;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: 6px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #007bff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #007bff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .back-btn {
+      background: #6c757d;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .back-btn:hover {
+      background: #5a6268;
+    }
+
+    .stat-box {
+      background: #f1f5ff;
+      padding: 12px;
+      border-left: 5px solid #007bff;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fas fa-school"></i> Maelezo ya Shule</h1>
+  <a class="back-btn" href="schools-list.html"><i class="fas fa-arrow-left"></i> Rudi Orodha ya Shule</a>
+</header>
+
+<main>
+  <h2 id="schoolName">Inapakia jina la shule...</h2>
+  <div class="stat-box" id="summary">Inapakia takwimu...</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Jina la Darasa</th>
+        <th>Idadi ya Wanafunzi</th>
+      </tr>
+    </thead>
+    <tbody id="classesTable"></tbody>
+  </table>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.appspot.com",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const schoolId = urlParams.get("schoolId");
+
+  const schoolNameEl = document.getElementById("schoolName");
+  const summaryEl = document.getElementById("summary");
+  const classesTable = document.getElementById("classesTable");
+
+  async function loadSchoolDetails() {
+    try {
+      if (!schoolId) {
+        schoolNameEl.textContent = "Shule haijapatikana.";
+        return;
+      }
+
+      const schoolRef = doc(db, "schools", schoolId);
+      const schoolSnap = await getDoc(schoolRef);
+
+      if (schoolSnap.exists()) {
+        const schoolData = schoolSnap.data();
+        schoolNameEl.textContent = `Shule: ${schoolData.name || "Bila Jina"}`;
+      } else {
+        schoolNameEl.textContent = "Shule haijapatikana.";
+        return;
+      }
+
+      // Pata madarasa ya shule hii
+      const classesSnap = await getDocs(query(collection(db, "classes"), where("schoolId", "==", schoolId)));
+      const classes = [];
+      let totalStudents = 0;
+
+      let index = 1;
+
+      for (const clsDoc of classesSnap.docs) {
+        const clsData = clsDoc.data();
+        const classId = clsDoc.id;
+        const className = clsData.name || "Bila Jina";
+
+        // Pata wanafunzi wa darasa hili
+        const studentsSnap = await getDocs(query(collection(db, "students"), where("classId", "==", classId)));
+        const studentCount = studentsSnap.size;
+        totalStudents += studentCount;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index++}</td>
+          <td>${className}</td>
+          <td>${studentCount}</td>
+        `;
+        classesTable.appendChild(row);
+      }
+
+      summaryEl.innerHTML = `Jumla ya Madarasa: <strong>${classesSnap.size}</strong> | Jumla ya Wanafunzi: <strong>${totalStudents}</strong>`;
+    } catch (err) {
+      schoolNameEl.textContent = "Hitilafu wakati wa kupakia taarifa.";
+      summaryEl.textContent = "";
+      console.error(err);
+    }
+  }
+
+  loadSchoolDetails();
+</script>
+
+</body>
+</html>
