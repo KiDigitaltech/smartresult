@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ripoti ya Mwanafunzi - SmartResult</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0; padding: 0;
+    display: flex;
+    min-height: 100vh;
+    background: #f8f9fa;
+  }
+  #sidebar-container {
+    width: 220px;
+    background: #343a40;
+    color: white;
+    min-height: 100vh;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+  #main-content {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 1rem;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  select {
+    padding: 8px 12px;
+    font-size: 1rem;
+  }
+  button {
+    padding: 10px 16px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    margin: 0 auto 1rem auto;
+    display: block;
+  }
+  button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 0 5px rgb(0 0 0 / 0.1);
+    table-layout: fixed;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    font-size: 1rem;
+    text-align: center;
+    word-wrap: break-word;
+  }
+  th.subject-name, td.subject-name {
+    text-align: left;
+    white-space: nowrap;
+  }
+  th {
+    background: #f0f0f0;
+    font-weight: 700;
+  }
+  /* Grade Colors */
+  .grade-A { background-color: #c8e6c9; }
+  .grade-B { background-color: #bbdefb; }
+  .grade-C { background-color: #fff9c4; }
+  .grade-D { background-color: #ffe0b2; }
+  .grade-F { background-color: #ffcdd2; }
+
+  #loader {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(255,255,255,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    font-size: 1.2rem;
+    color: #007bff;
+  }
+  #loader.active {
+    display: flex;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg);}
+  }
+  #loader .spinner {
+    border: 5px solid #ddd;
+    border-top: 5px solid #007bff;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    margin-right: 12px;
+    animation: spin 1s linear infinite;
+  }
+
+  /* Print styles */
+  @media print {
+    body * { visibility: hidden; }
+    #print-area, #print-area * { visibility: visible; }
+    #print-area {
+      position: absolute; top: 0; left: 0; width: 100%;
+      padding: 1rem;
+      font-family: 'Times New Roman', serif;
+    }
+    table {
+      width: 100% !important;
+      border: 1px solid black !important;
+      border-collapse: collapse !important;
+    }
+    th, td {
+      border: 1px solid black !important;
+      font-size: 12pt !important;
+      padding: 5px 8px !important;
+      text-align: center !important;
+    }
+    th.subject-name, td.subject-name {
+      text-align: left !important;
+      white-space: nowrap !important;
+    }
+    #print-header, #print-footer {
+      visibility: visible;
+      text-align: center;
+      margin-bottom: 1rem;
+      page-break-after: avoid;
+      font-size: 14pt;
+      font-weight: 600;
+    }
+    #print-footer {
+      margin-top: 2rem;
+      font-size: 10pt;
+      color: #555;
+    }
+    #sidebar-container, #main-content > .filters, #main-content > button {
+      display: none !important;
+    }
+  }
+  /* Responsive Design Improvements */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  #sidebar-container {
+    width: 100%;
+    min-height: auto;
+    text-align: center;
+  }
+
+  #main-content {
+    padding: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  select, button {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  table {
+    font-size: 0.9rem;
+    overflow-x: auto;
+    display: block;
+  }
+
+  th, td {
+    padding: 6px 8px;
+    font-size: 0.95rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.1rem;
+  }
+
+  #print-header div {
+    font-size: 0.95rem;
+  }
+
+  .filters {
+    gap: 0.3rem;
+  }
+
+  th, td {
+    font-size: 0.85rem;
+    padding: 4px 6px;
+  }
+}
+
+</style>
+</head>
+<body>
+
+  <div id="sidebar-container"></div>
+
+  <div id="main-content">
+    <h1><i class="fa fa-file-alt"></i> Ripoti ya Mwanafunzi</h1>
+
+    <div class="filters">
+      <select id="classSelect">
+        <option value="">-- Chagua Darasa --</option>
+      </select>
+
+      <select id="studentSelect" disabled>
+        <option value="">-- Chagua Mwanafunzi --</option>
+      </select>
+
+      <select id="termSelect" disabled>
+        <option value="">-- Chagua Kipindi --</option>
+        <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+        <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+        <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+        <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+        <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+        <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+        <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+        <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+      </select>
+    </div>
+
+    <button id="printBtn" disabled><i class="fa fa-print"></i> Chapisha Ripoti</button>
+
+    <div id="loader">
+      <div class="spinner"></div> Tafadhali subiri...
+    </div>
+
+    <div id="print-area" style="flex: 1; display: flex; flex-direction: column;">
+      <div id="print-header" aria-live="polite" aria-atomic="true"></div>
+
+      <table id="resultsTable" aria-describedby="print-header"></table>
+
+      <div id="print-footer">
+        Prepared by SmartResultSystem – Page <span class="page-number"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-container"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import {
+      getFirestore, collection, query, where, getDocs, getDoc, doc
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const classSelect = document.getElementById('classSelect');
+    const studentSelect = document.getElementById('studentSelect');
+    const termSelect = document.getElementById('termSelect');
+    const resultsTable = document.getElementById('resultsTable');
+    const printHeader = document.getElementById('print-header');
+    const printBtn = document.getElementById('printBtn');
+    const loader = document.getElementById('loader');
+
+    let currentSchoolId = "";
+    let schoolName = "";
+
+    function getGrade(score) {
+      if(score >= 81) return 'A';
+      if(score >= 61) return 'B';
+      if(score >= 41) return 'C';
+      if(score >= 31) return 'D';
+      return 'F';
+    }
+
+    function gradeClass(g) {
+      return {
+        "A": "grade-A",
+        "B": "grade-B",
+        "C": "grade-C",
+        "D": "grade-D",
+        "F": "grade-F"
+      }[g] || "";
+    }
+
+    function showLoader(show) {
+      if(show) {
+        loader.classList.add('active');
+        printBtn.disabled = true;
+        classSelect.disabled = true;
+        studentSelect.disabled = true;
+        termSelect.disabled = true;
+      } else {
+        loader.classList.remove('active');
+        printBtn.disabled = false;
+        classSelect.disabled = false;
+        studentSelect.disabled = false;
+        termSelect.disabled = false;
+      }
+    }
+
+    async function loadSchoolName() {
+      if(!currentSchoolId) return;
+      const schoolDoc = await getDoc(doc(db, "schools", currentSchoolId));
+      if(schoolDoc.exists()) {
+        schoolName = schoolDoc.data().name || "";
+      }
+    }
+
+    async function loadClasses() {
+      const q = query(collection(db, "classes"), where("schoolId", "==", currentSchoolId));
+      const snapshot = await getDocs(q);
+      classSelect.innerHTML = `<option value="">-- Chagua Darasa --</option>`;
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const opt = document.createElement('option');
+        opt.value = docSnap.id;
+        opt.textContent = data.name;
+        classSelect.appendChild(opt);
+      });
+      studentSelect.innerHTML = `<option value="">-- Chagua Mwanafunzi --</option>`;
+      studentSelect.disabled = true;
+      termSelect.disabled = true;
+      printBtn.disabled = true;
+    }
+
+    async function loadStudents(classId) {
+      if(!classId) return;
+      const q = query(collection(db, "students"), where("schoolId", "==", currentSchoolId), where("classId", "==", classId));
+      const snapshot = await getDocs(q);
+      studentSelect.innerHTML = `<option value="">-- Chagua Mwanafunzi --</option>`;
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const opt = document.createElement('option');
+        opt.value = docSnap.id;
+        opt.textContent = data.name;
+        studentSelect.appendChild(opt);
+      });
+      studentSelect.disabled = false;
+      termSelect.disabled = true;
+      printBtn.disabled = true;
+    }
+
+    async function loadResults(studentId, classId, term) {
+      if(!studentId || !classId || !term) return;
+
+      showLoader(true);
+
+      // Get student info
+      const studentDoc = await getDoc(doc(db, "students", studentId));
+      if(!studentDoc.exists()) {
+        alert("Mwanafunzi hapatikani.");
+        showLoader(false);
+        return;
+      }
+      const studentData = studentDoc.data();
+
+      // Get results for this student, class, term
+      const resultsQ = query(collection(db, "results"),
+        where("schoolId", "==", currentSchoolId),
+        where("classId", "==", classId),
+        where("term", "==", term),
+        where("studentId", "==", studentId)
+      );
+
+      const resultsSnap = await getDocs(resultsQ);
+      if(resultsSnap.empty) {
+        alert("Hakuna matokeo ya mwanafunzi huyu kwa kipindi hiki.");
+        resultsTable.innerHTML = "";
+        printHeader.innerHTML = "";
+        printBtn.disabled = true;
+        showLoader(false);
+        return;
+      }
+
+      // Get subjects for this class
+      const subjectsQ = query(collection(db, "subjects"),
+        where("schoolId", "==", currentSchoolId),
+        where("classId", "==", classId)
+      );
+      const subjectsSnap = await getDocs(subjectsQ);
+      const subjects = {};
+      subjectsSnap.forEach(doc => {
+        subjects[doc.id] = doc.data().name;
+      });
+
+      // Usually 1 result doc per student per term
+      let resultData = null;
+      resultsSnap.forEach(doc => {
+        resultData = doc.data();
+      });
+
+      // Calculate total, average
+      let total = 0;
+      let count = 0;
+      const rows = [];
+
+      for(const subId in subjects) {
+        const mark = resultData.results?.[subId];
+        if(mark !== undefined && mark !== null && mark !== '') {
+          total += mark;
+          count++;
+          const grade = getGrade(mark);
+          rows.push({ name: subjects[subId], mark, grade });
+        } else {
+          rows.push({ name: subjects[subId], mark: '-', grade: '-' });
+        }
+      }
+
+      const avg = count ? (total / count) : 0;
+      const avgGrade = getGrade(avg);
+
+      // Get class name
+      const classDoc = await getDoc(doc(db, "classes", classId));
+      const className = classDoc.exists() ? classDoc.data().name : "";
+
+      // Prepare print header
+      printHeader.innerHTML = `
+        <div><strong>Jina la Shule:</strong> ${schoolName}</div>
+        <div><strong>Darasa:</strong> ${className}</div>
+        <div><strong>Mwanafunzi:</strong> ${studentData.name}</div>
+        <div><strong>Kipindi:</strong> ${term}</div>
+        <div><strong>Mwaka:</strong> ${new Date().getFullYear()}</div>
+      `;
+
+      // Build table html
+      let html = `<tr>
+        <th class="subject-name">Somo</th>
+        <th>Alama</th>
+        <th>Gredi</th>
+      </tr>`;
+
+      rows.forEach(r => {
+        html += `<tr class="${gradeClass(r.grade)}">
+          <td class="subject-name">${r.name}</td>
+          <td>${r.mark}</td>
+          <td>${r.grade}</td>
+        </tr>`;
+      });
+
+      // Add total and average row
+      html += `<tr>
+        <td class="subject-name"><strong>Jumla</strong></td>
+        <td><strong>${total}</strong></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="subject-name"><strong>Wastani</strong></td>
+        <td><strong>${avg.toFixed(2)}</strong></td>
+        <td><strong>${avgGrade}</strong></td>
+      </tr>`;
+
+      resultsTable.innerHTML = html;
+      printBtn.disabled = false;
+
+      showLoader(false);
+    }
+
+    // Load sidebar and footer
+    function loadIncludes() {
+      fetch('sidebar.html').then(res => res.text()).then(html => {
+        document.getElementById('sidebar-container').innerHTML = html;
+      });
+      fetch('footer.html').then(res => res.text()).then(html => {
+        document.getElementById('footer-container').innerHTML = html;
+      });
+    }
+
+    // Firebase auth state change to get user and schoolId
+    onAuthStateChanged(auth, async (user) => {
+      if(!user) {
+        location.href = "index.html";
+        return;
+      }
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if(userDoc.exists()) {
+        currentSchoolId = userDoc.data().schoolId || "";
+        await loadSchoolName();
+        await loadClasses();
+      }
+    });
+
+    classSelect.addEventListener('change', async () => {
+      const classId = classSelect.value;
+      studentSelect.innerHTML = `<option value="">-- Chagua Mwanafunzi --</option>`;
+      termSelect.value = "";
+      termSelect.disabled = true;
+      printBtn.disabled = true;
+      resultsTable.innerHTML = "";
+      printHeader.innerHTML = "";
+      if(classId) {
+        showLoader(true);
+        await loadStudents(classId);
+        termSelect.disabled = false;
+        showLoader(false);
+      } else {
+        studentSelect.disabled = true;
+      }
+    });
+
+    studentSelect.addEventListener('change', () => {
+      termSelect.value = "";
+      printBtn.disabled = true;
+      resultsTable.innerHTML = "";
+      printHeader.innerHTML = "";
+    });
+
+    termSelect.addEventListener('change', async () => {
+      const classId = classSelect.value;
+      const studentId = studentSelect.value;
+      const term = termSelect.value;
+      if(classId && studentId && term) {
+        await loadResults(studentId, classId, term);
+      } else {
+        resultsTable.innerHTML = "";
+        printHeader.innerHTML = "";
+        printBtn.disabled = true;
+      }
+    });
+
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+
+    loadIncludes();
+
+  </script>
+
+</body>
+</html>
