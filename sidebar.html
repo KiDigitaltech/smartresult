@@ -1,96 +1,146 @@
 <style>
-  /* Reset */
-  nav {
-    width: 250px;
-    background: linear-gradient(180deg, #2c3e50, #4b6584);
+  #sidebar {
+    width: 210px;
+    background: linear-gradient(180deg, #007bff, #0056b3);
     color: #fff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     height: 100vh;
-    position: fixed;
-    top: 0; left: 0;
-    padding: 2rem 1rem;
+    position: sticky;
+    top: 58px;
+    left: 0;
+    padding: 1.3rem 1rem;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+    box-shadow: 3px 0 10px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transition: transform 0.3s ease;
   }
 
-  nav a {
+  #sidebar nav a {
     display: flex;
     align-items: center;
-    color: #d1d8e0;
+    color: #e3f2fd;
     text-decoration: none;
     font-weight: 600;
-    font-size: 1.05rem;
-    margin-bottom: 1.25rem;
+    font-size: 0.96rem;
+    margin-bottom: 1rem;
     padding: 0.6rem 1rem;
-    border-radius: 8px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    user-select: none;
+    border-radius: 6px;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   }
 
-  nav a i {
-    margin-right: 12px;
-    font-size: 1.3rem;
-    min-width: 22px;
+  #sidebar nav a i {
+    margin-right: 10px;
+    font-size: 1.15rem;
+    width: 20px;
     text-align: center;
   }
 
-  nav a:hover,
-  nav a:focus,
-  nav a.active {
-    background-color: #1abc9c;
+  #sidebar nav a:hover,
+  #sidebar nav a:focus {
+    background-color: rgba(255, 255, 255, 0.15);
     color: #fff;
-    box-shadow: 0 0 8px #1abc9ccc;
+    box-shadow: 0 0 5px #fff3;
   }
 
-  nav hr {
+  #sidebar nav a.active {
+    background-color: #ffc107;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+  }
+
+  #sidebar hr {
     border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    margin: 1.5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    margin: 1.2rem 0;
   }
 
-  /* Responsive: small screens */
+  /* Sidebar collapsed */
+  #sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  /* Overlay for mobile */
+  #sidebarOverlay {
+    display: none;
+  }
+
+  /* Mobile styles */
   @media (max-width: 768px) {
-    nav {
-      position: relative;
+    #sidebar {
+      position: fixed;
+      height: 100vh;
+      top: 58px;
+      left: 0;
+      transform: translateX(-100%);
+    }
+
+    #sidebar.show {
+      transform: translateX(0);
+    }
+
+    #sidebarOverlay.active {
+      display: block;
+      position: fixed;
+      top: 58px;
+      left: 0;
       width: 100%;
-      height: auto;
-      display: flex;
-      flex-wrap: wrap;
-      padding: 1rem;
-      box-shadow: none;
-      background: #34495e;
-    }
-
-    nav a {
-      flex: 1 1 45%;
-      margin: 0.5rem 0.5rem;
-      border-radius: 6px;
-      justify-content: center;
-      font-size: 0.9rem;
-    }
-
-    nav a i {
-      margin-right: 6px;
-      font-size: 1.1rem;
-    }
-
-    nav hr {
-      display: none;
+      height: calc(100vh - 58px);
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 900;
     }
   }
 </style>
 
-<nav>
-  <a href="school-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashibodi</a>
-  <a href="register-students.html"><i class="fas fa-user-plus"></i> Sajili Wanafunzi</a>
-  <a href="register-classes.html"><i class="fas fa-layer-group"></i> Sajili Madarasa</a>
-  <a href="register-subjects.html"><i class="fas fa-book"></i> Sajili Masomo</a>
-  <a href="enter-results.html"><i class="fas fa-pen"></i> Jaza Matokeo</a>
-  <hr>
-  <a href="subject-results.html"><i class="fas fa-chart-bar"></i> Matokeo ya Somo</a>
-  <a href="average-subjects.html"><i class="fas fa-percent"></i> Wastani wa Masomo</a>
-  <a href="students-report.html"><i class="fas fa-file-alt"></i> Ripoti ya Mwanafunzi</a>
-</nav>
+<div id="sidebar">
+  <nav>
+    <a href="school-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashibodi</a>
+    <a href="register-students.html"><i class="fas fa-user-plus"></i> Sajili Wanafunzi</a>
+    <a href="register-classes.html"><i class="fas fa-layer-group"></i> Sajili Madarasa</a>
+    <a href="register-subjects.html"><i class="fas fa-book"></i> Sajili Masomo</a>
+    <a href="enter-results.html"><i class="fas fa-pen"></i> Jaza Matokeo</a>
+    <hr>
+    <a href="subject-results.html"><i class="fas fa-chart-bar"></i> Matokeo ya Somo</a>
+    <a href="average-subjects.html"><i class="fas fa-percent"></i> Wastani wa Masomo</a>
+    <a href="students-report.html"><i class="fas fa-file-alt"></i> Ripoti ya Mwanafunzi</a>
+  </nav>
+</div>
+<div id="sidebarOverlay"></div>
+
+<script>
+  // On load: highlight active link
+  const currentPage = window.location.pathname.split("/").pop();
+  document.querySelectorAll("#sidebar nav a").forEach(link => {
+    if (link.getAttribute("href") === currentPage) {
+      link.classList.add("active");
+    }
+
+    // Hide sidebar on mobile after click
+    link.addEventListener("click", () => {
+      if (window.innerWidth <= 768) {
+        document.getElementById("sidebar").classList.remove("show");
+        document.getElementById("sidebarOverlay").classList.remove("active");
+      }
+    });
+  });
+
+  // Toggle button logic
+  if (document.getElementById("btnToggleSidebar")) {
+    document.getElementById("btnToggleSidebar").addEventListener("click", () => {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("show");
+      document.getElementById("sidebarOverlay").classList.toggle("active");
+    });
+  }
+
+  // Hide sidebar when clicking outside (mobile)
+  const overlay = document.getElementById("sidebarOverlay");
+  if (overlay) {
+    overlay.addEventListener("click", () => {
+      document.getElementById("sidebar").classList.remove("show");
+      overlay.classList.remove("active");
+    });
+  }
+</script>
