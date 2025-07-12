@@ -1,37 +1,13 @@
-// Load sidebar
-fetch("sidebar.html")
-  .then(res => res.text())
-  .then(html => {
-    document.getElementById("sidebarContainer").innerHTML = html;
-
-    const sidebar = document.getElementById("sidebar");
-    const current = window.location.pathname.split("/").pop();
-    document.querySelectorAll("#sidebar nav a").forEach(link => {
-      if (link.getAttribute("href") === current) {
-        link.classList.add("active");
-      }
-      link.addEventListener("click", () => {
-        if (window.innerWidth <= 768) {
-          sidebar.classList.add("collapsed");
-          sidebarOverlay.classList.remove("active");
-        }
-      });
-    });
-
-    const btnToggleSidebar = document.getElementById("btnToggleSidebar");
-    btnToggleSidebar.addEventListener("click", () => {
-      sidebar.classList.toggle("collapsed");
-      if (window.innerWidth <= 768) {
-        sidebarOverlay.classList.toggle("active");
-      }
-    });
-
-    sidebarOverlay.addEventListener("click", () => {
-      sidebar.classList.add("collapsed");
-      sidebarOverlay.classList.remove("active");
-    });
-
-    if (window.innerWidth <= 768) {
-      sidebar.classList.add("collapsed");
-    }
-  });
+<!-- sidebar.html -->
+<div id="sidebar">
+  <nav>
+    <a href="school-dashboard.html"><i class="fas fa-home"></i> Dashibodi</a>
+    <a href="register-students.html"><i class="fas fa-user-plus"></i> Sajili Wanafunzi</a>
+    <a href="register-classes.html"><i class="fas fa-chalkboard"></i> Madarasa</a>
+    <a href="register-subjects.html"><i class="fas fa-book"></i> Masomo</a>
+    <a href="enter-results.html"><i class="fas fa-pen"></i> Ingiza Matokeo</a>
+    <a href="view-results.html"><i class="fas fa-table"></i> Matokeo ya Darasa</a>
+    <a href="subject-performance.html"><i class="fas fa-chart-line"></i> Matokeo ya Somo</a>
+    <a href="student-report.html"><i class="fas fa-file-alt"></i> Ripoti ya Mwanafunzi</a>
+  </nav>
+</div>
