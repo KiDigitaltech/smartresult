@@ -226,6 +226,7 @@
     deleteDoc,
     updateDoc,
     doc,
+    getDoc,
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
@@ -255,11 +256,12 @@
   const editSubjectId = document.getElementById("editSubjectId");
 
   let currentUser;
+  let currentSchoolId = '';
 
-  // Load classes owned by current user
+  // Load classes owned by current user's school
   async function loadClasses() {
     classSelect.innerHTML = `<option value="">-- Chagua Darasa --</option>`;
-    const q = query(collection(db, "classes"), where("uid", "==", currentUser.uid));
+    const q = query(collection(db, "classes"), where("schoolId", "==", currentSchoolId));
     const snapshot = await getDocs(q);
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
@@ -284,7 +286,7 @@
 
     const q = query(
       collection(db, "subjects"),
-      where("uid", "==", currentUser.uid),
+      where("schoolId", "==", currentSchoolId),
       where("classId", "==", classId)
     );
     const snapshot = await getDocs(q);
@@ -325,11 +327,11 @@
 
     loader.style.display = "block";
 
-    // Check for duplicate subject in same class
+    // Check for duplicate subject in same class & school
     const subjectsRef = collection(db, "subjects");
     const q = query(
       subjectsRef,
-      where("uid", "==", currentUser.uid),
+      where("schoolId", "==", currentSchoolId),
       where("classId", "==", classId)
     );
     const snapshot = await getDocs(q);
@@ -347,6 +349,7 @@
     await addDoc(subjectsRef, {
       name,
       uid: currentUser.uid,
+      schoolId: currentSchoolId,
       classId,
       createdAt: serverTimestamp(),
     });
@@ -371,11 +374,11 @@
     const newName = editSubjectName.value.trim();
     if (!newName) return;
 
-    // Check duplicate before updating
+    // Check duplicate before updating in same school & class
     const subjectsRef = collection(db, "subjects");
     const q = query(
       subjectsRef,
-      where("uid", "==", currentUser.uid),
+      where("schoolId", "==", currentSchoolId),
       where("classId", "==", classSelect.value)
     );
     const snapshot = await getDocs(q);
@@ -417,8 +420,17 @@
   onAuthStateChanged(auth, async (user) => {
     if (!user) return (location.href = "index.html");
     currentUser = user;
-    await loadClasses();
-    if (classSelect.value) loadSubjects();
+
+    // Get schoolId from users collection
+    const userRef = doc(db, "users", currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      currentSchoolId = userSnap.data().schoolId;
+      await loadClasses();
+      if (classSelect.value) loadSubjects();
+    } else {
+      alert("Taarifa za mtumiaji hazikupatikana!");
+    }
   });
 </script>
 
