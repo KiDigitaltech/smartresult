@@ -30,7 +30,6 @@
     .actions i.edit:hover { color:#28a745; }
     .actions i.delete:hover { color:#dc3545; }
 
-    /* Popup */
     #editPopup { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:200; }
     #editPopup .popup { background:#fff; padding:2rem; border-radius:8px; width:90%;max-width:400px; }
     @media(max-width:768px) { main { padding:1rem; } }
@@ -50,7 +49,7 @@
       <a href="register-students.html"><i class="fa-solid fa-user-graduate"></i> Wanafunzi</a>
       <a href="register-subjects.html"><i class="fa-solid fa-book"></i> Masomo</a>
       <a href="register-classes.html" class="active"><i class="fa-solid fa-chalkboard"></i> Madarasa</a>
-     <a href="enter-results.html"><i class="fa-solid fa-pen-to-square"></i> Ingiza Matokeo</a>
+      <a href="enter-results.html"><i class="fa-solid fa-pen-to-square"></i> Ingiza Matokeo</a>
       <a href="view-results.html"><i class="fa-solid fa-eye"></i> Tazama Matokeo</a>
       <a href="profile.html"><i class="fa-solid fa-user"></i> Profaili</a>
     </nav>
@@ -86,7 +85,7 @@
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
   import {
     getFirestore, collection, query, where,
-    getDocs, addDoc, deleteDoc, updateDoc, doc, serverTimestamp
+    getDocs, addDoc, deleteDoc, updateDoc, doc, serverTimestamp, getDoc
   } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -94,6 +93,7 @@
     authDomain: "smartresult-6c09c.firebaseapp.com",
     projectId: "smartresult-6c09c"
   };
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app), db = getFirestore(app);
 
@@ -107,7 +107,7 @@
   const editClassName = document.getElementById('editClassName');
   const btnUpdate = document.getElementById('btnUpdate');
 
-  let currentUser, editID = null;
+  let currentUser, editID = null, schoolId = null;
 
   const showLoader = () => loader.style.display = 'block';
   const hideLoader = () => loader.style.display = 'none';
@@ -116,7 +116,16 @@
   onAuthStateChanged(auth, async user => {
     if (!user) return location.href='index.html';
     currentUser = user;
-    loadClasses();
+
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      schoolId = userSnap.data().schoolId;
+      loadClasses();
+    } else {
+      alert("Taarifa za mtumiaji hazipatikani.");
+    }
   });
 
   btnLogout.onclick = async()=> { await signOut(auth); location.href='index.html'; };
@@ -124,14 +133,19 @@
   form.onsubmit = async e => {
     e.preventDefault();
     const name = className.value.trim();
-    if (!name) return;
+    if (!name || !schoolId) return;
+
     showLoader();
-    const q = query(collection(db, 'classes'), where('uid','==',currentUser.uid));
+    const q = query(collection(db, 'classes'), where('schoolId','==',schoolId));
     const snap = await getDocs(q);
     const dup = snap.docs.some(d=> d.data().name.toLowerCase()===name.toLowerCase());
+
     if (dup) { hideLoader(); return showMsg('Darasa tayari limesajiliwa','red'); }
 
-    await addDoc(collection(db, 'classes'), { name, uid: currentUser.uid, createdAt: serverTimestamp() });
+    await addDoc(collection(db, 'classes'), {
+      name, schoolId, createdAt: serverTimestamp()
+    });
+
     className.value='';
     hideLoader(); showMsg('Darasa limesajiliwa');
     loadClasses();
@@ -139,8 +153,9 @@
 
   async function loadClasses(){
     classList.innerHTML='';
+    if (!schoolId) return;
     showLoader();
-    const q = query(collection(db,'classes'), where('uid','==',currentUser.uid));
+    const q = query(collection(db,'classes'), where('schoolId','==',schoolId));
     const snap = await getDocs(q);
     snap.docs.forEach(docSnap => {
       const d = docSnap.data();
