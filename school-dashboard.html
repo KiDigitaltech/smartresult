@@ -5,12 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>School Dashboard - SmartResult</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
@@ -20,7 +16,6 @@
       min-height: 100vh;
       flex-direction: column;
     }
-
     header {
       background: #007bff;
       color: white;
@@ -30,160 +25,60 @@
       justify-content: space-between;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      user-select: none;
-    }
-
-    #sidebar {
-      background: #0056b3;
-      color: white;
-      width: 220px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      padding-top: 1rem;
-    }
-
+    header h1 { margin: 0; font-size: 1.5rem; user-select: none; }
+    #sidebar { background: #0056b3; color: white; width: 220px; flex-shrink: 0; display: flex; flex-direction: column; padding-top: 1rem; }
     #sidebar nav a {
-      color: white;
-      padding: 1rem 1.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      border-left: 4px solid transparent;
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
+      color: white; padding: 1rem 1.5rem; text-decoration: none; font-weight: 600;
+      border-left: 4px solid transparent; display: flex; align-items: center; gap: 0.8rem;
       transition: background 0.3s, border-color 0.3s;
     }
-
-    #sidebar nav a:hover,
-    #sidebar nav a.active {
-      background: #003d80;
-      border-left-color: #ffd54f;
+    #sidebar nav a:hover, #sidebar nav a.active {
+      background: #003d80; border-left-color: #ffd54f;
     }
-
     main {
-      flex-grow: 1;
-      padding: 2rem;
-      max-width: 1000px;
-      margin: auto;
-      position: relative;
+      flex-grow: 1; padding: 2rem; max-width: 1000px; margin: auto; position: relative;
     }
-
     .loader {
-      text-align: center;
-      font-size: 1rem;
-      color: #007bff;
-      padding: 30px;
-      display: none;
+      text-align: center; font-size: 1rem; color: #007bff; padding: 30px; display: none;
     }
-
     .instructions-box {
-      background-color: #f0f8ff;
-      border-left: 5px solid #007bff;
-      padding: 15px 20px;
-      margin-top: 20px;
-      border-radius: 8px;
+      background-color: #f0f8ff; border-left: 5px solid #007bff;
+      padding: 15px 20px; margin-top: 20px; border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
-
-    .instructions-box h3 {
-      margin-top: 0;
-      color: #007bff;
-      font-size: 18px;
-    }
-
-    .instructions-box ul {
-      padding-left: 20px;
-      margin: 10px 0;
-    }
-
-    .instructions-box li {
-      margin-bottom: 8px;
-      line-height: 1.6;
-    }
-
+    .instructions-box h3 { margin-top: 0; color: #007bff; font-size: 18px; }
+    .instructions-box ul { padding-left: 20px; margin: 10px 0; }
+    .instructions-box li { margin-bottom: 8px; line-height: 1.6; }
     .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.2rem;
-      margin-top: 1rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem; margin-top: 1rem;
     }
-
     .stat-card {
-      background: white;
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-      transition: transform 0.2s ease;
+      background: white; display: flex; align-items: center;
+      padding: 1rem; border-radius: 10px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08); transition: transform 0.2s ease;
     }
-
-    .stat-card:hover {
-      transform: translateY(-3px);
-    }
-
-    .stat-icon {
-      font-size: 2.5rem;
-      color: #007bff;
-      margin-right: 1rem;
-    }
-
-    .stat-info {
-      font-size: 16px;
-      color: #333;
-    }
-
-    .stat-info strong {
-      font-size: 1.4rem;
-      color: #000;
-    }
-
+    .stat-card:hover { transform: translateY(-3px); }
+    .stat-icon { font-size: 2.5rem; color: #007bff; margin-right: 1rem; }
+    .stat-info { font-size: 16px; color: #333; }
+    .stat-info strong { font-size: 1.4rem; color: #000; }
     footer {
-      background: #f1f5f9;
-      color: #555;
-      text-align: center;
-      padding: 1rem 2rem;
-      font-size: 0.9rem;
-      border-top: 1px solid #ddd;
+      background: #f1f5f9; color: #555; text-align: center;
+      padding: 1rem 2rem; font-size: 0.9rem; border-top: 1px solid #ddd;
       margin-top: auto;
     }
-
     @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
-
-      #sidebar {
-        width: 100%;
-        flex-direction: row;
-        padding: 0;
-      }
-
+      body { flex-direction: column; }
+      #sidebar { width: 100%; flex-direction: row; padding: 0; }
       #sidebar nav a {
-        flex-grow: 1;
-        padding: 1rem 0;
-        text-align: center;
-        border-left: none;
-        border-bottom: 3px solid transparent;
+        flex-grow: 1; padding: 1rem 0; text-align: center;
+        border-left: none; border-bottom: 3px solid transparent;
         justify-content: center;
       }
-
-      #sidebar nav a:hover,
-      #sidebar nav a.active {
-        border-bottom-color: #ffd54f;
-        background: #004a99;
+      #sidebar nav a:hover, #sidebar nav a.active {
+        border-bottom-color: #ffd54f; background: #004a99;
       }
-
-      main {
-        padding: 1rem;
-        max-width: 100%;
-        margin: 0;
-      }
+      main { padding: 1rem; max-width: 100%; margin: 0; }
     }
   </style>
 </head>
@@ -197,7 +92,6 @@
 </header>
 
 <div style="display:flex; flex-grow:1; min-height:0;">
-  <!-- Sidebar placeholder -->
   <div id="sidebarContainer"></div>
 
   <main>
@@ -252,7 +146,10 @@
 <script type="module">
   import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  import {
+    getFirestore, doc, getDoc, collection, getDocs,
+    query, where
+  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
@@ -273,11 +170,11 @@
   const welcomeBox = document.getElementById("welcomeBox");
   const welcomeTitle = document.getElementById("welcomeTitle");
 
-  async function loadStats() {
-    const studentsSnap = await getDocs(collection(db, "students"));
-    const resultsSnap = await getDocs(collection(db, "results"));
-    const classesSnap = await getDocs(collection(db, "classes"));
-    const subjectsSnap = await getDocs(collection(db, "subjects"));
+  async function loadStats(schoolId) {
+    const studentsSnap = await getDocs(query(collection(db, "students"), where("schoolId", "==", schoolId)));
+    const resultsSnap = await getDocs(query(collection(db, "results"), where("schoolId", "==", schoolId)));
+    const classesSnap = await getDocs(query(collection(db, "classes"), where("schoolId", "==", schoolId)));
+    const subjectsSnap = await getDocs(query(collection(db, "subjects"), where("schoolId", "==", schoolId)));
 
     document.getElementById("totalStudents").innerHTML = `<strong>${studentsSnap.size}</strong><br>Wanafunzi Wote`;
     document.getElementById("studentsWithResults").innerHTML = `<strong>${resultsSnap.size}</strong><br>Waliojaziwa Matokeo`;
@@ -288,30 +185,28 @@
   }
 
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = 'index.html';
-    } else {
-      const uid = user.uid;
-      loader.style.display = "block";
-      welcomeBox.style.display = "none";
+    if (!user) return window.location.href = 'index.html';
 
-      try {
-        const userRef = doc(db, "users", uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          const schoolName = userData.schoolName || "Shule Yako";
-          welcomeTitle.innerText = `Karibu ${schoolName}!`;
-        } else {
-          welcomeTitle.innerText = `Karibu Mwalimu!`;
-        }
-        await loadStats();
-        loader.style.display = "none";
-        welcomeBox.style.display = "block";
-      } catch (error) {
-        loader.innerHTML = "Hitilafu katika kupakia taarifa.";
-        console.error(error);
+    loader.style.display = "block";
+    welcomeBox.style.display = "none";
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const schoolName = userData.schoolName || "Shule Yako";
+        const schoolId = userData.schoolId || "";
+        welcomeTitle.innerText = `Karibu ${schoolName}!`;
+        await loadStats(schoolId);
+      } else {
+        welcomeTitle.innerText = `Karibu Mwalimu!`;
       }
+      loader.style.display = "none";
+      welcomeBox.style.display = "block";
+    } catch (error) {
+      loader.innerHTML = "Hitilafu katika kupakia taarifa.";
+      console.error(error);
     }
   });
 
@@ -333,7 +228,7 @@
       });
     });
 
-  // Session timeout after 10 minutes
+  // Session timeout
   let inactivityTime = function () {
     let time;
     const logoutAfter = 10 * 60 * 1000;
@@ -343,9 +238,7 @@
     document.ontouchstart = resetTimer;
     function logout() {
       alert("Umetoka kwenye mfumo kwa kuwa hukufanya kazi kwa muda mrefu.");
-      auth.signOut().then(() => {
-        window.location.href = "index.html";
-      });
+      auth.signOut().then(() => window.location.href = "index.html");
     }
     function resetTimer() {
       clearTimeout(time);
