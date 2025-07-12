@@ -52,7 +52,7 @@
     background: transparent;
     border: none;
     color: white;
-    font-size: 1.2rem;
+    font-size: 1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -155,7 +155,12 @@
     gap: 8px;
   }
 
-  button:hover {
+  button:disabled {
+    background: #5a9ef9;
+    cursor: not-allowed;
+  }
+
+  button:hover:not(:disabled) {
     background: #0056b3;
   }
 
@@ -247,12 +252,15 @@
 
   <main>
     <h2><i class="fas fa-plus"></i> Sajili Shule Mpya</h2>
-    <input type="text" id="schoolName" placeholder="Jina la Shule" required />
-    <input type="email" id="email" placeholder="Barua Pepe ya Shule" required />
-    <input type="password" id="password" placeholder="Nenosiri (min 6 chars)" required />
-    <button id="btnRegister"><i class="fas fa-save"></i> Sajili Shule</button>
-    <div id="loader"></div>
-    <p id="msg"></p>
+    <input type="text" id="schoolName" placeholder="Jina la Shule" required autocomplete="off" />
+    <input type="text" id="registrationNumber" placeholder="Namba ya Usajili ya Shule" required autocomplete="off" />
+    <input type="text" id="headTeacherName" placeholder="Jina la Mkuu wa Shule" required autocomplete="off" />
+    <input type="tel" id="headTeacherPhone" placeholder="Namba ya Simu ya Mkuu wa Shule" required autocomplete="off" pattern="[0-9+]+" />
+    <input type="email" id="headTeacherEmail" placeholder="Barua Pepe ya Mkuu wa Shule" required autocomplete="off" />
+    <input type="password" id="headTeacherPassword" placeholder="Nenosiri la Mkuu wa Shule (min 6 chars)" required autocomplete="off" />
+    <button id="btnRegister" aria-live="polite" aria-busy="false"><i class="fas fa-save"></i> Sajili Shule</button>
+    <div id="loader" role="status" aria-hidden="true"></div>
+    <p id="msg" role="alert" aria-live="assertive"></p>
   </main>
 </div>
 
@@ -263,8 +271,9 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
     authDomain: "smartresult-6c09c.firebaseapp.com",
@@ -279,84 +288,125 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // Elements
   const btnRegister = document.getElementById("btnRegister");
   const btnLogout = document.getElementById("btnLogout");
   const msg = document.getElementById("msg");
   const loader = document.getElementById("loader");
 
-  // Check if admin logged in
+  // Redirect to login if no admin logged in
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.href = "admin-login.html";
     }
   });
 
+  // Helper to toggle loader and button state
+  function toggleLoading(isLoading) {
+    if (isLoading) {
+      loader.style.display = "block";
+      btnRegister.disabled = true;
+      btnRegister.style.opacity = "0.6";
+      btnRegister.setAttribute('aria-busy', 'true');
+    } else {
+      loader.style.display = "none";
+      btnRegister.disabled = false;
+      btnRegister.style.opacity = "1";
+      btnRegister.setAttribute('aria-busy', 'false');
+    }
+  }
+
   btnRegister.addEventListener("click", async () => {
     msg.textContent = "";
-    loader.style.display = "block";
-    btnRegister.disabled = true;
-    btnRegister.style.opacity = "0.6";
+    toggleLoading(true);
 
+    // Grab all input values
     const schoolName = document.getElementById("schoolName").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const registrationNumber = document.getElementById("registrationNumber").value.trim();
+    const headTeacherName = document.getElementById("headTeacherName").value.trim();
+    const headTeacherPhone = document.getElementById("headTeacherPhone").value.trim();
+    const headTeacherEmail = document.getElementById("headTeacherEmail").value.trim();
+    const headTeacherPassword = document.getElementById("headTeacherPassword").value.trim();
 
-    if (!schoolName || !email || !password) {
-      loader.style.display = "none";
-      btnRegister.disabled = false;
-      btnRegister.style.opacity = "1";
+    // Basic validation
+    if (!schoolName || !registrationNumber || !headTeacherName || !headTeacherPhone || !headTeacherEmail || !headTeacherPassword) {
+      toggleLoading(false);
       msg.style.color = "red";
-      msg.textContent = "Tafadhali jaza taarifa zote.";
+      msg.textContent = "Tafadhali jaza taarifa zote muhimu.";
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      loader.style.display = "none";
-      btnRegister.disabled = false;
-      btnRegister.style.opacity = "1";
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(headTeacherEmail)) {
+      toggleLoading(false);
       msg.style.color = "red";
-      msg.textContent = "Tafadhali ingiza barua pepe halali.";
+      msg.textContent = "Tafadhali ingiza barua pepe halali ya Mkuu wa Shule.";
       return;
     }
-    if (password.length < 6) {
-      loader.style.display = "none";
-      btnRegister.disabled = false;
-      btnRegister.style.opacity = "1";
+
+    // Password length validation
+    if (headTeacherPassword.length < 6) {
+      toggleLoading(false);
       msg.style.color = "red";
-      msg.textContent = "Nenosiri lazima liwe angalau herufi 6.";
+      msg.textContent = "Nenosiri la Mkuu wa Shule lazima liwe angalau herufi 6.";
+      return;
+    }
+
+    // Phone number validation (basic)
+    if (!/^[0-9+]+$/.test(headTeacherPhone)) {
+      toggleLoading(false);
+      msg.style.color = "red";
+      msg.textContent = "Namba ya simu ya Mkuu wa Shule si sahihi.";
       return;
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Create the head teacher user account
+      const userCredential = await createUserWithEmailAndPassword(auth, headTeacherEmail, headTeacherPassword);
       const uid = userCredential.user.uid;
 
-      await setDoc(doc(db, "users", uid), {
-        role: "school",
-        schoolName,
-        email
+      // Save school info with explicit keys you want
+      await setDoc(doc(db, "schools", uid), {
+        schoolName: schoolName,
+        schoolId: uid,
+        headTeacherName: headTeacherName,
+        registrationNumber: registrationNumber,
+        createdAt: serverTimestamp()
       });
 
-      await setDoc(doc(db, "schools", uid), {
-        name: schoolName,
-        uid,
-        createdAt: new Date()
+      // Save head teacher info linked to school
+      await setDoc(doc(db, "users", uid), {
+        role: "headTeacher",
+        name: headTeacherName,
+        email: headTeacherEmail,
+        phone: headTeacherPhone,
+        schoolId: uid,
+        schoolName: schoolName,
+        createdAt: serverTimestamp()
       });
 
       msg.style.color = "green";
-      msg.textContent = "Shule imesajiliwa kikamilifu ✅";
+      msg.textContent = "Shule na Mkuu wa Shule vimesajiliwa kikamilifu ✅";
 
-      // Clear form
+      // Clear form fields
       document.getElementById("schoolName").value = "";
-      document.getElementById("email").value = "";
-      document.getElementById("password").value = "";
+      document.getElementById("registrationNumber").value = "";
+      document.getElementById("headTeacherName").value = "";
+      document.getElementById("headTeacherPhone").value = "";
+      document.getElementById("headTeacherEmail").value = "";
+      document.getElementById("headTeacherPassword").value = "";
 
     } catch (error) {
+      console.error("Error registering head teacher and school:", error);
       msg.style.color = "red";
-      msg.textContent = "Hitilafu: " + error.message;
+      if (error.code === "auth/email-already-in-use") {
+        msg.textContent = "Barua pepe tayari imetumika.";
+      } else {
+        msg.textContent = "Hitilafu: " + error.message;
+      }
     } finally {
-      loader.style.display = "none";
-      btnRegister.disabled = false;
-      btnRegister.style.opacity = "1";
+      toggleLoading(false);
     }
   });
 
