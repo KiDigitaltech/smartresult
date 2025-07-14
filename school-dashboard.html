@@ -340,19 +340,7 @@ fetch("header.html")
   .then(html => {
     document.getElementById("headerContainer").innerHTML = html;
 
-    const btnLogout = document.getElementById('btnLogout');
-    if (btnLogout) {
-      btnLogout.addEventListener('click', async () => {
-        try {
-          await signOut(auth);
-          showPopup("Umetoka kwenye mfumo kwa mafanikio.", "success");
-          setTimeout(() => {
-            window.location.href = 'index.html';
-          }, 1500);
-        } catch (err) {
-          showPopup("Tatizo wakati wa kutoka: " + err.message, "error");
-        }
-      });
+  
     }
 
     const btnToggleSidebar = document.getElementById("btnToggleSidebar");
