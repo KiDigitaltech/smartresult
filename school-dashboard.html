@@ -272,6 +272,8 @@
 </head>
 <body>
 <div id="headerContainer"></div>
+
+
 <div style="display:flex; flex-grow:1; min-height:0;">
   <div id="sidebarContainer"></div>
   <main>
@@ -338,7 +340,6 @@ fetch("header.html")
   .then(html => {
     document.getElementById("headerContainer").innerHTML = html;
 
-    // Baada ya kupakia header, weka logout handler
     const btnLogout = document.getElementById('btnLogout');
     if (btnLogout) {
       btnLogout.addEventListener('click', async () => {
@@ -354,13 +355,11 @@ fetch("header.html")
       });
     }
 
-    // Toggle sidebar
     const btnToggleSidebar = document.getElementById("btnToggleSidebar");
     if (btnToggleSidebar) {
       btnToggleSidebar.addEventListener("click", () => {
         const sidebar = document.getElementById("sidebar");
         sidebar.classList.toggle("collapsed");
-
         if (window.innerWidth <= 768) {
           sidebarOverlay.classList.toggle("active");
         }
