@@ -271,8 +271,16 @@
   </style>
 </head>
 <body>
-<div id="headerContainer"></div>
 
+<header>
+  <button id="btnToggleSidebar" aria-label="Ongeza au ficha sidebar" title="Ongeza au ficha sidebar">
+    <i class="fas fa-bars"></i>
+  </button>
+  <h1><i class="fa-solid fa-school"></i> SmartResult - School Dashboard</h1>
+  <button id="btnLogout" title="Logout">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout
+  </button>
+</header>
 
 <div style="display:flex; flex-grow:1; min-height:0;">
   <div id="sidebarContainer"></div>
@@ -334,27 +342,6 @@
 </div>
 
 <script type="module">
-// Load header
-fetch("header.html")
-  .then(res => res.text())
-  .then(html => {
-    document.getElementById("headerContainer").innerHTML = html;
-
-  
-    }
-
-    const btnToggleSidebar = document.getElementById("btnToggleSidebar");
-    if (btnToggleSidebar) {
-      btnToggleSidebar.addEventListener("click", () => {
-        const sidebar = document.getElementById("sidebar");
-        sidebar.classList.toggle("collapsed");
-        if (window.innerWidth <= 768) {
-          sidebarOverlay.classList.toggle("active");
-        }
-      });
-    }
-  });
-
   import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
   import {
