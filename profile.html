@@ -5,13 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Profaili ya Shule - SmartResult</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       background: #eef6ff;
       display: flex;
       min-height: 100vh;
+    }
+    #sidebar-container {
+      width: 220px;
+    }
+    #main-content {
+      flex-grow: 1;
+      display: flex;
       flex-direction: column;
     }
     header {
@@ -25,20 +33,12 @@
     main {
       flex-grow: 1;
       padding: 2rem;
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
       background: white;
       margin-top: 2rem;
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    footer {
-      text-align: center;
-      background: #f1f5f9;
-      color: #555;
-      padding: 1rem;
-      border-top: 1px solid #ccc;
-      margin-top: auto;
     }
     .info-group {
       margin-bottom: 1rem;
@@ -46,12 +46,20 @@
     label {
       font-weight: bold;
       display: block;
+      margin-bottom: 5px;
     }
     .info-value {
       background: #f9f9f9;
       padding: 8px 12px;
       border-radius: 6px;
       border: 1px solid #ddd;
+    }
+    footer {
+      text-align: center;
+      background: #f1f5f9;
+      color: #555;
+      padding: 1rem;
+      border-top: 1px solid #ccc;
     }
     button {
       padding: 10px 16px;
@@ -61,149 +69,49 @@
       cursor: pointer;
       font-weight: bold;
       font-size: 1rem;
-      transition: background-color 0.3s ease;
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+      transition: 0.3s ease;
     }
     .backup-btn { background-color: #28a745; color: white; }
-    .backup-btn:hover:not(:disabled) { background-color: #218838; }
-    .delete-btn { background-color: #dc3545; color: white; margin-left: 1rem; }
-    .delete-btn:hover:not(:disabled) { background-color: #c82333; }
     .restore-btn { background-color: #ffc107; color: black; margin-left: 1rem; }
-    .restore-btn:hover:not(:disabled) { background-color: #e0a800; }
+    .delete-btn { background-color: #dc3545; color: white; margin-left: 1rem; }
 
-    aside#sidebar {
-      background: #0056b3;
-      width: 220px;
-      min-height: 100vh;
-      color: white;
-      padding-top: 1rem;
-      position: fixed;
-      top: 0;
-      left: 0;
-    }
-    #sidebar nav a {
-      color: white;
-      display: block;
-      padding: 1rem 1.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      border-left: 4px solid transparent;
-    }
-    #sidebar nav a:hover, #sidebar nav a.active {
-      background: #003d80;
-      border-left-color: #ffd54f;
-    }
-    #container { display: flex; }
-    #main-wrapper { margin-left: 220px; width: 100%; }
-
-    /* Loader Overlay */
-    #loaderOverlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.8);
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      flex-direction: column;
-    }
-    #loaderOverlay.active {
-      visibility: visible;
-      opacity: 1;
-    }
-    .loader {
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid #007bff;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% {transform: rotate(0deg);}
-      100% {transform: rotate(360deg);}
-    }
-
-    #loaderText {
-      margin-top: 1rem;
-      font-weight: bold;
-      color: #007bff;
-    }
-
-    /* Restore Popup */
-    #restoreModal {
+    #restoreInput {
       display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 10000;
-      justify-content: center;
-      align-items: center;
-    }
-    #restoreModalContent {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 10px;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
     }
   </style>
 </head>
 <body>
 
-<div id="container">
-  <aside id="sidebar">
-    <nav>
-      <a href="school-dashboard.html"><i class="fa-solid fa-house"></i> Nyumbani</a>
-      <a href="register-students.html"><i class="fa-solid fa-user-graduate"></i> Wanafunzi</a>
-      <a href="register-subjects.html"><i class="fa-solid fa-book"></i> Masomo</a>
-      <a href="register-classes.html"><i class="fa-solid fa-chalkboard"></i> Madarasa</a>
-      <a href="enter-results.html"><i class="fa-solid fa-pen-to-square"></i> Matokeo</a>
-      <a href="view-results.html"><i class="fa-solid fa-eye"></i> Tazama Matokeo</a>
-      <a href="profile.html" class="active"><i class="fa-solid fa-user"></i> Profaili</a>
-    </nav>
-  </aside>
+<div id="sidebar-container"></div>
 
-  <div id="main-wrapper">
-    <header>
-      <h1><i class="fa-solid fa-user"></i> Profaili ya Mtumiaji</h1>
-      <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-    </header>
+<div id="main-content">
+  <header>
+    <h1><i class="fa-solid fa-user"></i> Profaili ya Mtumiaji</h1>
+    <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </header>
 
-    <main>
-      <div class="info-group"><label>Jina la Shule</label><div class="info-value" id="schoolName">Inapakia...</div></div>
-      <div class="info-group"><label>Barua Pepe</label><div class="info-value" id="schoolEmail">Inapakia...</div></div>
-      <div class="info-group"><label>Tarehe ya Kujiunga</label><div class="info-value" id="enrollDate">Inapakia...</div></div>
+  <main>
+    <div style="text-align:center; margin-bottom: 2rem;">
+      <i class="fa-solid fa-school" style="font-size: 60px; color: #0056b3;"></i>
+      <h2 id="schoolTitle">Inapakia...</h2>
+      <p id="headTeacherName">Mkuu wa Shule: Inapakia...</p>
+    </div>
 
+    <div class="info-group"><label>Jina la Shule</label><div class="info-value" id="schoolName">Inapakia...</div></div>
+    <div class="info-group"><label>Mkuu wa Shule</label><div class="info-value" id="headName">Inapakia...</div></div>
+    <div class="info-group"><label>Barua Pepe</label><div class="info-value" id="schoolEmail">Inapakia...</div></div>
+    <div class="info-group"><label>Tarehe ya Kujiunga</label><div class="info-value" id="enrollDate">Inapakia...</div></div>
+
+    <input type="file" id="restoreInput" accept=".json" />
+
+    <div style="text-align:center; margin-top:2rem;">
       <button class="backup-btn" id="backupBtn"><i class="fa-solid fa-download"></i> Backup Data</button>
-      <button class="restore-btn" id="restoreBtn"><i class="fa-solid fa-rotate"></i> Restore Data</button>
+      <button class="restore-btn" id="restoreBtn"><i class="fa-solid fa-upload"></i> Restore Data</button>
       <button class="delete-btn" id="deleteBtn"><i class="fa-solid fa-trash"></i> Futa Data Zote</button>
-    </main>
+    </div>
+  </main>
 
-    <footer>&copy; 2025 SmartResult. Haki zote zimehifadhiwa.</footer>
-  </div>
-</div>
-
-<!-- Loader -->
-<div id="loaderOverlay"><div class="loader"></div><div id="loaderText">Tafadhali subiri...</div></div>
-
-<!-- Restore Modal -->
-<div id="restoreModal">
-  <div id="restoreModalContent">
-    <h3><i class="fa-solid fa-rotate"></i> Rejesha Backup</h3>
-    <p>Chagua faili la <code>.json</code> ulilopakua wakati wa backup.</p>
-    <input type="file" id="restoreFileInput" accept=".json" style="margin:1rem 0;" />
-    <br />
-    <button id="startRestoreBtn" style="background:#28a745; color:white; padding:0.5rem 1rem; border:none; border-radius:5px;">Rejesha</button>
-    <button onclick="closeRestoreModal()" style="background:#ccc; padding:0.5rem 1rem; border:none; border-radius:5px; margin-left:1rem;">Funga</button>
-  </div>
+  <footer>&copy; 2025 SmartResult. Haki zote zimehifadhiwa.</footer>
 </div>
 
 <script type="module">
@@ -224,15 +132,17 @@
   const db = getFirestore(app);
 
   const logoutBtn = document.getElementById('logoutBtn');
+  const schoolTitle = document.getElementById('schoolTitle');
   const schoolName = document.getElementById('schoolName');
+  const headName = document.getElementById('headName');
   const schoolEmail = document.getElementById('schoolEmail');
   const enrollDate = document.getElementById('enrollDate');
+  const headTeacherName = document.getElementById('headTeacherName');
+
   const backupBtn = document.getElementById('backupBtn');
   const restoreBtn = document.getElementById('restoreBtn');
   const deleteBtn = document.getElementById('deleteBtn');
-  const loaderOverlay = document.getElementById('loaderOverlay');
-  const loaderText = document.getElementById('loaderText');
-  const restoreModal = document.getElementById('restoreModal');
+  const restoreInput = document.getElementById('restoreInput');
 
   let currentUser = null;
 
@@ -241,105 +151,70 @@
     if (date.toDate) date = date.toDate();
     if (typeof date === 'string') date = new Date(date);
     if (!(date instanceof Date)) return 'Haijulikani';
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2,'0');
-    const dd = String(date.getDate()).padStart(2,'0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-
-  function showProgressLoader(text) {
-    loaderText.textContent = text || 'Inapakia...';
-    loaderOverlay.classList.add('active');
-    backupBtn.disabled = true;
-    restoreBtn.disabled = true;
-    deleteBtn.disabled = true;
-  }
-
-  function hideProgressLoader() {
-    loaderOverlay.classList.remove('active');
-    backupBtn.disabled = false;
-    restoreBtn.disabled = false;
-    deleteBtn.disabled = false;
+    return date.toISOString().split('T')[0];
   }
 
   async function loadUserProfile() {
-    const docRef = doc(db, 'schools', currentUser.uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      schoolName.textContent = data.name || 'Hakuna jina';
+    const docRef = doc(db, 'users', currentUser.uid);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      schoolTitle.textContent = data.schoolName || 'Haipo';
+      schoolName.textContent = data.schoolName || 'Haipo';
+      headTeacherName.textContent = "Mkuu wa Shule: " + (data.name || 'Haijulikani');
+      headName.textContent = data.name || 'Haijulikani';
       schoolEmail.textContent = currentUser.email || 'Haipo';
-      let regDate = data.createdAt || data.registeredAt || null;
-      enrollDate.textContent = formatDate(regDate);
-    } else {
-      schoolName.textContent = 'Hakuna jina';
-      schoolEmail.textContent = 'Haipo';
-      enrollDate.textContent = 'Haijulikani';
+      enrollDate.textContent = formatDate(data.createdAt || data.registeredAt || null);
     }
   }
 
   async function backupData() {
-    if(!confirm('Una uhakika unataka kufanya backup ya data?')) return;
-    showProgressLoader('Inapakua data...');
-    try {
-      const collections = ['students', 'subjects', 'classes', 'results'];
-      const backup = {};
+    const result = await Swal.fire({
+      title: 'Backup Data?',
+      text: 'Unataka kuhifadhi data zako?',
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Ndiyo',
+      cancelButtonText: 'Hapana'
+    });
+    if (!result.isConfirmed) return;
 
-      for (const col of collections) {
-        const q = query(collection(db, col), where('uid', '==', currentUser.uid));
-        const snap = await getDocs(q);
-        backup[col] = [];
-        snap.forEach(doc => {
-          backup[col].push({ id: doc.id, ...doc.data() });
-        });
-      }
-
-      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `backup_${currentUser.uid}.json`;
-      a.click();
-
-      alert('Backup imefanyika kwa mafanikio!');
-    } catch(e) {
-      alert('Kosa wakati wa backup: ' + e.message);
-    } finally {
-      hideProgressLoader();
+    const collections = ['students', 'subjects', 'classes', 'results'];
+    const backup = {};
+    for (const col of collections) {
+      const q = query(collection(db, col), where('uid', '==', currentUser.uid));
+      const snap = await getDocs(q);
+      backup[col] = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_${currentUser.uid}.json`;
+    a.click();
+
+    Swal.fire('Imehifadhiwa', 'Backup imefanikiwa.', 'success');
   }
 
-  async function deleteAllData() {
-    if(!confirm('Una uhakika unataka kufuta taarifa zote? Hatua hii haiwezi kurudishwa!')) return;
-    showProgressLoader('Inafuta taarifa zote...');
-    try {
-      const collections = ['students', 'subjects', 'classes', 'results'];
-      for (const col of collections) {
-        const q = query(collection(db, col), where('uid', '==', currentUser.uid));
-        const snap = await getDocs(q);
-        for (const docSnap of snap.docs) {
-          await deleteDoc(docSnap.ref);
-        }
-      }
-      alert('Taarifa zote zimefutwa.');
-      location.reload();
-    } catch(e) {
-      alert('Kosa wakati wa kufuta data: ' + e.message);
-      hideProgressLoader();
-    }
-  }
+  async function restoreData(file) {
+    const text = await file.text();
+    const data = JSON.parse(text);
 
-  async function restoreBackup(file) {
-    if (!file) return alert('Tafadhali chagua faili la .json');
+    const result = await Swal.fire({
+      title: 'Thibitisha Restore',
+      text: 'Unataka kurejesha taarifa hizi? Zitaandika juu ya zilizopo.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      confirmButtonText: 'Rejesha',
+      cancelButtonText: 'Ghairi'
+    });
+    if (!result.isConfirmed) return;
 
-    showProgressLoader('Inarejesha data...');
-    try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-      const collections = ['students', 'subjects', 'classes', 'results'];
-
-      for (const col of collections) {
-        if (!data[col]) continue;
+    const collections = ['students', 'subjects', 'classes', 'results'];
+    for (const col of collections) {
+      if (data[col]) {
         for (const item of data[col]) {
           const newItem = { ...item };
           delete newItem.id;
@@ -347,42 +222,51 @@
           await setDoc(doc(db, col, item.id), newItem);
         }
       }
-
-      alert('Restore imekamilika kwa mafanikio!');
-      location.reload();
-    } catch (e) {
-      alert('Kosa wakati wa kurestore: ' + e.message);
-    } finally {
-      hideProgressLoader();
-      closeRestoreModal();
     }
+    Swal.fire('Imerejeshwa', 'Data zimewekwa upya.', 'success');
   }
 
-  function closeRestoreModal() {
-    restoreModal.style.display = 'none';
+  async function deleteAllData() {
+    const result = await Swal.fire({
+      title: 'Futa Data Zote?',
+      text: 'Taarifa zote zitafutwa kabisa!',
+      icon: 'error',
+      showCancelButton: true,
+      confirmButtonText: 'Futa',
+      cancelButtonText: 'Ghairi'
+    });
+    if (!result.isConfirmed) return;
+
+    const collections = ['students', 'subjects', 'classes', 'results'];
+    for (const col of collections) {
+      const q = query(collection(db, col), where('uid', '==', currentUser.uid));
+      const snap = await getDocs(q);
+      for (const docSnap of snap.docs) {
+        await deleteDoc(docSnap.ref);
+      }
+    }
+    Swal.fire('Imefutwa', 'Taarifa zote zimeondolewa.', 'success');
   }
 
   onAuthStateChanged(auth, user => {
-    if (!user) {
-      location.href = 'index.html';
-      return;
-    }
+    if (!user) return location.href = 'index.html';
     currentUser = user;
     loadUserProfile();
   });
 
-  logoutBtn.onclick = async () => {
-    await signOut(auth);
-    location.href = 'index.html';
-  };
-
+  logoutBtn.onclick = () => signOut(auth).then(() => location.href = 'index.html');
   backupBtn.onclick = backupData;
   deleteBtn.onclick = deleteAllData;
-  restoreBtn.onclick = () => restoreModal.style.display = 'flex';
-  document.getElementById('startRestoreBtn').onclick = () => {
-    const file = document.getElementById('restoreFileInput').files[0];
-    restoreBackup(file);
+  restoreBtn.onclick = () => restoreInput.click();
+  restoreInput.onchange = () => {
+    const file = restoreInput.files[0];
+    if (file) restoreData(file);
   };
+
+  // Load sidebar
+  fetch('sidebar.html')
+    .then(res => res.text())
+    .then(html => document.getElementById('sidebar-container').innerHTML = html);
 </script>
 
 </body>
