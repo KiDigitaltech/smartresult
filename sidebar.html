@@ -1,9 +1,6 @@
 <!-- sidebar.html -->
 <div id="sidebar">
-  <div class="sidebar-toggle" onclick="toggleSidebar()">
-    <i class="fas fa-bars"></i>
-  </div>
-  <nav>
+    <nav>
     <a href="school-dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashibodi</span></a>
     <a href="register-students.html"><i class="fas fa-user-plus"></i> <span>Sajili Wanafunzi</span></a>
     <a href="register-classes.html"><i class="fas fa-chalkboard-teacher"></i> <span>Madarasa</span></a>
@@ -13,6 +10,8 @@
     <a href="subject-results.html"><i class="fas fa-chart-line"></i> <span>Ufaulu kwa Somo</span></a>
     <a href="average-subjects.html"><i class="fas fa-percentage"></i> <span>Wastani wa Masomo</span></a>
     <a href="students-report.html"><i class="fas fa-user-graduate"></i> <span>Ripoti ya Mwanafunzi</span></a>
+
+    <!-- Link mpya ya Profile -->
     <a href="profile.html"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
   </nav>
 </div>
@@ -25,17 +24,13 @@
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    transition: transform 0.3s ease;
+    height: 100%;
+    transition: all 0.3s ease;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
   }
 
   #sidebar nav {
-    margin-top: 60px;
+    margin-top: 20px;
   }
 
   #sidebar nav a {
@@ -51,6 +46,11 @@
     font-size: 15px;
   }
 
+  #sidebar nav a i {
+    min-width: 20px;
+    font-size: 17px;
+  }
+
   #sidebar nav a:hover {
     background-color: rgba(255, 255, 255, 0.1);
     border-left: 4px solid #ffd54f;
@@ -63,46 +63,18 @@
     color: #fff;
   }
 
-  .sidebar-toggle {
-    position: absolute;
-    top: 15px;
-    right: -45px;
-    background: #0056b3;
-    width: 45px;
-    height: 45px;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    color: #fff;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-  }
-
   @media (max-width: 768px) {
     #sidebar {
-      transform: translateX(-100%);
-    }
-    #sidebar.active {
+      width: 220px;
+      position: fixed;
+      top: 58px;
+      left: 0;
+      height: calc(100% - 58px);
       transform: translateX(0);
+      z-index: 1000;
+    }
+    #sidebar.collapsed {
+      transform: translateX(-100%);
     }
   }
 </style>
-
-<script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('active');
-  }
-
-  // Optional: If you want sidebar to close when clicking outside
-  document.addEventListener('click', function(e) {
-    const sidebar = document.getElementById('sidebar');
-    if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
-      if (!sidebar.contains(e.target) && !e.target.closest('.sidebar-toggle')) {
-        sidebar.classList.remove('active');
-      }
-    }
-  });
-</script>
