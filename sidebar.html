@@ -1,9 +1,78 @@
 <!-- sidebar.html -->
-<aside id="sidebar" class="collapsed" style="background:#343a40; color:white; width:220px; transition:all 0.3s ease; overflow-y:auto; height:100vh;">
-  <nav style="display:flex; flex-direction:column; padding:10px;">
-    <a href="school-dashboard.html" style="color:white; padding:10px; text-decoration:none;"><i class="fas fa-tachometer-alt"></i> Dashibodi</a>
-    <a href="register-students.html" style="color:white; padding:10px; text-decoration:none;"><i class="fas fa-user-plus"></i> Sajili Wanafunzi</a>
-    <a href="register-classes.html" style="color:white; padding:10px; text-decoration:none;"><i class="fas fa-chalkboard"></i> Sajili Madarasa</a>
-    <a href="enter-results.html" style="color:white; padding:10px; text-decoration:none;"><i class="fas fa-pen"></i> Jaza Matokeo</a>
-  </nav>
-</aside>
+<div id="sidebar">
+    <nav aria-label="Main Navigation">
+        <a href="school-dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashibodi</span></a>
+        <a href="register-students.html"><i class="fas fa-user-plus"></i> <span>Sajili Wanafunzi</span></a>
+        <a href="register-classes.html"><i class="fas fa-chalkboard"></i> <span>Sajili Madarasa</span></a>
+        <a href="register-subjects.html"><i class="fas fa-book"></i> <span>Sajili Masomo</span></a>
+        <a href="enter-results.html"><i class="fas fa-pen-to-square"></i> <span>Jaza Matokeo</span></a>
+        <a href="view-results.html"><i class="fas fa-file-alt"></i> <span>Tazama Matokeo</span></a>
+		<a href="subject-results.html"><i class="fas fa-chart-line"></i> <span>Mkeka wa Somo</span></a>
+        <a href="average-subjects.html"><i class="fas fa-percentage"></i> <span>Tathmini Somo</span></a>
+        <a href="students-report.html"><i class="fas fa-user-graduate"></i> <span>Ripoti</span></a>
+        <a href="profile.html"><i class="fas fa-user-cog"></i> <span>Wasifu</span></a>
+      </nav>
+</div>
+
+<style>
+  #sidebar {
+    background: linear-gradient(to bottom, #0056b3, #003d80);
+    color: white;
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  }
+
+  #sidebar nav {
+    margin-top: 20px;
+  }
+
+  #sidebar nav a {
+    color: #e0e0e0;
+    padding: 15px 20px;
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    font-size: 15px;
+  }
+
+  #sidebar nav a i {
+    min-width: 20px;
+    font-size: 17px;
+  }
+
+  #sidebar nav a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid #ffd54f;
+    color: #ffffff;
+  }
+
+  #sidebar nav a.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-left: 4px solid #ffd54f;
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    #sidebar {
+      width: 220px;
+      position: fixed;
+      top: 58px;
+      left: 0;
+      height: calc(100% - 58px);
+      transform: translateX(0);
+      z-index: 1000;
+    }
+    #sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+  }
+</style>
