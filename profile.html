@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
@@ -29,6 +30,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      animation: fadeInDown 0.5s ease;
     }
     main {
       flex-grow: 1;
@@ -37,22 +40,25 @@
       margin: auto;
       background: white;
       margin-top: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      animation: fadeIn 1s ease;
     }
     .info-group {
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
     }
     label {
       font-weight: bold;
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
+      color: #333;
     }
     .info-value {
-      background: #f9f9f9;
-      padding: 8px 12px;
+      background: #f1f5f9;
+      padding: 10px 14px;
       border-radius: 6px;
-      border: 1px solid #ddd;
+      border: 1px solid #ccc;
+      font-size: 15px;
     }
     footer {
       text-align: center;
@@ -60,6 +66,7 @@
       color: #555;
       padding: 1rem;
       border-top: 1px solid #ccc;
+      font-size: 14px;
     }
     button {
       padding: 10px 16px;
@@ -69,14 +76,38 @@
       cursor: pointer;
       font-weight: bold;
       font-size: 1rem;
-      transition: 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      transform: scale(1.03);
     }
     .backup-btn { background-color: #28a745; color: white; }
     .restore-btn { background-color: #ffc107; color: black; margin-left: 1rem; }
     .delete-btn { background-color: #dc3545; color: white; margin-left: 1rem; }
+    #restoreInput { display: none; }
 
-    #restoreInput {
-      display: none;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      #sidebar-container {
+        display: none;
+      }
+      header, main {
+        margin: 0;
+        border-radius: 0;
+      }
+      main {
+        box-shadow: none;
+        padding: 1.2rem;
+      }
     }
   </style>
 </head>
@@ -106,7 +137,7 @@
 
     <div style="text-align:center; margin-top:2rem;">
       <button class="backup-btn" id="backupBtn"><i class="fa-solid fa-download"></i> Backup Data</button>
-      <button class="restore-btn" id="restoreBtn"><i class="fa-solid fa-upload"></i> Restore Data</button>
+      <button class="restore-btn" id="restoreBtn"><i class="fa-solid fa-upload"></i> Rejesha Data</button>
       <button class="delete-btn" id="deleteBtn"><i class="fa-solid fa-trash"></i> Futa Data Zote</button>
     </div>
   </main>
@@ -138,13 +169,13 @@
   const schoolEmail = document.getElementById('schoolEmail');
   const enrollDate = document.getElementById('enrollDate');
   const headTeacherName = document.getElementById('headTeacherName');
-
   const backupBtn = document.getElementById('backupBtn');
   const restoreBtn = document.getElementById('restoreBtn');
   const deleteBtn = document.getElementById('deleteBtn');
   const restoreInput = document.getElementById('restoreInput');
 
   let currentUser = null;
+  let schoolId = null;
 
   function formatDate(date) {
     if (!date) return 'Haijulikani';
@@ -159,6 +190,7 @@
     const snap = await getDoc(docRef);
     if (snap.exists()) {
       const data = snap.data();
+      schoolId = data.schoolId;
       schoolTitle.textContent = data.schoolName || 'Haipo';
       schoolName.textContent = data.schoolName || 'Haipo';
       headTeacherName.textContent = "Mkuu wa Shule: " + (data.name || 'Haijulikani');
@@ -175,14 +207,16 @@
       icon: 'info',
       showCancelButton: true,
       confirmButtonText: 'Ndiyo',
-      cancelButtonText: 'Hapana'
+      cancelButtonText: 'Hapana',
+      showClass: { popup: 'animate__animated animate__fadeInDown' },
+      hideClass: { popup: 'animate__animated animate__fadeOutUp' }
     });
     if (!result.isConfirmed) return;
 
     const collections = ['students', 'subjects', 'classes', 'results'];
     const backup = {};
     for (const col of collections) {
-      const q = query(collection(db, col), where('uid', '==', currentUser.uid));
+      const q = query(collection(db, col), where('schoolId', '==', schoolId));
       const snap = await getDocs(q);
       backup[col] = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
@@ -191,10 +225,10 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `backup_${currentUser.uid}.json`;
+    a.download = `backup_${schoolId}.json`;
     a.click();
 
-    Swal.fire('Imehifadhiwa', 'Backup imefanikiwa.', 'success');
+    Swal.fire('Imehifadhiwa!', 'Backup imefanikiwa.', 'success');
   }
 
   async function restoreData(file) {
@@ -202,8 +236,8 @@
     const data = JSON.parse(text);
 
     const result = await Swal.fire({
-      title: 'Thibitisha Restore',
-      text: 'Unataka kurejesha taarifa hizi? Zitaandika juu ya zilizopo.',
+      title: 'Thibitisha Rejesho',
+      text: 'Data zitafutwa na kuwekwa upya. Endelea?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#28a745',
@@ -218,12 +252,12 @@
         for (const item of data[col]) {
           const newItem = { ...item };
           delete newItem.id;
-          newItem.uid = currentUser.uid;
+          newItem.schoolId = schoolId;
           await setDoc(doc(db, col, item.id), newItem);
         }
       }
     }
-    Swal.fire('Imerejeshwa', 'Data zimewekwa upya.', 'success');
+    Swal.fire('Imerejeshwa!', 'Data zimewekwa upya.', 'success');
   }
 
   async function deleteAllData() {
@@ -239,13 +273,13 @@
 
     const collections = ['students', 'subjects', 'classes', 'results'];
     for (const col of collections) {
-      const q = query(collection(db, col), where('uid', '==', currentUser.uid));
+      const q = query(collection(db, col), where('schoolId', '==', schoolId));
       const snap = await getDocs(q);
       for (const docSnap of snap.docs) {
         await deleteDoc(docSnap.ref);
       }
     }
-    Swal.fire('Imefutwa', 'Taarifa zote zimeondolewa.', 'success');
+    Swal.fire('Imefutwa!', 'Taarifa zote zimeondolewa.', 'success');
   }
 
   onAuthStateChanged(auth, user => {
@@ -254,7 +288,19 @@
     loadUserProfile();
   });
 
-  logoutBtn.onclick = () => signOut(auth).then(() => location.href = 'index.html');
+  logoutBtn.onclick = () => {
+    Swal.fire({
+      title: 'Unatoka?',
+      text: 'Unakaribia kutoka kwenye akaunti yako.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ndiyo, toka',
+      cancelButtonText: 'Ghairi'
+    }).then(res => {
+      if (res.isConfirmed) signOut(auth).then(() => location.href = 'index.html');
+    });
+  }
+
   backupBtn.onclick = backupData;
   deleteBtn.onclick = deleteAllData;
   restoreBtn.onclick = () => restoreInput.click();
