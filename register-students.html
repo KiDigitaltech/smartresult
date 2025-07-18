@@ -141,6 +141,19 @@
       font-weight: bold;
       font-size: 18px;
     }
+	/* Sidebar collapsed */
+#sidebar.collapsed {
+  transform: translateX(-100%);
+  position: fixed;
+  z-index: 9999;
+}
+@media (min-width: 768px) {
+  #sidebar.collapsed {
+    transform: translateX(0);
+    position: static;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -370,6 +383,18 @@ document.getElementById("uploadForm").addEventListener("submit", async e => {
 });
 
 filterClass.addEventListener("change", e => loadStudents(e.target.value));
+</script>
+<script>
+  // After loading HTML parts
+  setTimeout(() => {
+    const toggleBtn = document.getElementById("toggleSidebar");
+    const sidebar = document.getElementById("sidebar");
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("collapsed");
+      });
+    }
+  }, 500);
 </script>
 
 </body>
