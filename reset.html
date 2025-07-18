@@ -2,28 +2,27 @@
 <html lang="sw">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weka Nenosiri Jipya - SmartResult</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to right, #007bff, #00c6ff);
+      background: linear-gradient(to right, #4facfe, #00f2fe);
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      padding: 20px;
+      height: 100vh;
+      margin: 0;
     }
-    .reset-container {
-      background: #fff;
+    .box {
+      background: white;
+      padding: 40px;
       border-radius: 15px;
-      padding: 30px;
-      max-width: 400px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
       width: 100%;
-      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-      display: none;
+      max-width: 400px;
     }
     h2 {
       text-align: center;
@@ -33,53 +32,46 @@
     input {
       width: 100%;
       padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
+      margin-top: 10px;
+      margin-bottom: 20px;
       border-radius: 10px;
+      border: 1px solid #ccc;
       font-size: 15px;
     }
     button {
       width: 100%;
       padding: 12px;
-      background-color: #007bff;
+      background: linear-gradient(to right, #0d6efd, #00c6ff);
       color: white;
-      border: none;
-      border-radius: 10px;
       font-weight: bold;
       font-size: 16px;
+      border: none;
+      border-radius: 10px;
       cursor: pointer;
-      margin-top: 10px;
     }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .footer {
-      margin-top: 20px;
-      font-size: 13px;
+    .spinner {
+      display: none;
       text-align: center;
-      color: #888;
+      margin-top: 15px;
+    }
+    .spinner i {
+      color: #007bff;
+      font-size: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="reset-container" id="resetForm">
+  <div class="box">
     <h2>Weka Nenosiri Jipya</h2>
-    <input type="password" id="newPassword" placeholder="Nenosiri Jipya" required />
-    <input type="password" id="confirmPassword" placeholder="Thibitisha Nenosiri" required />
+    <input type="password" id="newPassword" placeholder="Nenosiri Jipya" />
+    <input type="password" id="confirmPassword" placeholder="Rudia Nenosiri" />
     <button id="resetBtn">Weka Nenosiri</button>
-    <div class="footer">
-      &copy; SmartResult <br /> support@smartresult.co.tz
-    </div>
+    <div class="spinner" id="spinner"><i class="fas fa-spinner fa-spin"></i> Inapakia...</div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import {
-      getAuth,
-      confirmPasswordReset,
-      verifyPasswordResetCode
-    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-    import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js";
+    import { getAuth, confirmPasswordReset, verifyPasswordResetCode } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
@@ -87,67 +79,65 @@
       projectId: "smartresult-6c09c",
       storageBucket: "smartresult-6c09c.appspot.com",
       messagingSenderId: "77722866135",
-      appId: "1:77722866135:web:b0328dcc969b3264acbb92",
-      measurementId: "G-3W13B73TQS"
+      appId: "1:77722866135:web:b0328dcc969b3264acbb92"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const oobCode = urlParams.get("oobCode");
-
-    const resetForm = document.getElementById("resetForm");
     const resetBtn = document.getElementById("resetBtn");
+    const spinner = document.getElementById("spinner");
 
-    // Validate the code first
-    verifyPasswordResetCode(auth, oobCode)
-      .then((email) => {
-        resetForm.style.display = "block";
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: "error",
-          title: "Kiungo batili au muda wake umeisha",
-          text: "Tafadhali omba kiungo kipya cha kuweka nenosiri."
-        }).then(() => {
-          window.location.href = "index.html";
-        });
-      });
+    // Get oobCode from URL
+    const queryParams = new URLSearchParams(window.location.search);
+    const oobCode = queryParams.get("oobCode");
+
+    if (!oobCode) {
+      Swal.fire("Kiungo si sahihi", "Hakuna token iliyopokelewa.", "error");
+      resetBtn.disabled = true;
+    }
 
     resetBtn.addEventListener("click", async () => {
-      const newPassword = document.getElementById("newPassword").value.trim();
-      const confirmPassword = document.getElementById("confirmPassword").value.trim();
+      const password = document.getElementById("newPassword").value.trim();
+      const confirm = document.getElementById("confirmPassword").value.trim();
 
-      if (!newPassword || !confirmPassword) {
+      if (!password || !confirm) {
         Swal.fire("Tafadhali jaza sehemu zote", "", "warning");
         return;
       }
 
-      if (newPassword !== confirmPassword) {
-        Swal.fire("Nenosiri hayaendani", "Tafadhali hakikisha yanafanana", "error");
+      if (password !== confirm) {
+        Swal.fire("Nenosiri hayafanani", "Tafadhali hakiki upya", "error");
         return;
       }
 
-      if (newPassword.length < 6) {
-        Swal.fire("Nenosiri fupi", "Lazima liwe na angalau herufi 6", "error");
-        return;
-      }
+      spinner.style.display = "block";
+      resetBtn.disabled = true;
 
       try {
-        await confirmPasswordReset(auth, oobCode, newPassword);
+        await verifyPasswordResetCode(auth, oobCode); // confirm it's valid
+        await confirmPasswordReset(auth, oobCode, password); // set new password
+
         Swal.fire({
           icon: "success",
-          title: "Hongera!",
-          text: "Nenosiri lako limewekwa upya.",
-          confirmButtonText: "Ingia Sasa"
-        }).then(() => {
-          window.location.href = "index.html";
+          title: "Imefanikiwa",
+          text: "Nenosiri lako limebadilishwa!",
+          timer: 2000,
+          showConfirmButton: false
         });
+
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 2000);
+
       } catch (err) {
+        console.error(err);
         Swal.fire("Hitilafu", err.message, "error");
+        resetBtn.disabled = false;
+        spinner.style.display = "none";
       }
     });
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </body>
 </html>
