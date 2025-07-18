@@ -3,233 +3,312 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SmartResult - School Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <title>SmartResult - Dashboard Kali</title>
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+
+  <!-- Google Fonts Poppins -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    * { box-sizing: border-box; }
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      background: #eef6ff;
-      color: #333;
+      font-family: "Poppins", sans-serif;
+      background: #f8fafc;
+      color: #212529;
       display: flex;
       min-height: 100vh;
       flex-direction: column;
     }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* HEADER */
     header {
-      background: #007bff;
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
       color: white;
       padding: 1rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.4);
       position: sticky;
       top: 0;
-      z-index: 1100;
+      z-index: 1000;
     }
     header h1 {
-      margin: 0; 
-      font-size: 1.5rem; 
-      user-select: none;
+      font-weight: 700;
+      font-size: 1.6rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      flex-grow: 1;
     }
-
-    /* Toggle button for sidebar */
     #btnToggleSidebar {
-      background:none; 
-      border:none; 
-      color:white; 
-      font-size:1.6rem; 
-      cursor:pointer; 
-      margin-right:1rem;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
+      margin-right: 1rem;
+      transition: color 0.3s;
     }
-
+    #btnToggleSidebar:hover {
+      color: #93c5fd;
+    }
     #btnLogout {
-      background:#dc3545; 
-      color:#fff; 
-      border:none; 
-      padding:0.5rem 1rem; 
-      border-radius:5px; 
-      cursor:pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      background: #ef4444;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
       font-weight: 600;
       font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.3s;
+    }
+    #btnLogout:hover {
+      background: #dc2626;
     }
 
+    /* LAYOUT */
+    #container {
+      display: flex;
+      flex-grow: 1;
+      min-height: 0;
+      background: #f8fafc;
+    }
+
+    /* SIDEBAR */
     #sidebar {
-      background: #0056b3;
+      background: #1e40af;
       color: white;
-      width: 220px;
+      width: 240px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
-      padding-top: 1rem;
+      padding: 1.2rem 0;
       transition: width 0.3s ease;
-      overflow-x: hidden;
-      height: calc(100vh - 58px); /* full height minus header height */
+      height: calc(100vh - 68px);
       position: sticky;
-      top: 58px;
+      top: 68px;
+      box-shadow: 3px 0 8px rgba(0,0,0,0.1);
+      overflow-y: auto;
     }
     #sidebar.collapsed {
-      width: 0;
-      padding: 1rem 0;
+      width: 60px;
     }
     #sidebar nav a {
-      color: white;
-      padding: 1rem 1.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      border-left: 4px solid transparent;
       display: flex;
       align-items: center;
-      gap: 0.8rem;
-      transition: background 0.3s, border-color 0.3s;
+      padding: 1rem 1.6rem;
+      font-weight: 600;
+      border-left: 4px solid transparent;
+      gap: 1rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      transition: background 0.3s, border-color 0.3s;
+      font-size: 0.95rem;
     }
-    #sidebar nav a:hover, #sidebar nav a.active {
-      background: #003d80;
-      border-left-color: #ffd54f;
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: #1e3a8a;
+      border-left-color: #facc15;
     }
-    main {
-      flex-grow: 1;
-      padding: 2rem;
-      max-width: 1000px;
-      margin: auto;
-      position: relative;
-      transition: margin-left 0.3s ease;
-    }
-
-    /* Adjust main margin when sidebar collapsed */
-    #sidebar.collapsed ~ main {
-      margin-left: 0 !important;
-    }
-
-    .loader {
+    #sidebar nav a i {
+      min-width: 20px;
+      font-size: 1.2rem;
       text-align: center;
-      font-size: 1rem;
-      color: #007bff;
-      padding: 30px;
+    }
+    #sidebar.collapsed nav a span {
       display: none;
     }
-    .instructions-box {
-      background-color: #f0f8ff;
-      border-left: 5px solid #007bff;
-      padding: 15px 20px;
-      margin-top: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+
+    /* MAIN CONTENT */
+    main {
+      flex-grow: 1;
+      padding: 2rem 2rem 3rem;
+      max-width: 1200px;
+      margin: auto;
+      overflow-y: auto;
     }
-    .instructions-box h3 {
-      margin-top: 0;
-      color: #007bff;
-      font-size: 18px;
-    }
-    .instructions-box ul {
-      padding-left: 20px;
-      margin: 10px 0;
-    }
-    .instructions-box li {
-      margin-bottom: 8px;
-      line-height: 1.6;
-    }
+
+    /* DASHBOARD CARDS */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.2rem;
-      margin-top: 1rem;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
     }
     .stat-card {
       background: white;
+      border-radius: 12px;
+      padding: 1.8rem 2rem;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-      transition: transform 0.2s ease;
+      gap: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
     }
     .stat-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-6px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
     }
     .stat-icon {
-      font-size: 2.5rem;
-      color: #007bff;
-      margin-right: 1rem;
+      font-size: 3rem;
+      color: #2563eb;
+      flex-shrink: 0;
+      width: 64px;
+      height: 64px;
+      background: #dbeafe;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .stat-info {
-      font-size: 16px;
-      color: #333;
+      flex-grow: 1;
     }
     .stat-info strong {
-      font-size: 1.4rem;
-      color: #000;
+      font-size: 1.9rem;
+      display: block;
+      color: #1e40af;
+      font-weight: 700;
+    }
+    .stat-info span {
+      font-size: 1.05rem;
+      color: #475569;
+      user-select: none;
     }
 
-    /* Responsive */
+    /* WELCOME BOX */
+    #welcomeBox h2 {
+      font-weight: 700;
+      font-size: 2.1rem;
+      color: #1e3a8a;
+      margin-bottom: 0.2rem;
+    }
+    #welcomeBox p {
+      font-size: 1.1rem;
+      color: #64748b;
+      margin-bottom: 1.6rem;
+      user-select: none;
+    }
+    .instructions-box {
+      background: #e0e7ff;
+      border-left: 6px solid #6366f1;
+      padding: 1.3rem 1.8rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(99,102,241,0.25);
+      color: #1e40af;
+      margin-bottom: 2.8rem;
+      user-select: none;
+    }
+    .instructions-box h3 {
+      margin-top: 0;
+      font-weight: 700;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .instructions-box ul {
+      margin: 0.8rem 0 0 1.4rem;
+      line-height: 1.5;
+      font-weight: 600;
+      color: #1e40af;
+    }
+    .instructions-box ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* CHART CONTAINERS */
+    .charts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      flex: 1 1 460px;
+      min-width: 320px;
+    }
+    .chart-card h3 {
+      margin: 0 0 1.2rem;
+      color: #1e40af;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    /* LOADER */
+    .loader {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #2563eb;
+      padding: 40px 0;
+      display: none;
+      user-select: none;
+    }
+
+    /* RESPONSIVE */
     @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
       #sidebar {
         position: fixed;
-        top: 58px;
+        top: 68px;
         left: 0;
-        height: calc(100% - 58px);
-        width: 220px;
+        height: calc(100vh - 68px);
         z-index: 1000;
         transform: translateX(0);
         transition: transform 0.3s ease;
-        padding-top: 1rem;
       }
       #sidebar.collapsed {
         transform: translateX(-100%);
-        width: 220px; /* Keep width for animation */
-        padding: 1rem 0;
+        width: 240px;
       }
       main {
-        padding: 1rem;
+        padding: 1rem 1rem 2rem;
         max-width: 100%;
         margin: 0;
-        transition: none;
-      }
-      /* Overlay for mobile when sidebar open */
-      #sidebarOverlay {
-        position: fixed;
-        top: 58px;
-        left: 0;
-        width: 100vw;
-        height: calc(100vh - 58px);
-        background: rgba(0,0,0,0.4);
-        z-index: 900;
-        display: none;
-      }
-      #sidebarOverlay.active {
-        display: block;
       }
     }
 
-    /* POPUP STYLES */
+    /* POPUP MESSAGE */
     #popupMessage {
       position: fixed;
       top: 20px;
       right: 20px;
-      min-width: 250px;
-      max-width: 300px;
-      padding: 15px 20px;
-      border-radius: 8px;
-      color: white;
+      min-width: 280px;
+      max-width: 320px;
+      padding: 16px 20px;
+      border-radius: 10px;
       font-weight: 600;
-      font-size: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      font-size: 16px;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.7);
+      color: white;
       opacity: 0;
       pointer-events: none;
       transform: translateY(-20px);
@@ -237,7 +316,7 @@
       z-index: 11000;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
     #popupMessage.show {
       opacity: 1;
@@ -245,305 +324,437 @@
       transform: translateY(0);
     }
     #popupMessage .icon {
-      font-size: 20px;
+      font-size: 22px;
+      user-select: none;
     }
     #popupMessage.success {
-      background-color: #28a745; /* Green */
+      background-color: #22c55e;
     }
     #popupMessage.error {
-      background-color: #dc3545; /* Red */
+      background-color: #ef4444;
     }
     #popupMessage.info {
-      background-color: #17a2b8; /* Blue */
+      background-color: #3b82f6;
     }
     #popupMessage.warning {
-      background-color: #ffc107; /* Yellow */
-      color: #212529;
+      background-color: #facc15;
+      color: #1e293b;
     }
     #popupMessage .closeBtn {
       margin-left: auto;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 18px;
+      font-weight: 700;
+      font-size: 22px;
       line-height: 1;
       user-select: none;
     }
   </style>
 </head>
 <body>
+  <header>
+    <button id="btnToggleSidebar" aria-label="Fungua au Funga Sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1>
+      <i class="fas fa-chart-line"></i> SmartResult Dashboard
+    </h1>
+    <button id="btnLogout" aria-label="Toka kwenye Mfumo">
+      <i class="fas fa-sign-out-alt"></i> Toka
+    </button>
+  </header>
 
-<header>
-  <button id="btnToggleSidebar" aria-label="Ongeza au ficha sidebar" title="Ongeza au ficha sidebar">
-    <i class="fas fa-bars"></i>
-  </button>
-  <h1><i class="fa-solid fa-school"></i> SmartResult - School Dashboard</h1>
-  <button id="btnLogout" title="Logout">
-    <i class="fa-solid fa-right-from-bracket"></i> Logout
-  </button>
-</header>
+  <div id="container">
+    <aside id="sidebar">
+      <nav aria-label="Main Navigation">
+        <a href="school-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> <span>Dashibodi</span></a>
+        <a href="register-students.html"><i class="fas fa-user-plus"></i> <span>Sajili Wanafunzi</span></a>
+        <a href="register-classes.html"><i class="fas fa-chalkboard"></i> <span>Sajili Madarasa</span></a>
+        <a href="register-subjects.html"><i class="fas fa-book"></i> <span>Sajili Masomo</span></a>
+        <a href="enter-results.html"><i class="fas fa-pen-to-square"></i> <span>Jaza Matokeo</span></a>
+        <a href="view-results.html"><i class="fas fa-file-alt"></i> <span>Tazama Matokeo</span></a>
+		<a href="subject-results.html"><i class="fas fa-chart-line"></i> <span>Mkeka wa Somo</span></a>
+        <a href="average-subjects.html"><i class="fas fa-percentage"></i> <span>Tathmini Somo</span></a>
+        <a href="students-report.html"><i class="fas fa-user-graduate"></i> <span>Ripoti</span></a>
+        <a href="profile.html"><i class="fas fa-user-cog"></i> <span>Wasifu</span></a>
+      </nav>
+    </aside>
 
-<div style="display:flex; flex-grow:1; min-height:0;">
-  <div id="sidebarContainer"></div>
-  <main>
-    <div class="loader" id="loader">
-      <i class="fa-solid fa-spinner fa-spin fa-2x"></i><br/>
-      Inapakia taarifa za shule...
-    </div>
-
-    <div id="welcomeBox" style="display:none;">
-      <h2 id="welcomeTitle">Karibu!</h2>
-      <p id="schoolDescription">Ahsante kwa kuchagua Huduma hii ya Uandaaji wa Matokeo. Tafadhali chagua sehemu kutoka kwenye menu ya kushoto kuendelea.</p>
-
-      <div class="instructions-box">
-        <h3><i class="fa fa-info-circle"></i> Maelekezo ya Matumizi</h3>
-        <ul>
-          <li><strong>Hatua ya 1:</strong> Sajili Wanafunzi, Madarasa na Masomo kwa usahihi.</li>
-          <li><strong>Hatua ya 2:</strong> Hakikisha Masomo na Madarasa yako yamejazwa kabla ya kuingiza Matokeo.</li>
-          <li><strong>Hatua ya 3:</strong> Tumia menu ya kushoto ili kufikia vipengele vyote vya mfumo.</li>
-          <li><strong>MUHIMU:</strong> Tunza taarifa zako za kuingia salama.</li>
-        </ul>
+    <main>
+      <div id="loader" class="loader">
+        <i class="fa-solid fa-spinner fa-spin"></i><br />
+        Inapakia taarifa za shule...
       </div>
 
-      <div id="statsBox" style="display:none; margin-top:2rem;">
-        <h3 style="color:#007bff;"><i class="fa fa-chart-bar"></i> Takwimu za Shule</h3>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-user-graduate"></i></div>
-            <div class="stat-info" id="totalStudents"><strong>0</strong><br>Wanafunzi Wote</div>
+      <section id="welcomeBox" style="display:none;">
+        <h2 id="welcomeTitle">Karibu!</h2>
+        <p id="schoolDescription">
+          Ahsante kwa kutumia mfumo wa SmartResult. Tafadhali angalia takwimu hapa chini.
+        </p>
+
+        <div class="stats-grid" aria-live="polite" aria-atomic="true" aria-relevant="all">
+          <div class="stat-card" tabindex="0">
+            <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+            <div class="stat-info">
+              <strong id="totalStudents">0</strong>
+              <span>Wanafunzi Wote</span>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div>
-            <div class="stat-info" id="studentsWithResults"><strong>0</strong><br>Waliojaziwa Matokeo</div>
+          <div class="stat-card" tabindex="0">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+              <strong id="studentsWithResults">0</strong>
+              <span>Waliojaziwa Matokeo</span>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-chalkboard"></i></div>
-            <div class="stat-info" id="totalClasses"><strong>0</strong><br>Madarasa</div>
+          <div class="stat-card" tabindex="0">
+            <div class="stat-icon"><i class="fas fa-chalkboard"></i></div>
+            <div class="stat-info">
+              <strong id="totalClasses">0</strong>
+              <span>Madarasa</span>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-book"></i></div>
-            <div class="stat-info" id="totalSubjects"><strong>0</strong><br>Masomo</div>
+          <div class="stat-card" tabindex="0">
+            <div class="stat-icon"><i class="fas fa-book"></i></div>
+            <div class="stat-info">
+              <strong id="totalSubjects">0</strong>
+              <span>Masomo</span>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </main>
-</div>
 
-<!-- Sidebar Overlay for mobile -->
-<div id="sidebarOverlay"></div>
+        <div class="instructions-box" role="region" aria-label="Maelekezo ya Matumizi">
+          <h3><i class="fa fa-info-circle"></i> Maelekezo ya Matumizi</h3>
+          <ul>
+            <li><strong>Hatua ya 1:</strong> Sajili Wanafunzi, Madarasa, na Masomo kwa usahihi.</li>
+            <li><strong>Hatua ya 2:</strong> Hakikisha Masomo na Madarasa yamejazwa kabla ya kuingiza Matokeo.</li>
+            <li><strong>Hatua ya 3:</strong> Tumia menu kushoto kufikia sehemu mbalimbali za mfumo.</li>
+            <li><strong>MUHIMU:</strong> Hakikisha unatunza taarifa zako za kuingia salama.</li>
+          </ul>
+        </div>
 
-<div id="footerContainer"></div>
+        <div class="charts-row" aria-label="Charts za Takwimu za Shule">
+          <div class="chart-card" role="region" aria-label="Idadi ya Wanafunzi kwa Madarasa">
+            <h3><i class="fas fa-chart-bar"></i> Wanafunzi kwa Madarasa</h3>
+            <canvas id="studentsByClassChart" aria-describedby="descStudentsByClass"></canvas>
+            <p id="descStudentsByClass" class="sr-only">Hii ni chati ya bar kuonyesha idadi ya wanafunzi kwa kila darasa.</p>
+          </div>
+          <div class="chart-card" role="region" aria-label="Mgawanyo wa Matokeo">
+            <h3><i class="fas fa-pie-chart"></i> Mgawanyo wa Matokeo</h3>
+            <canvas id="resultsPieChart" aria-describedby="descResultsPie"></canvas>
+            <p id="descResultsPie" class="sr-only">Hii ni chati ya pie kuonyesha mgawanyo wa wanafunzi waliopata matokeo na wasiotoka.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-<!-- Popup Message -->
-<div id="popupMessage" role="alert" aria-live="assertive" aria-atomic="true">
-  <i class="icon"></i>
-  <span class="message"></span>
-  <span class="closeBtn" title="Funga">&times;</span>
-</div>
+  <!-- Popup Message -->
+  <div
+    id="popupMessage"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    aria-relevant="all"
+  >
+    <i class="icon"></i>
+    <span class="message"></span>
+    <span class="closeBtn" title="Funga">&times;</span>
+  </div>
 
-<script type="module">
-  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import {
-    getFirestore, doc, getDoc, collection, getDocs,
-    query, where
-  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  <script type="module">
+    import {
+      getAuth,
+      signOut,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      getDocs,
+      query,
+      where,
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
-    authDomain: "smartresult-6c09c.firebaseapp.com",
-    projectId: "smartresult-6c09c",
-    storageBucket: "smartresult-6c09c.appspot.com",
-    messagingSenderId: "77722866135",
-    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
-    measurementId: "G-3W13B73TQS"
-  };
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c",
+      storageBucket: "smartresult-6c09c.appspot.com",
+      messagingSenderId: "77722866135",
+      appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+      measurementId: "G-3W13B73TQS",
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  const btnLogout = document.getElementById('btnLogout');
-  const loader = document.getElementById("loader");
-  const welcomeBox = document.getElementById("welcomeBox");
-  const welcomeTitle = document.getElementById("welcomeTitle");
-  const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const btnLogout = document.getElementById("btnLogout");
+    const loader = document.getElementById("loader");
+    const welcomeBox = document.getElementById("welcomeBox");
+    const welcomeTitle = document.getElementById("welcomeTitle");
+    const popup = document.getElementById("popupMessage");
 
-  async function loadStats(schoolId) {
-    const studentsSnap = await getDocs(query(collection(db, "students"), where("schoolId", "==", schoolId)));
+    // Sidebar toggle
+    const btnToggleSidebar = document.getElementById("btnToggleSidebar");
+    const sidebar = document.getElementById("sidebar");
 
-    const resultsSnap = await getDocs(query(collection(db, "results"), where("schoolId", "==", schoolId)));
-    const uniqueStudentIds = new Set();
-    resultsSnap.forEach(docSnap => {
-      const data = docSnap.data();
-      if(data.studentId) uniqueStudentIds.add(data.studentId);
+    btnToggleSidebar.addEventListener("click", () => {
+      sidebar.classList.toggle("collapsed");
     });
 
-    const classesSnap = await getDocs(query(collection(db, "classes"), where("schoolId", "==", schoolId)));
-    const subjectsSnap = await getDocs(query(collection(db, "subjects"), where("schoolId", "==", schoolId)));
+    // Popup functions
+    function showPopup(message, type = "info", duration = 4000) {
+      const iconEl = popup.querySelector(".icon");
+      const msgEl = popup.querySelector(".message");
+      const closeBtn = popup.querySelector(".closeBtn");
 
-    document.getElementById("totalStudents").innerHTML = `<strong>${studentsSnap.size}</strong><br>Wanafunzi Wote`;
-    document.getElementById("studentsWithResults").innerHTML = `<strong>${uniqueStudentIds.size}</strong><br>Waliojaziwa Matokeo`;
-    document.getElementById("totalClasses").innerHTML = `<strong>${classesSnap.size}</strong><br>Madarasa`;
-    document.getElementById("totalSubjects").innerHTML = `<strong>${subjectsSnap.size}</strong><br>Masomo`;
+      popup.className = "";
+      popup.classList.add(type, "show");
+      msgEl.textContent = message;
 
-    document.getElementById("statsBox").style.display = "block";
-  }
+      const icons = {
+        success: "✔️",
+        error: "❌",
+        info: "ℹ️",
+        warning: "⚠️",
+      };
+      iconEl.textContent = icons[type] || "";
+      popup.style.display = "flex";
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return window.location.href = 'index.html';
+      closeBtn.onclick = () => {
+        hidePopup();
+      };
 
-    loader.style.display = "block";
-    welcomeBox.style.display = "none";
-
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        const schoolName = userData.schoolName || "Shule Yako";
-        const schoolId = userData.schoolId;
-
-        welcomeTitle.innerText = `Karibu ${schoolName}!`;
-
-        if (schoolId) {
-          await loadStats(schoolId);
-        } else {
-          showPopup("Hakuna taarifa za shule kwenye profile yako.", "warning");
-        }
-      } else {
-        welcomeTitle.innerText = `Karibu Mwalimu!`;
-      }
-
-      loader.style.display = "none";
-      welcomeBox.style.display = "block";
-    } catch (error) {
-      loader.innerHTML = "Hitilafu katika kupakia taarifa.";
-      console.error(error);
-      showPopup("Hitilafu katika kupakia taarifa.", "error");
+      clearTimeout(popup.hideTimeout);
+      popup.hideTimeout = setTimeout(() => {
+        hidePopup();
+      }, duration);
     }
-  });
 
-  btnLogout.addEventListener('click', async () => {
-    try {
-      await signOut(auth);
-      showPopup("Umetoka kwenye mfumo kwa mafanikio.", "success");
+    function hidePopup() {
+      popup.classList.remove("show");
       setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1500);
-    } catch (err) {
-      showPopup("Tatizo wakati wa kutoka: " + err.message, "error");
+        popup.style.display = "none";
+      }, 300);
     }
-  });
 
-  // Load sidebar
-  fetch("sidebar.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("sidebarContainer").innerHTML = html;
+    // Logout handler
+    btnLogout.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        showPopup("Umetoka kwenye mfumo kwa mafanikio.", "success");
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+      } catch (err) {
+        showPopup("Tatizo wakati wa kutoka: " + err.message, "error");
+      }
+    });
 
-      const sidebar = document.getElementById("sidebar");
-      const current = window.location.pathname.split("/").pop();
-      document.querySelectorAll("#sidebar nav a").forEach(link => {
-        if (link.getAttribute("href") === current) {
-          link.classList.add("active");
-        }
+    // Load statistics and charts
+    async function loadStatsAndCharts(schoolId) {
+      loader.style.display = "block";
+      welcomeBox.style.display = "none";
 
-        // On mobile, close sidebar when a link clicked
-        link.addEventListener("click", () => {
-          if(window.innerWidth <= 768){
-            sidebar.classList.add("collapsed");
-            sidebarOverlay.classList.remove("active");
+      try {
+        // Get students
+        const studentsSnap = await getDocs(
+          query(collection(db, "students"), where("schoolId", "==", schoolId))
+        );
+        const totalStudents = studentsSnap.size;
+
+        // Get results
+        const resultsSnap = await getDocs(
+          query(collection(db, "results"), where("schoolId", "==", schoolId))
+        );
+        const studentsWithResultsSet = new Set();
+        resultsSnap.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data.studentId) studentsWithResultsSet.add(data.studentId);
+        });
+        const studentsWithResults = studentsWithResultsSet.size;
+
+        // Get classes
+        const classesSnap = await getDocs(
+          query(collection(db, "classes"), where("schoolId", "==", schoolId))
+        );
+        const totalClasses = classesSnap.size;
+
+        // Get subjects
+        const subjectsSnap = await getDocs(
+          query(collection(db, "subjects"), where("schoolId", "==", schoolId))
+        );
+        const totalSubjects = subjectsSnap.size;
+
+        // Update stats cards
+        document.getElementById("totalStudents").textContent = totalStudents;
+        document.getElementById("studentsWithResults").textContent =
+          studentsWithResults;
+        document.getElementById("totalClasses").textContent = totalClasses;
+        document.getElementById("totalSubjects").textContent = totalSubjects;
+
+        // Prepare data for students by class chart
+        const studentsByClassCount = {};
+        classesSnap.forEach((classDoc) => {
+          studentsByClassCount[classDoc.id] = 0;
+        });
+
+        studentsSnap.forEach((studentDoc) => {
+          const studentData = studentDoc.data();
+          const classId = studentData.classId;
+          if (classId && studentsByClassCount[classId] !== undefined) {
+            studentsByClassCount[classId]++;
           }
         });
-      });
 
-      // Toggle sidebar button
-      const btnToggleSidebar = document.getElementById("btnToggleSidebar");
-      btnToggleSidebar.addEventListener("click", () => {
-        sidebar.classList.toggle("collapsed");
-        // Show/hide overlay on mobile
-        if(window.innerWidth <= 768){
-          sidebarOverlay.classList.toggle("active");
+        // Get class names
+        const classNames = [];
+        const studentCounts = [];
+        classesSnap.forEach((classDoc) => {
+          classNames.push(classDoc.data().name || classDoc.id);
+          studentCounts.push(studentsByClassCount[classDoc.id] || 0);
+        });
+
+        // Students by class bar chart
+        createBarChart("studentsByClassChart", classNames, studentCounts);
+
+        // Results Pie Chart: students with results vs without
+        const studentsWithoutResults = totalStudents - studentsWithResults;
+
+        createPieChart(
+          "resultsPieChart",
+          ["Waliojaziwa Matokeo", "Bado Hawajajaza"],
+          [studentsWithResults, studentsWithoutResults]
+        );
+
+        loader.style.display = "none";
+        welcomeBox.style.display = "block";
+      } catch (error) {
+        loader.textContent = "Tatizo katika kupakia takwimu.";
+        console.error(error);
+        showPopup("Tatizo katika kupakia takwimu.", "error");
+      }
+    }
+
+    // Chart helpers
+    function createBarChart(canvasId, labels, data) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      if (window[canvasId + "Chart"]) window[canvasId + "Chart"].destroy();
+      window[canvasId + "Chart"] = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Idadi ya Wanafunzi",
+              data: data,
+              backgroundColor: "#2563eb",
+              borderRadius: 6,
+              borderSkipped: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ctx.parsed.y + " wanafunzi",
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 },
+              grid: { color: "#e0e7ff" },
+            },
+            x: {
+              grid: { display: false },
+              ticks: { maxRotation: 45, minRotation: 30 },
+            },
+          },
+        },
+      });
+    }
+
+    function createPieChart(canvasId, labels, data) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      if (window[canvasId + "Chart"]) window[canvasId + "Chart"].destroy();
+      window[canvasId + "Chart"] = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              data: data,
+              backgroundColor: ["#22c55e", "#ef4444"],
+              hoverOffset: 10,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                boxWidth: 16,
+                padding: 10,
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) =>
+                  ctx.label +
+                  ": " +
+                  ctx.parsed +
+                  " (" +
+                  ((ctx.parsed / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1) +
+                  "%)",
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Listen for auth state and load data
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return (window.location.href = "index.html");
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const schoolName = userData.schoolName || "Shule Yako";
+          const schoolId = userData.schoolId;
+
+          welcomeTitle.textContent = `Karibu ${schoolName}!`;
+
+          if (schoolId) {
+            await loadStatsAndCharts(schoolId);
+          } else {
+            showPopup("Hakuna taarifa za shule kwenye profile yako.", "warning");
+          }
+        } else {
+          welcomeTitle.textContent = "Karibu Mwalimu!";
+          loader.style.display = "none";
+          welcomeBox.style.display = "block";
         }
-      });
-
-      // Hide sidebar & overlay if clicked outside sidebar on mobile
-      sidebarOverlay.addEventListener("click", () => {
-        sidebar.classList.add("collapsed");
-        sidebarOverlay.classList.remove("active");
-      });
-
-      // Initially collapse sidebar on small screens
-      if(window.innerWidth <= 768){
-        sidebar.classList.add("collapsed");
+      } catch (error) {
+        loader.textContent = "Tatizo katika kupakia taarifa.";
+        console.error(error);
+        showPopup("Tatizo katika kupakia taarifa.", "error");
       }
     });
-
-  // Load footer
-  fetch("footer.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("footerContainer").innerHTML = html;
-    });
-
-  // Session timeout
-  let inactivityTime = function () {
-    let time;
-    const logoutAfter = 10 * 60 * 1000;
-    window.onload = resetTimer;
-    document.onmousemove = resetTimer;
-    document.onkeydown = resetTimer;
-    document.ontouchstart = resetTimer;
-    function logout() {
-      showPopup("Umetoka kwenye mfumo kwa kuwa hukufanya kazi kwa muda mrefu.", "warning", 5000);
-      auth.signOut().then(() => setTimeout(() => window.location.href = "index.html", 1500));
-    }
-    function resetTimer() {
-      clearTimeout(time);
-      time = setTimeout(logout, logoutAfter);
-    }
-  };
-  inactivityTime();
-
-  // Popup functions
-  function showPopup(message, type = "info", duration = 4000) {
-    const popup = document.getElementById("popupMessage");
-    const iconEl = popup.querySelector(".icon");
-    const msgEl = popup.querySelector(".message");
-    const closeBtn = popup.querySelector(".closeBtn");
-
-    popup.className = "";
-    popup.classList.add(type, "show");
-    msgEl.textContent = message;
-
-    const icons = {
-      success: "✔️",
-      error: "❌",
-      info: "ℹ️",
-      warning: "⚠️"
-    };
-    iconEl.textContent = icons[type] || "";
-    popup.style.display = "flex";
-
-    closeBtn.onclick = () => {
-      hidePopup();
-    };
-
-    clearTimeout(popup.hideTimeout);
-    popup.hideTimeout = setTimeout(() => {
-      hidePopup();
-    }, duration);
-  }
-
-  function hidePopup() {
-    const popup = document.getElementById("popupMessage");
-    popup.classList.remove("show");
-    setTimeout(() => {
-      popup.style.display = "none";
-    }, 300);
-  }
-</script>
-
+  </script>
 </body>
 </html>
