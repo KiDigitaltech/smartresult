@@ -3,179 +3,231 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mfumo wa Matokeo - SmartResult</title>
+  <title>SmartResult - Login</title>
   <link rel="icon" type="image/png" href="favicon.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(rgba(0,123,255,0.6), rgba(0,123,255,0.3)), url('wallpaper.jpg') no-repeat center center fixed;
-      background-size: cover;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .splash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: white;
+      z-index: 9999;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      flex-direction: column;
+      animation: fadeOut 1s ease 2s forwards;
+    }
+
+    .splash img {
+      width: 150px;
+      animation: zoomIn 1.2s ease;
+    }
+
+    .splash p {
+      margin-top: 15px;
+      font-size: 16px;
+      color: #007bff;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    @keyframes zoomIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       padding: 20px;
     }
-    .container {
-      background: #ffffffee;
-      backdrop-filter: blur(10px);
-      padding: 40px 30px;
+
+    .login-box {
+      display: flex;
+      background: #fff;
       border-radius: 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+      max-width: 900px;
       width: 100%;
-      max-width: 400px;
     }
-    h2 { text-align: center; color: #007bff; margin-bottom: 5px; font-size: 26px; }
-    p.description { text-align: center; color: #333; font-size: 14px; margin-bottom: 20px; }
+
+    .logo-side {
+      background: linear-gradient(180deg, #007bff, #00c6ff);
+      color: white;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    .logo-side img {
+      width: 100%;
+      max-width: 250px;
+    }
+
+    .form-side {
+      flex: 1.3;
+      padding: 40px 30px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #0d6efd;
+      margin-bottom: 10px;
+    }
+
+    p.description {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
     input {
       width: 100%;
-      padding: 12px 15px;
-      margin: 10px 0;
+      padding: 12px;
+      margin-bottom: 15px;
       border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 15px;
     }
-    input:focus {
-      border-color: #007bff;
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-    }
+
     .password-group {
       position: relative;
     }
+
     .toggle-password {
       position: absolute;
       top: 50%;
       right: 12px;
       transform: translateY(-50%);
       cursor: pointer;
-      font-size: 16px;
-      color: #666;
     }
+
     .checkbox-group {
-      margin-top: 10px;
       display: flex;
       align-items: center;
       font-size: 14px;
+      margin-bottom: 10px;
     }
-    .checkbox-group input {
-      margin-right: 8px;
-    }
+
+    .checkbox-group input { margin-right: 8px; }
+
     .forgot-password {
       text-align: right;
-      margin-top: 8px;
       font-size: 14px;
+      margin-bottom: 15px;
     }
+
     .forgot-password a {
-      color: #007bff;
+      color: #0d6efd;
       text-decoration: none;
     }
-    .forgot-password a:hover {
-      text-decoration: underline;
-    }
+
     button {
       width: 100%;
       padding: 12px;
-      background-color: #007bff;
+      background: linear-gradient(to right, #0d6efd, #00c6ff);
       color: white;
       font-weight: bold;
-      font-size: 16px;
       border: none;
       border-radius: 10px;
+      font-size: 16px;
       cursor: pointer;
-      transition: background 0.3s ease;
-      margin-top: 10px;
     }
-    button:hover { background-color: #0056b3; }
-    #msg { margin-top: 15px; text-align: center; color: red; font-size: 14px; }
 
-    .loader-box { margin-top: 15px; display: none; text-align: center; }
-    .loader-progress {
-      width: 100%; height: 12px;
-      background-color: #eee;
-      border-radius: 20px;
-      overflow: hidden; margin-top: 10px;
-    }
-    .loader-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, #007bff, #00c6ff);
-      transition: width 0.4s ease;
-    }
-    .percent-text { font-weight: bold; color: #007bff; }
-
-    .instructions {
-      margin-top: 25px;
-      background: #f1f9ff;
-      border-left: 4px solid #007bff;
-      padding: 15px;
-      font-size: 14px;
-      border-radius: 10px;
-    }
-    .instructions ul { padding-left: 20px; margin-top: 8px; }
-    .help-desk {
+    .lang-toggle {
       text-align: center;
+      margin-top: 15px;
       font-size: 13px;
-      color: #555;
-      margin-top: 25px;
+      color: #007bff;
+      cursor: pointer;
     }
-    .help-desk span { display: block; line-height: 1.6; }
 
-    @media (max-width: 480px) {
-      .container { padding: 25px 20px; }
-      h2 { font-size: 22px; }
+    .help-desk {
+      margin-top: 25px;
+      font-size: 13px;
+      text-align: center;
+      color: #555;
+    }
+
+    @media (max-width: 768px) {
+      .login-box {
+        flex-direction: column;
+      }
+
+      .logo-side {
+        padding: 20px;
+      }
+
+      .form-side {
+        padding: 25px 20px;
+      }
+
+      .logo-side img {
+        max-width: 180px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>MFUMO WA MATOKEO</h2>
-    <p class="description">Tafadhali ingiza barua pepe na nenosiri ulilosajiliwa.</p>
-    <input type="email" id="email" placeholder="Barua Pepe" required />
-    <div class="password-group">
-      <input type="password" id="password" placeholder="Nenosiri" required />
-      <span class="toggle-password" id="togglePassword">👁️</span>
-    </div>
-    <div class="checkbox-group">
-      <input type="checkbox" id="rememberMe" />
-      <label for="rememberMe">Kumbuka</label>
-    </div>
-    <div class="forgot-password">
-      <a href="#" id="forgotLink">Umesahau nenosiri?</a>
-    </div>
-    <button id="btnLogin">Ingia</button>
+  <div class="splash">
+    <img src="logo.png" alt="SmartResult Logo" />
+    <p>SmartResult | Loading...</p>
+  </div>
 
-    <div class="loader-box" id="loaderBox">
-      <span class="percent-text" id="percentText">Inapakia... 0%</span>
-      <div class="loader-progress">
-        <div class="loader-fill" id="loaderFill"></div>
+  <div class="wrapper">
+    <div class="login-box">
+      <div class="logo-side">
+        <img src="logo.png" alt="SmartResult Logo" />
       </div>
-    </div>
-
-    <p id="msg"></p>
-
-    <div class="instructions">
-      <strong>Jinsi ya kutumia mfumo:</strong>
-      <ul>
-        <li>Weka barua pepe ya shule iliyoandikishwa.</li>
-        <li>Weka nenosiri sahihi kama ulivyopokea wakati wa usajili.</li>
-        <li>Bonyeza "Ingia" kuendelea kwenye dashibodi ya shule.</li>
-        <li>Ukisahau nenosiri, bonyeza "Umesahau nenosiri?" juu.</li>
-      </ul>
-    </div>
-
-    <div class="help-desk">
-      <strong>Help Desk / Msaada:</strong>
-      <span>Simu: +255 717 173 853</span>
-      <span>Email: support@smartresult.co.tz</span>
-      <span>WhatsApp: +255 717 173 853</span>
+      <div class="form-side">
+        <h2 id="loginTitle">Ingia</h2>
+        <p class="description" id="loginDesc">Weka taarifa zako kuingia kwenye mfumo.</p>
+        <input type="email" id="email" placeholder="Barua Pepe" />
+        <div class="password-group">
+          <input type="password" id="password" placeholder="Nenosiri" />
+          <span class="toggle-password" id="togglePassword">👁️</span>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="rememberMe" />
+          <label id="rememberLabel">Kumbuka</label>
+        </div>
+        <div class="forgot-password">
+          <a href="#" id="forgotLink">Umesahau nenosiri?</a>
+        </div>
+        <button id="btnLogin">Ingia</button>
+        <div class="lang-toggle" id="langSwitch">English</div>
+        <div class="help-desk">
+          <strong>Msaada:</strong><br>
+          Simu: +255 717 173 853<br>
+          Email: support@smartresult.co.tz<br>
+          WhatsApp: +255 717 173 853
+        </div>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -192,118 +244,113 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const btnLogin = document.getElementById("btnLogin");
-    const msg = document.getElementById("msg");
-    const loaderBox = document.getElementById("loaderBox");
-    const loaderFill = document.getElementById("loaderFill");
-    const percentText = document.getElementById("percentText");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const rememberMe = document.getElementById("rememberMe");
     const togglePassword = document.getElementById("togglePassword");
+    const btnLogin = document.getElementById("btnLogin");
     const forgotLink = document.getElementById("forgotLink");
+    const langSwitch = document.getElementById("langSwitch");
 
-    // Remember Me: Load stored email
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedEmail = localStorage.getItem("savedEmail");
-      if (savedEmail) {
-        document.getElementById("email").value = savedEmail;
-        document.getElementById("rememberMe").checked = true;
+    // Auto login
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        if (docSnap.exists()) {
+          location.href = "school-dashboard.html";
+        }
       }
     });
 
+    // Login
     btnLogin.addEventListener("click", async () => {
-      msg.textContent = "";
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const rememberMe = document.getElementById("rememberMe").checked;
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
 
       if (!email || !password) {
-        msg.textContent = "Tafadhali jaza barua pepe na nenosiri.";
+        Swal.fire("Angalizo", "Tafadhali jaza taarifa zote", "warning");
         return;
       }
 
-      if (rememberMe) {
-        localStorage.setItem("savedEmail", email);
-      } else {
-        localStorage.removeItem("savedEmail");
-      }
-
-      loaderBox.style.display = "block";
-      let percent = 0;
-      loaderFill.style.width = "0%";
-      percentText.textContent = "Inapakia... 0%";
-
-      const simulateLoading = () => {
-        return new Promise(resolve => {
-          const interval = setInterval(() => {
-            percent += 5;
-            loaderFill.style.width = percent + "%";
-            percentText.textContent = "Inapakia... " + percent + "%";
-            if (percent >= 100) {
-              clearInterval(interval);
-              resolve();
-            }
-          }, 40);
-        });
-      };
-
       try {
-        await simulateLoading();
-
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const uid = userCredential.user.uid;
-
-        const docRef = doc(db, "users", uid);
-        const docSnap = await getDoc(docRef);
-
-        if (!docSnap.exists()) {
-          msg.textContent = "Mtumiaji hana ruhusa kwenye mfumo.";
-          await auth.signOut();
-          loaderBox.style.display = "none";
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        const uid = userCred.user.uid;
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (!userDoc.exists()) {
+          Swal.fire("Ruhusa haipo", "Mtumiaji hajathibitishwa kwenye mfumo", "error");
           return;
         }
-
-        const data = docSnap.data();
-        if (data.role === "headTeacher") {
-          window.location.href = "school-dashboard.html";
-        } else {
-          msg.textContent = "Huna ruhusa ya kuingia hapa.";
-          await auth.signOut();
-          loaderBox.style.display = "none";
-        }
-
-      } catch (error) {
-        msg.textContent = "Hitilafu: " + error.message;
-        loaderBox.style.display = "none";
+        window.location.href = "school-dashboard.html";
+      } catch (err) {
+        Swal.fire("Hitilafu", err.message, "error");
       }
     });
 
-    // Toggle show/hide password
+    // Toggle Password
     togglePassword.addEventListener("click", () => {
-      const passwordInput = document.getElementById("password");
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        togglePassword.textContent = "🙈";
-      } else {
-        passwordInput.type = "password";
-        togglePassword.textContent = "👁️";
-      }
+      passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+      togglePassword.textContent = passwordInput.type === "password" ? "👁️" : "🙈";
     });
 
     // Forgot Password
-    forgotLink.addEventListener("click", async (e) => {
+    forgotLink.addEventListener("click", async e => {
       e.preventDefault();
-      const email = document.getElementById("email").value.trim();
+      const email = emailInput.value.trim();
       if (!email) {
-        msg.textContent = "Tafadhali weka barua pepe kwanza.";
+        Swal.fire("Angalizo", "Weka barua pepe kwanza", "info");
         return;
       }
-
       try {
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        if (methods.length === 0) {
+          Swal.fire("Haijasajiliwa", "Email hii haijasajiliwa kwenye mfumo", "warning");
+          return;
+        }
         await sendPasswordResetEmail(auth, email);
-        msg.style.color = "green";
-        msg.textContent = "Kiungo cha kuweka upya nenosiri kimetumwa kwenye barua pepe yako.";
-      } catch (error) {
-        msg.style.color = "red";
-        msg.textContent = "Hitilafu: " + error.message;
+        Swal.fire("Imetumwa", "Kiungo kimetumwa kwa email yako", "success");
+      } catch (err) {
+        Swal.fire("Hitilafu", err.message, "error");
+      }
+    });
+
+    // Multilanguage
+    langSwitch.addEventListener("click", () => {
+      const current = langSwitch.textContent;
+      if (current === "English") {
+        langSwitch.textContent = "Swahili";
+        document.getElementById("loginTitle").textContent = "Login";
+        document.getElementById("loginDesc").textContent = "Enter your credentials to access the system.";
+        emailInput.placeholder = "Email";
+        passwordInput.placeholder = "Password";
+        document.getElementById("rememberLabel").textContent = "Remember Me";
+        btnLogin.textContent = "Login";
+        forgotLink.textContent = "Forgot Password?";
+      } else {
+        langSwitch.textContent = "English";
+        document.getElementById("loginTitle").textContent = "Ingia";
+        document.getElementById("loginDesc").textContent = "Weka taarifa zako kuingia kwenye mfumo.";
+        emailInput.placeholder = "Barua Pepe";
+        passwordInput.placeholder = "Nenosiri";
+        document.getElementById("rememberLabel").textContent = "Kumbuka";
+        btnLogin.textContent = "Ingia";
+        forgotLink.textContent = "Umesahau nenosiri?";
+      }
+    });
+
+    // Remember Email
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("savedEmail");
+      if (saved) {
+        emailInput.value = saved;
+        rememberMe.checked = true;
+      }
+    });
+
+    rememberMe.addEventListener("change", () => {
+      if (rememberMe.checked) {
+        localStorage.setItem("savedEmail", emailInput.value);
+      } else {
+        localStorage.removeItem("savedEmail");
       }
     });
   </script>
