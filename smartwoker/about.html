@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kuhusu Sisi - SmartResult</title>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+
+    #sidebar-container {
+      width: 240px;
+      background-color: #fff;
+      border-right: 4px solid #0d6efd;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      background: #f8f9fa;
+    }
+
+    h2 {
+      color: #0d6efd;
+      font-weight: 600;
+      margin-bottom: 25px;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar-container {
+        display: none;
+      }
+    }
+
+    footer {
+      background: #0d6efd;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container">
+      <h2><i class="fa fa-info-circle"></i> Kuhusu SmartResult</h2>
+
+      <p><strong>SmartResult</strong> ni mfumo wa kidijitali wa kisasa unaobuniwa ili kusaidia shule kusimamia matokeo ya wanafunzi kwa haraka, kwa usahihi na kwa usalama. Mfumo huu umetengenezwa kwa kuzingatia mahitaji halisi ya walimu, wakuu wa shule, na waratibu wa elimu.</p>
+
+      <h5>Lengo Letu</h5>
+      <p>Lengo kuu la SmartResult ni kuondoa changamoto zinazotokana na usimamizi wa matokeo kwa njia za jadi. Tunataka kurahisisha upatikanaji wa taarifa, kuimarisha uwajibikaji, na kuleta uwazi kati ya walimu, wanafunzi na wazazi.</p>
+
+      <h5>Vipengele Muhimu</h5>
+      <ul>
+        <li>Usajili wa shule zilizosajiliwa rasmi na taasisi za elimu</li>
+        <li>Uwezeshaji wa usajili wa walimu, madarasa, masomo na wanafunzi kwa mfumo mmoja</li>
+        <li>Kuingiza na kutunza matokeo ya kila kipindi (term) kwa urahisi</li>
+        <li>Ripoti ya matokeo yenye format ya NECTA kwa uchapishaji wa kitaalamu</li>
+        <li>Offline support — unaweza kuingiza matokeo hata kama huna mtandao, na kuyasawazisha baadaye</li>
+        <li>Export ya data kwenda Excel au kuchapishwa moja kwa moja (Print Mode)</li>
+        <li>Usalama wa hali ya juu kwa kutumia Firebase Authentication na Firestore</li>
+      </ul>
+
+      <h5>Maono Yetu</h5>
+      <p>Ndani ya miaka michache ijayo, tunalenga kuifanya SmartResult kuwa jukwaa kuu la usimamizi wa taarifa za kitaaluma kwa shule nyingi Tanzania na hata nje ya mipaka. Tunaamini elimu bora inahitaji mifumo bora ya taarifa.</p>
+
+      <h5>Mwisho</h5>
+      <p>Ikiwa wewe ni shule inayojali maendeleo ya wanafunzi na utawala bora wa taarifa, basi SmartResult ni mfumo sahihi kwako. Jiunge nasi katika safari ya kuboresha elimu kwa njia za kidijitali!</p>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Load sidebar
+    fetch("sidebar.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("sidebar-container").innerHTML = data;
+      });
+
+    // Load footer
+    fetch("footer.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("footer").innerHTML = data;
+      });
+  </script>
+  <script>
+  fetch("footer.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("footer").innerHTML = data;
+    });
+</script>
+
+</body>
+</html>
