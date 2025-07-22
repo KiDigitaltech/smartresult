@@ -13,32 +13,60 @@
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
-      display: flex;
     }
 
     #sidebar-container {
       width: 240px;
-      background-color: #fff;
-      border-right: 4px solid #0d6efd;
-      min-height: 100vh;
+      background: linear-gradient(to bottom, #0056b3, #003d80);
+      color: white;
+      height: 100vh;
+      overflow-y: auto;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
     }
 
     .main-content {
-      flex: 1;
+      margin-left: 240px;
       padding: 30px;
-      background: #f8f9fa;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar-container {
+        transform: translateX(-100%);
+      }
+
+      #sidebar-container.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      #menu-toggle {
+        display: inline-block;
+      }
+    }
+
+    #menu-toggle {
+      display: none;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 15px;
+      font-size: 18px;
+      border-radius: 4px;
     }
 
     h2 {
       color: #0d6efd;
       font-weight: 600;
       margin-bottom: 25px;
-    }
-
-    @media (max-width: 768px) {
-      #sidebar-container {
-        display: none;
-      }
     }
 
     footer {
@@ -51,11 +79,15 @@
   </style>
 </head>
 <body>
+
   <!-- Sidebar -->
   <div id="sidebar-container"></div>
 
   <!-- Main Content -->
   <div class="main-content">
+    <!-- Toggle button for mobile -->
+    <button id="menu-toggle"><i class="fas fa-bars"></i> Menyu</button>
+
     <div class="container">
       <h2><i class="fa fa-shield-alt"></i> Sera ya Faragha</h2>
       <p>
@@ -107,14 +139,15 @@
       .then(data => {
         document.getElementById("footer").innerHTML = data;
       });
-  </script>
-  <script>
-  fetch("footer.html")
-    .then(res => res.text())
-    .then(data => {
-      document.getElementById("footer").innerHTML = data;
-    });
-</script>
 
+    // Toggle sidebar on mobile
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggleBtn = document.getElementById("menu-toggle");
+      toggleBtn.addEventListener("click", () => {
+        const sidebar = document.getElementById("sidebar-container");
+        sidebar.classList.toggle("show");
+      });
+    });
+  </script>
 </body>
 </html>
