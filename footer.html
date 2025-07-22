@@ -1,18 +1,32 @@
-<footer style="background: #f8f9fa; border-top: 1px solid #ddd; padding: 20px 0; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-  <div style="max-width: 960px; margin: auto; padding: 0 15px;">
+<footer style="background-color: #f8f9fa; border-top: 2px solid #0d6efd; padding: 25px 0; font-family: 'Segoe UI', sans-serif;">
+  <div style="max-width: 1100px; margin: auto; padding: 0 15px; text-align: center;">
+    
+    <!-- Navigation Links -->
+    <div style="margin-bottom: 15px;">
+      <a href="smartwoker/about.html" style="margin: 0 12px; color: #0d6efd; font-weight: 500; text-decoration: none;">Kuhusu Sisi</a>
+      <a href="smartwoker/terms.html" style="margin: 0 12px; color: #0d6efd; font-weight: 500; text-decoration: none;">Masharti ya Matumizi</a>
+      <a href="smartwoker/privacy.html" style="margin: 0 12px; color: #0d6efd; font-weight: 500; text-decoration: none;">Sera ya Faragha</a>
+    </div>
+
+    <!-- Copyright -->
     <p style="margin: 0; font-size: 14px; color: #555;">
       &copy; <span id="currentYear"></span> <strong>SmartResult System</strong>. Haki zote zimehifadhiwa.
     </p>
-    <div style="margin-top: 10px;">
+
+    <!-- Social Media Icons -->
+    <div style="margin-top: 12px;">
       <a href="#" title="Facebook" style="color: #3b5998; margin: 0 10px; font-size: 18px;"><i class="fab fa-facebook"></i></a>
       <a href="#" title="Twitter" style="color: #1da1f2; margin: 0 10px; font-size: 18px;"><i class="fab fa-twitter"></i></a>
       <a href="#" title="Instagram" style="color: #e1306c; margin: 0 10px; font-size: 18px;"><i class="fab fa-instagram"></i></a>
-      <a href="mailto:info@smartresult.com" title="Email" style="color: #dc3545; margin: 0 10px; font-size: 18px;"><i class="fas fa-envelope"></i></a>
+      <a href="mailto:info@smartresult.com" title="Barua Pepe" style="color: #dc3545; margin: 0 10px; font-size: 18px;"><i class="fas fa-envelope"></i></a>
     </div>
   </div>
 
+  <!-- Year Script -->
   <script>
-    // Set current year
-    document.getElementById("currentYear").textContent = new Date().getFullYear();
+    document.addEventListener("DOMContentLoaded", function () {
+      const yearSpan = document.getElementById("currentYear");
+      if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+    });
   </script>
 </footer>
