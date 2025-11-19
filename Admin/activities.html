@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Taarifa za Shule</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* Muonekano umerahisishwa kwa usomaji */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+      background: #eef6ff;
+    }
+    header {
+      position: fixed;
+      top: 0;
+      left: 220px;
+      right: 0;
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      z-index: 10;
+    }
+    #sidebar {
+      background: #0056b3;
+      color: white;
+      width: 220px;
+      flex-shrink: 0;
+      padding-top: 1rem;
+      min-height: 100vh;
+    }
+    #sidebar nav a {
+      color: white;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      display: block;
+    }
+    #sidebar nav a.active,
+    #sidebar nav a:hover {
+      background: #003d80;
+    }
+    main {
+      margin-left: 220px;
+      margin-top: 80px;
+      padding: 2rem;
+      flex: 1;
+    }
+    h2 {
+      color: #007bff;
+    }
+    select {
+      padding: 10px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
+    .info-box {
+      background: #fff;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.6rem;
+      text-align: left;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <aside id="sidebar">
+    <nav>
+      <a href="admin-dashboard.html"><i class="fas fa-plus-circle"></i> Sajili Shule</a>
+      <a href="schools-list.html"><i class="fas fa-list"></i> Orodha ya Shule</a>
+      <a href="school-info.html" class="active"><i class="fas fa-building"></i> Taarifa za Shule</a>
+      <a href="results.html"><i class="fas fa-file-alt"></i> Matokeo</a>
+      <a href="profile.html"><i class="fas fa-user"></i> Profaili</a>
+    </nav>
+  </aside>
+
+  <header>
+    <h1><i class="fa-solid fa-school"></i> Taarifa za Shule</h1>
+  </header>
+
+  <main>
+    <h2>Chagua Shule</h2>
+    <select id="schoolSelect">
+      <option value="">-- Chagua Shule --</option>
+    </select>
+
+    <div id="schoolInfo" class="info-box"></div>
+    <div id="classesContainer"></div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, getDoc,
+      query, doc, where
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const schoolSelect = document.getElementById('schoolSelect');
+    const schoolInfo = document.getElementById('schoolInfo');
+    const classesContainer = document.getElementById('classesContainer');
+
+    let schoolsMap = {};
+
+    async function loadSchools() {
+      const snapshot = await getDocs(collection(db, 'schools'));
+      snapshot.forEach(doc => {
+        const school = doc.data();
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = school.name;
+        schoolsMap[doc.id] = school;
+        schoolSelect.appendChild(option);
+      });
+    }
+
+    async function loadSchoolDetails(uid) {
+      if (!uid) return;
+      const userDoc = await getDoc(doc(db, "users", uid));
+      const school = schoolsMap[uid];
+      const email = userDoc.exists() ? userDoc.data().email : "—";
+
+      schoolInfo.innerHTML = `
+        <h3>${school.name}</h3>
+        <p><strong>Barua Pepe:</strong> ${email}</p>
+        <p><strong>Tarehe ya Usajili:</strong> ${school.createdAt?.toDate().toLocaleDateString() || "—"}</p>
+      `;
+    }
+
+    async function loadClassesAndStudents(schoolUid) {
+      classesContainer.innerHTML = '';
+
+      const q = query(collection(db, "classes"), where("uid", "==", schoolUid));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        classesContainer.innerHTML = `<p>Hakuna madarasa kwa shule hii.</p>`;
+        return;
+      }
+
+      for (const classDoc of snapshot.docs) {
+        const classData = classDoc.data();
+        const classId = classDoc.id;
+
+        const studentQuery = query(collection(db, "students"), where("classId", "==", classId), where("uid", "==", schoolUid));
+        const studentsSnap = await getDocs(studentQuery);
+
+        let table = `
+          <div class="info-box">
+            <h3>${classData.name} (${studentsSnap.size} wanafunzi)</h3>
+            <table>
+              <thead><tr><th>S/N</th><th>Jina</th><th>Jinsia</th></tr></thead>
+              <tbody>
+        `;
+
+        let i = 1;
+        studentsSnap.forEach(doc => {
+          const s = doc.data();
+          table += `<tr><td>${i++}</td><td>${s.name}</td><td>${s.gender || "—"}</td></tr>`;
+        });
+
+        table += `</tbody></table></div>`;
+        classesContainer.innerHTML += table;
+      }
+    }
+
+    schoolSelect.addEventListener('change', async () => {
+      const uid = schoolSelect.value;
+      await loadSchoolDetails(uid);
+      await loadClassesAndStudents(uid);
+    });
+
+    loadSchools();
+  </script>
+</body>
+</html>

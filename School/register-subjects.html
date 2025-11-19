@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sajili Masomo - SmartResult</title>
+   <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: #eef6ff;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #sidebar {
+      background: #0056b3;
+      color: white;
+      width: 220px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding-top: 1rem;
+    }
+    #sidebar nav a {
+      color: white;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-left: 4px solid transparent;
+    }
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: #003d80;
+      border-left-color: #ffd54f;
+    }
+    main {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    footer {
+      background: #f1f5f9;
+      color: #555;
+      text-align: center;
+      padding: 1rem;
+      margin-top: auto;
+      border-top: 1px solid #ddd;
+    }
+    form {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    label, input, select {
+      display: block;
+      width: 100%;
+      font-size: 1rem;
+    }
+    input, select {
+      padding: 10px;
+      margin-top: 0.5rem;
+      margin-bottom: 1.2rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #007bff;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    #subjectsList {
+      margin-top: 2rem;
+    }
+    .subject-item {
+      background: white;
+      padding: 1rem;
+      margin-bottom: 0.8rem;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+    }
+    .actions i {
+      cursor: pointer;
+      margin-left: 1rem;
+      font-size: 1.2rem;
+      color: #555;
+      transition: color 0.3s;
+    }
+    .actions i:hover {
+      color: red;
+    }
+
+    /* Popup */
+    #editPopup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #editPopup form {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 320px;
+    }
+    #editPopup h3 {
+      margin-top: 0;
+    }
+    #msg {
+      margin-top: 0.5rem;
+      font-weight: 600;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fa-solid fa-book"></i> SmartResult - Sajili Masomo</h1>
+  <button id="btnLogout"><i class="fa-solid fa-sign-out-alt"></i> Logout</button>
+</header>
+
+<div style="display:flex; flex-grow:1;">
+  <aside id="sidebar">
+    <nav aria-label="Main Navigation">
+        <a href="school-dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashibodi</span></a>
+        <a href="register-students.html"><i class="fas fa-user-plus"></i> <span>Sajili Wanafunzi</span></a>
+        <a href="register-classes.html"><i class="fas fa-chalkboard"></i> <span>Sajili Madarasa</span></a>
+        <a href="register-subjects.html" class="active"><i class="fas fa-book"></i> <span>Sajili Masomo</span></a>
+        <a href="enter-results.html"><i class="fas fa-pen-to-square"></i> <span>Jaza Matokeo</span></a>
+        <a href="view-results.html"><i class="fas fa-file-alt"></i> <span>Tazama Matokeo</span></a>
+		<a href="subject-results.html"><i class="fas fa-chart-line"></i> <span>Mkeka wa Somo</span></a>
+        <a href="average-subjects.html"><i class="fas fa-percentage"></i> <span>Tathmini Somo</span></a>
+        <a href="students-report.html"><i class="fas fa-user-graduate"></i> <span>Ripoti</span></a>
+        <a href="profile.html"><i class="fas fa-user-cog"></i> <span>Wasifu</span></a>
+      </nav>
+  </aside>
+
+  <main>
+    <h2>Sajili Somo Mpya kwa Darasa</h2>
+    <form id="subjectForm">
+      <label>Chagua Darasa</label>
+      <select id="classSelect" required>
+        <option value="">-- Chagua Darasa --</option>
+      </select>
+
+      <label>Jina la Somo (Tumia koma kama unataka kuongeza zaidi ya moja)</label>
+      <input type="text" id="subjectName" placeholder="Mfano: Hisabati, Kiswahili, English" required />
+
+      <button type="submit"><i class="fa fa-plus"></i> Sajili</button>
+      <p id="msg"></p>
+    </form>
+
+    <div class="loader" id="loader"></div>
+
+    <div id="subjectsList"></div>
+  </main>
+</div>
+
+<footer>&copy; 2025 SmartResult</footer>
+
+<!-- Edit Popup -->
+<div id="editPopup">
+  <form id="editForm">
+    <h3>Hariri Somo</h3>
+    <label>Jina la Somo</label>
+    <input type="text" id="editSubjectName" required />
+    <input type="hidden" id="editSubjectId" />
+    <button type="submit">Hifadhi</button>
+  </form>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    getDocs,
+    addDoc,
+    deleteDoc,
+    updateDoc,
+    doc,
+    getDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.appspot.com",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const subjectForm = document.getElementById("subjectForm");
+  const subjectNameInput = document.getElementById("subjectName");
+  const msg = document.getElementById("msg");
+  const loader = document.getElementById("loader");
+  const subjectsList = document.getElementById("subjectsList");
+  const classSelect = document.getElementById("classSelect");
+
+  const editPopup = document.getElementById("editPopup");
+  const editForm = document.getElementById("editForm");
+  const editSubjectName = document.getElementById("editSubjectName");
+  const editSubjectId = document.getElementById("editSubjectId");
+
+  let currentUser;
+  let currentSchoolId = '';
+
+  // Load classes owned by current user's school
+  async function loadClasses() {
+    classSelect.innerHTML = `<option value="">-- Chagua Darasa --</option>`;
+    const q = query(collection(db, "classes"), where("schoolId", "==", currentSchoolId));
+    const snapshot = await getDocs(q);
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const option = document.createElement("option");
+      option.value = docSnap.id;
+      option.textContent = data.name;
+      classSelect.appendChild(option);
+    });
+  }
+
+  // Load subjects of selected class
+  async function loadSubjects() {
+    subjectsList.innerHTML = "";
+    loader.style.display = "block";
+
+    const classId = classSelect.value;
+    if (!classId) {
+      subjectsList.innerHTML = '<p style="color:gray;">Tafadhali chagua darasa kwanza kuonyesha masomo.</p>';
+      loader.style.display = "none";
+      return;
+    }
+
+    const q = query(
+      collection(db, "subjects"),
+      where("schoolId", "==", currentSchoolId),
+      where("classId", "==", classId)
+    );
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      subjectsList.innerHTML = '<p style="color:gray;">Hakuna masomo yaliyosajiliwa kwa darasa hili.</p>';
+      loader.style.display = "none";
+      return;
+    }
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const div = document.createElement("div");
+      div.className = "subject-item";
+      div.innerHTML = `
+        <span>${data.name}</span>
+        <div class="actions">
+          <i class="fa fa-pen" onclick="openEdit('${docSnap.id}', '${data.name}')"></i>
+          <i class="fa fa-trash" onclick="deleteSubject('${docSnap.id}')"></i>
+        </div>
+      `;
+      subjectsList.appendChild(div);
+    });
+
+    loader.style.display = "none";
+  }
+
+  // ===== BADILI HAPA KUBALI MASOMO MENGI =====
+  subjectForm.onsubmit = async (e) => {
+    e.preventDefault();
+    msg.textContent = "";
+    const classId = classSelect.value;
+    let subjectsInput = subjectNameInput.value.trim();
+
+    if (!subjectsInput || !classId) {
+      msg.style.color = "red";
+      msg.textContent = "Tafadhali chagua darasa na jaza jina la somo.";
+      return;
+    }
+
+    loader.style.display = "block";
+
+    // Gawanya kwa koma
+    let subjectsArray = subjectsInput.split(",").map(s => s.trim()).filter(s => s);
+
+    // Pata masomo yaliyopo tayari
+    const subjectsRef = collection(db, "subjects");
+    const q = query(
+      subjectsRef,
+      where("schoolId", "==", currentSchoolId),
+      where("classId", "==", classId)
+    );
+    const snapshot = await getDocs(q);
+    const existingSubjects = snapshot.docs.map(doc => doc.data().name.toLowerCase());
+
+    let addedCount = 0;
+    let skippedCount = 0;
+
+    for (let subject of subjectsArray) {
+      if (existingSubjects.includes(subject.toLowerCase())) {
+        skippedCount++;
+        continue;
+      }
+
+      await addDoc(subjectsRef, {
+        name: subject,
+        uid: currentUser.uid,
+        schoolId: currentSchoolId,
+        classId,
+        createdAt: serverTimestamp(),
+      });
+      addedCount++;
+    }
+
+    subjectNameInput.value = "";
+    if (addedCount > 0) {
+      msg.style.color = "green";
+      msg.textContent = `${addedCount} somo(s) limeongezwa kwa darasa!`;
+    } else {
+      msg.style.color = "red";
+      msg.textContent = "Hakuna somo jipya lililoingizwa.";
+    }
+    if (skippedCount > 0) {
+      msg.textContent += ` (${skippedCount} somo tayari yalikuwepo na yameachwa)`;
+    }
+
+    loader.style.display = "none";
+    loadSubjects();
+  };
+  // ==========================================
+
+  window.openEdit = (id, name) => {
+    editSubjectId.value = id;
+    editSubjectName.value = name;
+    editPopup.style.display = "flex";
+  };
+
+  editForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const id = editSubjectId.value;
+    const newName = editSubjectName.value.trim();
+    if (!newName) return;
+
+    // Check duplicate before updating in same school & class
+    const subjectsRef = collection(db, "subjects");
+    const q = query(
+      subjectsRef,
+      where("schoolId", "==", currentSchoolId),
+      where("classId", "==", classSelect.value)
+    );
+    const snapshot = await getDocs(q);
+    const duplicate = snapshot.docs.find(
+      (doc) =>
+        doc.data().name.toLowerCase() === newName.toLowerCase() && doc.id !== id
+    );
+
+    if (duplicate) {
+      alert("Somo hili tayari limesajiliwa kwa darasa hili.");
+      return;
+    }
+
+    await updateDoc(doc(db, "subjects", id), { name: newName });
+    editPopup.style.display = "none";
+    loadSubjects();
+  };
+
+  window.deleteSubject = async (id) => {
+    if (confirm("Una uhakika unataka kufuta somo hili?")) {
+      await deleteDoc(doc(db, "subjects", id));
+      loadSubjects();
+    }
+  };
+
+  window.onclick = function (event) {
+    if (event.target == editPopup) {
+      editPopup.style.display = "none";
+    }
+  };
+
+  document.getElementById("btnLogout").onclick = async () => {
+    await signOut(auth);
+    location.href = "/index.html";
+  };
+
+  classSelect.addEventListener("change", loadSubjects);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return (location.href = "/index.html");
+    currentUser = user;
+
+    // Get schoolId from users collection
+    const userRef = doc(db, "users", currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      currentSchoolId = userSnap.data().schoolId;
+      await loadClasses();
+      if (classSelect.value) loadSubjects();
+    } else {
+      alert("Taarifa za mtumiaji hazikupatikana!");
+    }
+  });
+</script>
+
+</body>
+</html>

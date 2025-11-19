@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wastani wa Masomo - SmartResult</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      min-height: 100vh;
+      background: #f8f9fa;
+    }
+
+    #sidebar-container {
+      width: 220px;
+      background: #343a40;
+      color: white;
+      min-height: 100vh;
+      padding: 1rem;
+      box-sizing: border-box;
+      transition: all 0.3s ease-in-out;
+    }
+
+    #main-content {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 1rem;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    select, button {
+      padding: 10px 14px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto 1rem;
+    }
+
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 5px rgb(0 0 0 / 0.1);
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    th.subject-name, td.subject-name {
+      text-align: left;
+    }
+
+    th {
+      background: #f0f0f0;
+    }
+
+    .grade-A { background-color: #c8e6c9; }
+    .grade-B { background-color: #bbdefb; }
+    .grade-C { background-color: #fff9c4; }
+    .grade-D { background-color: #ffe0b2; }
+    .grade-F { background-color: #ffcdd2; }
+
+    #chart-container {
+      max-width: 450px;
+      margin: 2rem auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    #print-header, #print-footer {
+      text-align: center;
+      font-family: 'Times New Roman', serif;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    #print-footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    #loader {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    #loader.active {
+      display: flex;
+    }
+
+    #loader .spinner {
+      border: 5px solid #ddd;
+      border-top: 5px solid #007bff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-right: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toggle Sidebar Button */
+    #toggleSidebarBtn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: #343a40;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 1000;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar-container {
+        display: none;
+      }
+
+      #toggleSidebarBtn {
+        display: block;
+      }
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area {
+        position: absolute;
+        left: 0; top: 0;
+        width: 100%;
+        padding: 1rem;
+      }
+      table, th, td {
+        border: 1px solid black !important;
+        font-size: 12pt !important;
+        padding: 5px 8px !important;
+      }
+      #chart-container, #toggleSidebarBtn {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button id="toggleSidebarBtn"><i class="fa fa-bars"></i></button>
+
+  <div id="sidebar-container"></div>
+
+  <div id="main-content">
+    <h1><i class="fa fa-chart-pie"></i> Wastani wa Masomo na Mgawanyo wa Gredi</h1>
+
+    <div class="filters">
+      <select id="classSelect"><option value="">-- Chagua Darasa --</option></select>
+      <select id="termSelect">
+        <option value="">-- Chagua Kipindi --</option>
+        <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+        <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+        <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+        <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+        <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+        <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+        <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+        <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+      </select>
+    </div>
+
+    <button id="printBtn" disabled><i class="fa fa-print"></i> Chapisha Matokeo</button>
+
+    <div id="loader">
+      <div class="spinner"></div> Tafadhali subiri...
+    </div>
+
+    <div id="print-area">
+      <div id="print-header"></div>
+      <table id="resultsTable"></table>
+      <div id="chart-container">
+        <canvas id="gradePieChart"></canvas>
+      </div>
+      <div id="print-footer">
+        Prepared by SmartResultSystem – Page <span class="page-number"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import {
+      getFirestore, collection, query, where, getDocs, getDoc, doc
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const classSelect = document.getElementById('classSelect');
+    const termSelect = document.getElementById('termSelect');
+    const resultsTable = document.getElementById('resultsTable');
+    const printHeader = document.getElementById('print-header');
+    const printBtn = document.getElementById('printBtn');
+    const loader = document.getElementById('loader');
+    const sidebar = document.getElementById("sidebar-container");
+    const toggleSidebarBtn = document.getElementById("toggleSidebarBtn");
+
+    let currentSchoolId = "";
+    let schoolName = "";
+    let gradeChart = null;
+
+    function showLoader(show) {
+      loader.classList.toggle("active", show);
+      printBtn.disabled = show;
+      classSelect.disabled = show;
+      termSelect.disabled = show;
+    }
+
+    function getGrade(avg) {
+      if (avg >= 81) return "A";
+      if (avg >= 61) return "B";
+      if (avg >= 41) return "C";
+      if (avg >= 31) return "D";
+      return "F";
+    }
+
+    function gradeClass(g) {
+      return { A: "grade-A", B: "grade-B", C: "grade-C", D: "grade-D", F: "grade-F" }[g] || "";
+    }
+
+    async function loadSchoolName() {
+      const docSnap = await getDoc(doc(db, "schools", currentSchoolId));
+      if (docSnap.exists()) {
+        schoolName = docSnap.data().name || "";
+      }
+    }
+
+    async function loadClasses() {
+      const q = query(collection(db, "classes"), where("schoolId", "==", currentSchoolId));
+      const snapshot = await getDocs(q);
+      classSelect.innerHTML = `<option value="">-- Chagua Darasa --</option>`;
+      snapshot.forEach(docSnap => {
+        const opt = document.createElement('option');
+        opt.value = docSnap.id;
+        opt.textContent = docSnap.data().name;
+        classSelect.appendChild(opt);
+      });
+    }
+
+    async function loadSubjects(classId) {
+      const q = query(collection(db, "subjects"),
+        where("schoolId", "==", currentSchoolId),
+        where("classId", "==", classId)
+      );
+      const snapshot = await getDocs(q);
+      const subjects = [];
+      snapshot.forEach(doc => subjects.push({ id: doc.id, name: doc.data().name }));
+      return subjects;
+    }
+
+    async function loadSubjectAverages(classId, term) {
+      const subjects = await loadSubjects(classId);
+      const q = query(collection(db, "results"),
+        where("schoolId", "==", currentSchoolId),
+        where("classId", "==", classId),
+        where("term", "==", term)
+      );
+      const snapshot = await getDocs(q);
+
+      return subjects.map(subject => {
+        let total = 0, count = 0;
+        snapshot.forEach(docSnap => {
+          const score = docSnap.data().results?.[subject.id];
+          if (score != null && score !== '') {
+            total += score;
+            count++;
+          }
+        });
+        const avg = count ? total / count : 0;
+        return { ...subject, avg, grade: getGrade(avg) };
+      });
+    }
+
+    function renderGradePieChart(subjectAverages) {
+      const ctx = document.getElementById('gradePieChart').getContext('2d');
+      const counts = { A:0, B:0, C:0, D:0, F:0 };
+      subjectAverages.forEach(sa => counts[sa.grade]++);
+      const data = {
+        labels: ['A', 'B', 'C', 'D', 'F'],
+        datasets: [{
+          data: [counts.A, counts.B, counts.C, counts.D, counts.F],
+          backgroundColor: ['#4caf50', '#2196f3', '#ffeb3b', '#ff9800', '#f44336']
+        }]
+      };
+      if (gradeChart) gradeChart.destroy();
+      gradeChart = new Chart(ctx, { type: 'pie', data });
+    }
+
+    function renderTable(subjectAverages, className, term) {
+      if (!subjectAverages.length) {
+        resultsTable.innerHTML = "<tr><td colspan='3'>Hakuna data.</td></tr>";
+        printHeader.innerHTML = "";
+        printBtn.disabled = true;
+        if (gradeChart) gradeChart.destroy();
+        return;
+      }
+
+      printHeader.innerHTML = `
+        <div><strong>Jina la Shule:</strong> ${schoolName}</div>
+        <div><strong>Darasa:</strong> ${className}</div>
+        <div><strong>Kipindi:</strong> ${term}</div>
+        <div><strong>Mwaka:</strong> ${new Date().getFullYear()}</div>
+      `;
+
+      resultsTable.innerHTML = `
+        <tr><th class="subject-name">Somo</th><th>Wastani</th><th>Gredi</th></tr>
+        ${subjectAverages.map(sa => `
+          <tr class="${gradeClass(sa.grade)}">
+            <td class="subject-name">${sa.name}</td>
+            <td>${sa.avg.toFixed(1)}</td>
+            <td>${sa.grade}</td>
+          </tr>`).join("")}
+      `;
+      printBtn.disabled = false;
+      renderGradePieChart(subjectAverages);
+    }
+
+    classSelect.addEventListener('change', loadAndRender);
+    termSelect.addEventListener('change', loadAndRender);
+    printBtn.addEventListener('click', () => window.print());
+
+    async function loadAndRender() {
+      if (!classSelect.value || !termSelect.value) {
+        resultsTable.innerHTML = "";
+        printHeader.innerHTML = "";
+        if (gradeChart) gradeChart.destroy();
+        printBtn.disabled = true;
+        return;
+      }
+      showLoader(true);
+      const averages = await loadSubjectAverages(classSelect.value, termSelect.value);
+      renderTable(averages, classSelect.options[classSelect.selectedIndex].text, termSelect.value);
+      showLoader(false);
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) return window.location.href = "index.html";
+      const docSnap = await getDoc(doc(db, "users", user.uid));
+      if (docSnap.exists()) {
+        currentSchoolId = docSnap.data().schoolId;
+        await loadSchoolName();
+        await loadClasses();
+      }
+    });
+
+    fetch('sidebar.html').then(res => res.text()).then(html => sidebar.innerHTML = html);
+    fetch('footer.html').then(res => res.text()).then(html => document.getElementById("footer-container").innerHTML = html);
+
+    toggleSidebarBtn.addEventListener("click", () => {
+      sidebar.style.display = sidebar.style.display === "block" ? "none" : "block";
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) sidebar.style.display = "block";
+      else sidebar.style.display = "none";
+    });
+  </script>
+</body>
+</html>

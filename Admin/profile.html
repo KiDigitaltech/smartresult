@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Profile - SmartResult</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- SweetAlert2 for notifications -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fc;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #0056b3;
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    header i {
+      font-size: 1.8rem;
+    }
+
+    main {
+      flex-grow: 1;
+      max-width: 600px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 2rem 2.5rem;
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: #004a99;
+    }
+
+    .profile-pic-container {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto 1.5rem;
+      border: 4px solid #007bff;
+      cursor: pointer;
+      position: relative;
+      transition: box-shadow 0.3s;
+    }
+
+    .profile-pic-container:hover {
+      box-shadow: 0 0 12px 3px #007bffaa;
+    }
+
+    .profile-pic-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .upload-hint {
+      position: absolute;
+      bottom: 0;
+      background: #007bffcc;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-size: 0.85rem;
+      padding: 4px 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+
+    .profile-pic-container:hover .upload-hint {
+      opacity: 1;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.3rem;
+    }
+
+    label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      padding: 10px 14px;
+      font-size: 1rem;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      transition: border-color 0.3s;
+      width: 100%;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 8px #007bff66;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 12px 0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+
+    button:hover:not(:disabled) {
+      background: #0056b3;
+    }
+
+    button:disabled {
+      background: #a0c3ff;
+      cursor: not-allowed;
+    }
+
+    .section-title {
+      margin-top: 2.5rem;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #0056b3;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 4px;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      main {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header><i class="fas fa-user-circle"></i> Profaili ya Admin</header>
+
+  <main>
+    <h1>Habari, <span id="displayName">Mwanzo</span>!</h1>
+
+    <div class="profile-pic-container" tabindex="0" title="Bonyeza kubadilisha picha ya profaili">
+      <img id="profilePic" src="https://ui-avatars.com/api/?name=Admin&background=007bff&color=fff&size=128" alt="Picha ya Profaili" />
+      <div class="upload-hint">Bonyeza kubadilisha</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none" />
+
+    <form id="profileForm" autocomplete="off">
+      <label for="nameInput">Jina Kamili</label>
+      <input type="text" id="nameInput" required placeholder="Jina lako kamili" />
+
+      <label for="emailInput">Barua Pepe</label>
+      <input type="email" id="emailInput" required placeholder="Barua pepe" />
+
+      <button type="submit" id="saveProfileBtn">Hifadhi Mabadiliko</button>
+    </form>
+
+    <div class="section-title">Badilisha Nenosiri</div>
+
+    <form id="passwordForm" autocomplete="off">
+      <label for="currentPassword">Nenosiri la Sasa</label>
+      <input type="password" id="currentPassword" required placeholder="Ingiza nenosiri lako sasa" />
+
+      <label for="newPassword">Nenosiri Jipya</label>
+      <input type="password" id="newPassword" required minlength="6" placeholder="Nenosiri jipya (min 6 chars)" />
+
+      <label for="confirmPassword">Thibitisha Nenosiri Jipya</label>
+      <input type="password" id="confirmPassword" required placeholder="Thibitisha nenosiri jipya" />
+
+      <button type="submit" id="changePasswordBtn">Badilisha Nenosiri</button>
+    </form>
+
+    <button id="logoutBtn" style="margin-top: 3rem; background: #dc3545;">Toka (Logout) <i class="fas fa-sign-out-alt"></i></button>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c",
+      storageBucket: "smartresult-6c09c.appspot.com",
+      messagingSenderId: "77722866135",
+      appId: "1:77722866135:web:b0328dcc969b3264acbb92"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const displayNameSpan = document.getElementById("displayName");
+    const nameInput = document.getElementById("nameInput");
+    const emailInput = document.getElementById("emailInput");
+    const profilePic = document.getElementById("profilePic");
+    const fileInput = document.getElementById("fileInput");
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const profileForm = document.getElementById("profileForm");
+
+    const currentPasswordInput = document.getElementById("currentPassword");
+    const newPasswordInput = document.getElementById("newPassword");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    const changePasswordBtn = document.getElementById("changePasswordBtn");
+    const passwordForm = document.getElementById("passwordForm");
+
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "admin-login.html";
+        return;
+      }
+      currentUser = user;
+      await loadProfile();
+    });
+
+    async function loadProfile() {
+      try {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        const userData = userDoc.exists() ? userDoc.data() : {};
+
+        displayNameSpan.textContent = userData.name || currentUser.displayName || "Admin";
+        nameInput.value = userData.name || currentUser.displayName || "";
+        emailInput.value = currentUser.email || "";
+
+        if (userData.photoURL) {
+          profilePic.src = userData.photoURL;
+        } else if (currentUser.photoURL) {
+          profilePic.src = currentUser.photoURL;
+        }
+      } catch (error) {
+        console.error("Kosa kupakia profile:", error);
+        Swal.fire('Hitilafu', 'Kosa la kupakia taarifa za profaili.', 'error');
+      }
+    }
+
+    profileForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      saveProfileBtn.disabled = true;
+
+      const newName = nameInput.value.trim();
+      const newEmail = emailInput.value.trim();
+
+      if (!newName || !newEmail) {
+        Swal.fire('Tahadhari', 'Jaza jina na barua pepe vizuri.', 'warning');
+        saveProfileBtn.disabled = false;
+        return;
+      }
+
+      try {
+        // Update Firestore
+        await updateDoc(doc(db, "users", currentUser.uid), { name: newName });
+
+        // Update Auth Email if changed
+        if (newEmail !== currentUser.email) {
+          await updateEmail(currentUser, newEmail);
+        }
+
+        Swal.fire('Mafanikio', 'Taarifa zimehifadhiwa kikamilifu.', 'success');
+        displayNameSpan.textContent = newName;
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Hitilafu', err.message, 'error');
+      } finally {
+        saveProfileBtn.disabled = false;
+      }
+    });
+
+    // Profile pic upload
+    document.querySelector(".profile-pic-container").addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        Swal.fire('Kosa', 'Tafadhali chagua picha halali.', 'error');
+        return;
+      }
+
+      try {
+        saveProfileBtn.disabled = true;
+        Swal.showLoading();
+
+        const storageRef = ref(storage, `profilePics/${currentUser.uid}/${file.name}`);
+        await uploadBytes(storageRef, file);
+        const photoURL = await getDownloadURL(storageRef);
+
+        await updateDoc(doc(db, "users", currentUser.uid), { photoURL });
+        profilePic.src = photoURL;
+
+        Swal.fire('Mafanikio', 'Picha ya profaili imesasishwa.', 'success');
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Hitilafu', 'Kosa la kupakia picha.', 'error');
+      } finally {
+        saveProfileBtn.disabled = false;
+        Swal.hideLoading();
+      }
+    });
+
+    // Change password form
+    passwordForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      changePasswordBtn.disabled = true;
+
+      const currentPass = currentPasswordInput.value;
+      const newPass = newPasswordInput.value;
+      const confirmPass = confirmPasswordInput.value;
+
+      if (newPass !== confirmPass) {
+        Swal.fire('Kosa', 'Nenosiri jipya halifanani.', 'error');
+        changePasswordBtn.disabled = false;
+        return;
+      }
+
+      try {
+        // Reauthenticate user
+        const credential = EmailAuthProvider.credential(currentUser.email, currentPass);
+        await reauthenticateWithCredential(currentUser, credential);
+
+        // Update password
+        await updatePassword(currentUser, newPass);
+        Swal.fire('Mafanikio', 'Nenosiri limebadilishwa.', 'success');
+
+        passwordForm.reset();
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Hitilafu', err.message, 'error');
+      } finally {
+        changePasswordBtn.disabled = false;
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "admin-login.html";
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+ <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>SRS-Smart Result System |Mfumo wa Matokeo</title>
+ <link rel="icon" type="image/png" href="https://www.smarteducation.co.tz/smart-result-system/school/favicon.png" />
+<meta name="description" content="SmartResult ni mfumo rahisi wa kuandaa matokeo ya shule za msingi na sekondari Tanzania. Unaokoa muda na unarahisisha kazi za walimu.">
+<meta name="keywords" content="SmartResult, mfumo wa matokeo, kuandaa matokeo, matokeo ya shule, Darasa la Saba Results, Form Four Results, mfumo wa shule, result management system, Tanzania education software">
+<meta name="author" content="Mr Izow">
+<meta name="robots" content="index, follow">
+
+<!-- English SEO -->
+<meta name="description" lang="en" content="SmartResult is a simple school results management system for Tanzanian schools. Helps teachers prepare reports, Form Four Results, and Primary School Results easily.">
+<meta name="keywords" lang="en" content="SmartResult, result management system, school results Tanzania, Form Four Results, Primary School Results, education software, report generator, school system">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://www.smarteducation.co.tz/" />
+
+<!-- Alternate Language Tags (hreflang) -->
+<link rel="alternate" hreflang="sw-TZ" href="https://www.smarteducation.co.tz/sw/" />
+<link rel="alternate" hreflang="en" href="https://www.smarteducation.co.tz/en/" />
+<link rel="alternate" hreflang="x-default" href="https://www.smarteducation.co.tz/smart-result-system/index.html
+<!-- Open Graph -->
+<meta property="og:title" content="SmartResult - Mfumo Rahisi wa Kuandaa Matokeo" />
+<meta property="og:description" content="Mfumo rahisi wa kuandaa matokeo ya shule Tanzania. Okoa muda na rahisisha kazi za walimu kwa kutumia SmartResult." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.smarteducation.co.tz/smart-result-system/index.html" />
+<meta property="og:image" content="https://www.smarteducation.co.tz/smart-result-system/school/favicon.png" />
+<meta property="og:locale" content="sw_TZ" />
+<meta property="og:locale:alternate" content="en_US" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="SmartResult - School Results Management System" />
+<meta name="twitter:description" content="SmartResult makes it easy for Tanzanian schools to prepare results and reports. Save time, reduce errors, and simplify teachers' work." />
+<meta name="twitter:image" content="https://www.smarteducation.co.tz/smart-result-system/school/favicon.png" />
+
+ 
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Schema.org JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "SmartResult",
+  "operatingSystem": "Web-based",
+  "applicationCategory": "EducationalApplication",
+  "author": {
+    "@type": "Person",
+    "name": "Mr Izow Technology"
+  },
+  "description": {
+    "@language": "sw",
+    "@value": "SmartResult ni mfumo rahisi wa kuandaa matokeo ya shule za msingi na sekondari Tanzania."
+  },
+  "alternateName": "SmartResult - School Results Management System",
+  "url": "https://smarteducation.co.tz/smart-result-system/index.html",
+  "image": "https://www.smarteducation.co.tz/smart-result-system/school/favicon.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "SmartResult System"
+  }
+}
+</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: linear-gradient(to right, #4facfe, #00f2fe); min-height: 100vh; }
+    .splash { position: fixed; top:0;left:0;right:0;bottom:0; background:white; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column; animation:fadeOut 1s ease 2s forwards; }
+    .splash img { width:150px; animation:zoomIn 1.2s ease; }
+    .splash p { margin-top:15px; font-size:16px; color:#007bff; }
+    @keyframes fadeOut { to { opacity:0; visibility:hidden; } }
+    @keyframes zoomIn { 0%{transform:scale(0.7);opacity:0;}100%{transform:scale(1);opacity:1;} }
+    .wrapper { display:flex; justify-content:center; align-items:center; height:100vh; padding:20px; }
+    .login-box { display:flex; background:#fff; border-radius:20px; overflow:hidden; box-shadow:0 15px 30px rgba(0,0,0,0.1); max-width:900px; width:100%; flex-wrap:wrap; }
+    .logo-side { background:linear-gradient(180deg,#007bff,#00c6ff); color:white; flex:1; display:flex; justify-content:center; align-items:center; padding:40px; min-width:250px; }
+    .logo-side img { width:100%; max-width:250px; }
+    .form-side { flex:1.3; padding:40px 30px; min-width:300px; max-width:600px; }
+    h2 { text-align:center; color:#0d6efd; margin-bottom:10px; }
+    p.description { text-align:center; font-size:14px; margin-bottom:20px; color:#555; }
+    input { width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:1px solid #ccc; font-size:15px; }
+    .password-group { position:relative; }
+    .toggle-password { position:absolute; top:50%; right:12px; transform:translateY(-50%); cursor:pointer; user-select:none; }
+    .checkbox-group { display:flex; align-items:center; font-size:14px; margin-bottom:10px; }
+    .checkbox-group input { margin-right:8px; }
+    .forgot-password { text-align:right; font-size:14px; margin-bottom:15px; }
+    .forgot-password a { color:#0d6efd; text-decoration:none; }
+    button { width:100%; padding:12px; background:linear-gradient(to right,#0d6efd,#00c6ff); color:white; font-weight:bold; border:none; border-radius:10px; font-size:16px; cursor:pointer; transition:0.3s ease; }
+    button:disabled { opacity:0.6; cursor:not-allowed; }
+    .lang-toggle { text-align:center; margin-top:15px; font-size:13px; color:#007bff; cursor:pointer; user-select:none; }
+    .help-desk { margin-top:25px; font-size:13px; text-align:center; color:#555; }
+    .tab-switcher { display:flex; justify-content:center; margin-bottom:20px; gap:20px; }
+    .tab-switcher button { width:auto; padding:10px 25px; border-radius:30px; background:#eee; color:#555; font-weight:600; border:none; cursor:pointer; transition:background 0.3s,color 0.3s; }
+    .tab-switcher button.active { background:linear-gradient(to right,#0d6efd,#00c6ff); color:white; box-shadow:0 4px 12px rgba(13,110,253,0.3); }
+    @media (max-width:768px){ .login-box{flex-direction:column;} .logo-side{padding:20px;} .form-side{padding:25px 20px;} .logo-side img{max-width:180px;} }
+  </style>
+</head>
+<body>
+  <div class="splash">
+    <img src="logo.png" alt="SmartResult Logo" />
+    <p>SmartResult | Loading...</p>
+  </div>
+
+  <div class="wrapper">
+    <div class="login-box">
+      <div class="logo-side"><img src="logo.png" alt="SmartResult Logo" /></div>
+      <div class="form-side">
+        <div class="tab-switcher">
+          <button id="loginTab" class="active">Ingia</button>
+          <button id="registerTab">Jisajili</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+          <h2>Ingia</h2>
+          <p class="description">Weka taarifa zako kuingia kwenye mfumo.</p>
+          <input type="email" id="email" placeholder="Barua Pepe" />
+          <div class="password-group">
+            <input type="password" id="password" placeholder="Nenosiri" />
+            <span class="toggle-password" id="togglePasswordLogin">ðŸ‘ï¸</span>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="rememberMe" />
+            <label for="rememberMe">Kumbuka</label>
+          </div>
+          <div class="forgot-password"><a href="#" id="forgotLink">Umesahau nenosiri?</a></div>
+          <button id="btnLogin">Ingia</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" style="display:none;">
+          <h2>Jisajili</h2>
+          <p class="description">Unda akaunti mpya kuendelea.</p>
+          <input type="text" id="schoolName" placeholder="Jina la Shule" />
+          <input type="text" id="principalName" placeholder="Jina Mkuu wa Shule" />
+          <input type="tel" id="phoneNumber" placeholder="Namba ya Simu" />
+          <input type="email" id="regEmail" placeholder="Barua Pepe ya Mkuu wa Shule" />
+          <div class="password-group">
+            <input type="password" id="regPassword" placeholder="Nenosiri" />
+            <span class="toggle-password" id="togglePasswordRegister">ðŸ‘ï¸</span>
+          </div>
+          <button id="btnRegister">Jisajili</button>
+        </div>
+
+        <div class="lang-toggle" id="langSwitch">English</div>
+        <div class="help-desk">
+          <strong>Msaada:</strong><br>
+          Simu: +255 717 173 853<br>
+          Email: support@smartresult.co.tz<br>
+          WhatsApp: +255 717 173 853
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c",
+      storageBucket: "smartresult-6c09c.appspot.com",
+      messagingSenderId: "77722866135",
+      appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+      measurementId: "G-3W13B73TQS"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Elements - Login
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const btnLogin = document.getElementById("btnLogin");
+    const togglePasswordLogin = document.getElementById("togglePasswordLogin");
+    const forgotLink = document.getElementById("forgotLink");
+
+    // Elements - Register
+    const schoolNameInput = document.getElementById("schoolName");
+    const principalNameInput = document.getElementById("principalName");
+    const phoneNumberInput = document.getElementById("phoneNumber");
+    const regEmailInput = document.getElementById("regEmail");
+    const regPasswordInput = document.getElementById("regPassword");
+    const btnRegister = document.getElementById("btnRegister");
+    const togglePasswordRegister = document.getElementById("togglePasswordRegister");
+
+    // Tabs
+    const loginTab = document.getElementById("loginTab");
+    const registerTab = document.getElementById("registerTab");
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+
+    // Splash
+    window.addEventListener("load", () => {
+      const splash = document.querySelector(".splash");
+      splash.style.animationPlayState = "running";
+      setTimeout(()=>{ splash.style.display="none"; },3000);
+    });
+
+    // Utility to reset login button
+    function resetLoginBtn(){
+      btnLogin.disabled = false;
+      btnLogin.innerHTML = "Ingia";
+    }
+
+    // Login
+    btnLogin.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email || !password) return Swal.fire("Tafadhali jaza taarifa zote", "", "warning");
+
+      btnLogin.disabled = true;
+      btnLogin.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Inapakia...`;
+
+      try {
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        const uid = userCred.user.uid;
+        const docRef = doc(db, "users", uid);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          Swal.fire("Hujathibitishwa", "Mtumiaji hayupo kwenye mfumo", "error");
+          resetLoginBtn();
+          return;
+        }
+
+        const data = docSnap.data();
+        const role = data.role || "User";
+
+        // If account disabled -> send to disabled page
+        if (role === "Disabled") {
+          Swal.fire({
+            title: "Akaunti Imezuiwa",
+            text: "Akaunti yako imezuiwa. Tafadhali wasiliana na admin kupata msaada.",
+            icon: "error",
+            confirmButtonText: "Sawa"
+          }).then(() => {
+            // Redirect to disabled page
+            window.location.href = "school/disabled.html";
+          });
+          resetLoginBtn();
+          return;
+        }
+
+        // If inactive -> show message and redirect (old behaviour retained)
+        if (role === "Inactive") {
+          Swal.fire({
+            title: "Akaunti Haijawezeshwa",
+            text: "Tafadhali lipia ili kuwezesha akaunti yako.",
+            icon: "warning",
+            confirmButtonText: "Sawa"
+          }).then(() => {
+            window.location.href = "school/dashboard.html";
+          });
+          resetLoginBtn();
+          return;
+        }
+
+        // If HeadTeacher -> proceed normally to school dashboard
+        if (role === "HeadTeacher") {
+          Swal.fire({ title: "Karibu!", text: "Umefanikiwa, Asante kwa Kuchagua Mfumo wetu.", icon: "success", timer: 1200, showConfirmButton: false });
+          setTimeout(() => {
+            window.location.href = "school/school-dashboard.html";
+          }, 1200);
+          return;
+        }
+
+        // Default: other roles continue to general dashboard
+        Swal.fire({ title: "Karibu!", text: `Umeingia kama ${role}`, icon: "success", timer: 1200, showConfirmButton: false });
+        setTimeout(() => {
+          window.location.href = "school/dashboard.html";
+        }, 1200);
+
+      } catch (err) {
+        console.error("Login error:", err);
+        Swal.fire("Hitilafu", err.message || "Tatizo la kuingia", "error");
+        resetLoginBtn();
+      }
+    });
+
+    // Register
+    btnRegister.addEventListener("click", async () => {
+      const schoolName = schoolNameInput.value.trim();
+      const principalName = principalNameInput.value.trim();
+      const phoneNumber = phoneNumberInput.value.trim();
+      const email = regEmailInput.value.trim();
+      const password = regPasswordInput.value.trim();
+
+      // Validations
+      if (!schoolName || !principalName || !phoneNumber || !email || !password) {
+        return Swal.fire("Tafadhali jaza taarifa zote", "", "warning");
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return Swal.fire("Barua pepe si sahihi", "", "warning");
+      }
+      if (!/^[0-9+]+$/.test(phoneNumber)) {
+        return Swal.fire("Namba ya simu si sahihi", "", "warning");
+      }
+      if (password.length < 6) {
+        return Swal.fire("Nenosiri liwe angalau herufi 6", "", "warning");
+      }
+
+      btnRegister.disabled = true;
+      btnRegister.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Inasajili...`;
+
+      try {
+        // Sajili user mpya
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCred.user.uid;
+
+        // Weka taarifa za shule kwenye collection "schools"
+        await setDoc(doc(db, "schools", uid), {
+          schoolName: schoolName,
+          schoolId: uid,
+          headTeacherName: principalName,
+          phone: phoneNumber,
+          email: email,
+          createdAt: new Date()
+        });
+
+        // Weka taarifa za mkuu wa shule kwenye "users" (Inactive by default)
+        await setDoc(doc(db, "users", uid), {
+          role: "Inactive",
+          name: principalName,
+          email: email,
+          phone: phoneNumber,
+          schoolId: uid,
+          schoolName: schoolName,
+          createdAt: new Date()
+        });
+
+        Swal.fire({
+          title: "Hongera!",
+          html: "Umefanikiwa Kujisajili.<br><br><strong>Tafadhali Lipia Tsh.10,000</strong> ili kuwezesha akaunti yako.<br>au Wasiliana nasi <strong>+255 717 173 853</strong><br><br>Ahsante kwa kuchagua Smart Result!",
+          icon: "success",
+          confirmButtonText: "Sawa"
+        });
+
+        // Clear fields
+        schoolNameInput.value = "";
+        principalNameInput.value = "";
+        phoneNumberInput.value = "";
+        regEmailInput.value = "";
+        regPasswordInput.value = "";
+
+        // Rendeshwa kwenye login tab
+        setTimeout(() => {
+          showLoginForm();
+        }, 500);
+
+      } catch (err) {
+        console.error("Registration Error:", err);
+        Swal.fire("Hitilafu", err.message || "Tatizo la usajili", "error");
+      } finally {
+        btnRegister.disabled = false;
+        btnRegister.textContent = "Jisajili";
+      }
+    });
+
+    // Toggle password
+    togglePasswordLogin.addEventListener("click", () => {
+      const type = passwordInput.type === "password" ? "text" : "password";
+      passwordInput.type = type;
+      togglePasswordLogin.textContent = type === "password" ? "ðŸ‘ï¸" : "ðŸ™ˆ";
+    });
+    togglePasswordRegister.addEventListener("click", () => {
+      const type = regPasswordInput.type === "password" ? "text" : "password";
+      regPasswordInput.type = type;
+      togglePasswordRegister.textContent = type === "password" ? "ðŸ‘ï¸" : "ðŸ™ˆ";
+    });
+
+    // Forgot password
+    forgotLink.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if (!email) return Swal.fire("Andika barua pepe kwanza", "", "info");
+      try {
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        if (!methods || methods.length === 0) return Swal.fire("Haijasajiliwa", "Email haipo kwenye mfumo", "warning");
+        await sendPasswordResetEmail(auth, email);
+        Swal.fire("Imetumwa", "Angalia email yako kuweka nenosiri jipya", "success");
+      } catch (err) {
+        console.error("Password reset error:", err);
+        Swal.fire("Hitilafu", err.message || "Tatizo la kutuma kuanzisha nenosiri", "error");
+      }
+    });
+
+    // Switch forms
+    loginTab.addEventListener("click", showLoginForm);
+    registerTab.addEventListener("click", showRegisterForm);
+    function showLoginForm() { loginForm.style.display = "block"; registerForm.style.display = "none"; loginTab.classList.add("active"); registerTab.classList.remove("active"); }
+    function showRegisterForm() { loginForm.style.display = "none"; registerForm.style.display = "block"; loginTab.classList.remove("active"); registerTab.classList.add("active"); }
+  </script>
+</body>
+</html>

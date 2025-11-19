@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NECTA Format Results - SmartResult</title>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+    }
+    #sidebar-container {
+      width: 240px;
+      background: #fff;
+      border-right: 4px solid #0d6efd;
+    }
+    .container {
+      flex: 1;
+      padding: 30px;
+      margin-left: auto;
+      background: #fff;
+    }
+    h2 {
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #0d6efd;
+      text-align: center;
+    }
+    .meta-info {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 17px;
+    }
+    .form-select {
+      border: 2px solid #0d6efd;
+    }
+    .btns .btn {
+      border-width: 2px;
+      font-weight: 500;
+    }
+    table {
+      font-family: monospace;
+      font-size: 15px;
+      border: 3px solid #000;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 2px solid #000;
+      padding: 8px 12px;
+    }
+    th {
+      background-color: #e3f2fd;
+      text-transform: uppercase;
+    }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+    .div-I { background-color: #d4edda; }
+    .div-II { background-color: #fff3cd; }
+    .div-III { background-color: #f8d7da; }
+    .div-IV { background-color: #f5c6cb; }
+    .div-0 { background-color: #d6d8db; }
+    .summary-box {
+      margin-top: 20px;
+      padding: 10px;
+      border: 3px dashed #0d6efd;
+      background: #e9f7fe;
+    }
+    #loadingOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      display: none;
+    }
+    @media print {
+      #sidebar-container, .btns, .form-select, h2 {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar-container"></div>
+
+  <div class="container">
+    <h2><i class="fa fa-poll"></i> MATOKEO YA WANAFUNZI (NECTA FORMAT)</h2>
+    <div class="meta-info" id="metaHeader">Tafadhali chagua darasa na mtihani ili kuona taarifa...</div>
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <select id="classSelect" class="form-select">
+          <option value="">-- Chagua Darasa --</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <select id="termSelect" class="form-select" disabled>
+          <option value="">-- Chagua Kipindi/Term --</option>
+          <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+          <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+          <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+          <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+          <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+          <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+          <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+          <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+        </select>
+      </div>
+      <div class="col-md-4 btns d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-primary"><i class="fa fa-print"></i> Chapisha</button>
+        <button id="exportExcel" class="btn btn-outline-success"><i class="fa fa-file-excel"></i> Pakua Excel</button>
+      </div>
+    </div>
+
+    <div id="summary" class="summary-box text-center d-none">Division Performance Summary Here...</div>
+
+    <div class="table-responsive">
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>NAME</th>
+            <th>SEX</th>
+            <th>AGGT</th>
+            <th>DIV</th>
+            <th>DETAILED SUBJECTS</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody">
+          <tr><td colspan="5" class="text-center">Chagua darasa na mtihani ili kuona matokeo</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="loadingOverlay"><div class="spinner-border text-primary" style="width: 4rem; height: 4rem;"></div></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, getDocs, collection, query, where } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c"
+    });
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const classSelect = document.getElementById("classSelect");
+    const termSelect = document.getElementById("termSelect");
+    const resultsBody = document.getElementById("resultsBody");
+    const metaHeader = document.getElementById("metaHeader");
+    const summaryDiv = document.getElementById("summary");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+
+    let schoolId = "", schoolName = "", subjectsMap = {};
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return location.href = "index.html";
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      schoolId = userDoc.data().schoolId;
+      const schoolDoc = await getDoc(doc(db, "schools", schoolId));
+      schoolName = schoolDoc.data().name || "Shule Yako";
+
+      const classSnap = await getDocs(query(collection(db, "classes"), where("schoolId", "==", schoolId)));
+      classSnap.forEach(doc => {
+        const opt = document.createElement("option");
+        opt.value = doc.id;
+        opt.textContent = doc.data().name;
+        classSelect.appendChild(opt);
+      });
+    });
+
+    classSelect.addEventListener("change", () => {
+      termSelect.disabled = !classSelect.value;
+      resultsBody.innerHTML = `<tr><td colspan='5' class="text-center">Chagua darasa na mtihani ili kuona matokeo</td></tr>`;
+      summaryDiv.classList.add("d-none");
+      metaHeader.textContent = "Tafadhali chagua darasa na mtihani ili kuona taarifa...";
+    });
+
+    termSelect.addEventListener("change", loadResults);
+
+    async function loadResults() {
+      const classId = classSelect.value;
+      const term = termSelect.value;
+      if (!classId || !term) return;
+
+      loadingOverlay.style.display = "flex";
+      resultsBody.innerHTML = "";
+      summaryDiv.classList.add("d-none");
+
+      try {
+        const classDoc = await getDoc(doc(db, "classes", classId));
+        const className = classDoc.data().name || "Darasa";
+        const year = new Date().getFullYear();
+        metaHeader.textContent = `${schoolName} - ${className} | ${term} (${year})`;
+
+        const studentsSnap = await getDocs(query(collection(db, "students"), where("schoolId", "==", schoolId), where("classId", "==", classId)));
+        const students = {};
+        studentsSnap.forEach(doc => students[doc.id] = doc.data());
+
+        const subjectsSnap = await getDocs(query(collection(db, "subjects"), where("schoolId", "==", schoolId), where("classId", "==", classId)));
+        subjectsMap = {};
+        subjectsSnap.forEach(doc => {
+          const data = doc.data();
+          subjectsMap[doc.id] = data.short || data.name?.substring(0, 3).toUpperCase() || "SUB";
+        });
+
+        const resultsSnap = await getDocs(query(collection(db, "results"), where("schoolId", "==", schoolId), where("classId", "==", classId), where("term", "==", term)));
+
+        const divisionCount = { I: 0, II: 0, III: 0, IV: 0, 0: 0 };
+        const results = [];
+
+        resultsSnap.forEach(doc => {
+          const data = doc.data();
+          const student = students[data.studentId];
+          if (!student) return;
+
+          const fullName = student.name || "No Name";
+          const sex = student.gender || "-";
+          const scores = data.results || {};
+
+          let passingSubjects = Object.entries(scores).filter(([_, val]) => val >= 21);
+          passingSubjects.sort((a, b) => b[1] - a[1]);
+
+          const top7 = passingSubjects.slice(0, 7);
+          const aggt = top7.reduce((sum, [_, val]) => sum + getPoints(val), 0);
+
+          const div = getDivision(aggt);
+          divisionCount[div] = (divisionCount[div] || 0) + 1;
+
+          const subjectGrades = Object.entries(scores).map(([sid, val]) => {
+            const short = subjectsMap[sid] || "SUB";
+            return `${short} - '${getGrade(val)}'`;
+          });
+
+          results.push({ fullName, sex, aggt, div, subjectGrades });
+        });
+
+        results.sort((a, b) => a.fullName.localeCompare(b.fullName));
+        resultsBody.innerHTML = results.map(s => `
+          <tr class="div-${s.div}">
+            <td>${s.fullName}</td>
+            <td>${s.sex}</td>
+            <td>${s.aggt}</td>
+            <td>${s.div}</td>
+            <td>${s.subjectGrades.join("  ")}</td>
+          </tr>
+        `).join("") || `<tr><td colspan="5" class="text-center">Hakuna matokeo</td></tr>`;
+
+        summaryDiv.classList.remove("d-none");
+        summaryDiv.innerHTML = `
+          <strong>Division Summary:</strong> 
+          I: ${divisionCount.I} &nbsp; | 
+          II: ${divisionCount.II} &nbsp; | 
+          III: ${divisionCount.III} &nbsp; | 
+          IV: ${divisionCount.IV} &nbsp; | 
+          0: ${divisionCount["0"]}
+        `;
+      } catch (error) {
+        Swal.fire("Kosa", error.message, "error");
+      } finally {
+        loadingOverlay.style.display = "none";
+      }
+    }
+
+    function getPoints(score) {
+      if (score >= 81) return 1;
+      if (score >= 61) return 2;
+      if (score >= 41) return 3;
+      if (score >= 21) return 4;
+      return 5;
+    }
+
+    function getGrade(score) {
+      if (score >= 81) return "A";
+      if (score >= 61) return "B";
+      if (score >= 41) return "C";
+      if (score >= 21) return "D";
+      return "F";
+    }
+
+    function getDivision(aggt) {
+      if (aggt >= 7 && aggt <= 17) return "I";
+      if (aggt >= 18 && aggt <= 21) return "II";
+      if (aggt >= 22 && aggt <= 25) return "III";
+      if (aggt >= 26 && aggt <= 33) return "IV";
+      if (aggt >= 34 && aggt <= 35) return "0";
+      return "-";
+    }
+
+    document.getElementById("exportExcel").addEventListener("click", () => {
+      const wb = XLSX.utils.table_to_book(document.getElementById("resultsTable"), { sheet: "Matokeo" });
+      XLSX.writeFile(wb, "matokeo.xlsx");
+    });
+
+    fetch("sidebar.html").then(res => res.text()).then(data => {
+      document.getElementById("sidebar-container").innerHTML = data;
+    });
+  </script>
+</body>
+</html>

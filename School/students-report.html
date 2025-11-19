@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ripoti ya Mwanafunzi - SmartResult</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background: #f4f6f8;
+    color: #000;
+  }
+
+  nav {
+    background: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  nav .logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  nav ul {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+  nav ul li a:hover {
+    text-decoration: underline;
+  }
+
+  #print-area {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: #fff;
+    padding: 20px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .report-header {
+    text-align: center;
+    border-bottom: 3px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+  .report-header img {
+    height: 80px;
+    margin-bottom: 10px;
+    object-fit: contain;
+  }
+  .report-header h2 {
+    margin: 5px 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #007bff;
+  }
+  .report-header p {
+    margin: 3px 0;
+    font-size: 14px;
+  }
+
+  .student-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px 15px;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+  .student-info div strong {
+    display: inline-block;
+    min-width: 80px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+  th {
+    background: #e8f0fe;
+    font-weight: 600;
+    color: #007bff;
+  }
+  td.subject-name {
+    text-align: left;
+  }
+
+  .remarks {
+    margin-top: 20px;
+    font-size: 14px;
+    background: #f9f9f9;
+    padding: 10px;
+    border-left: 4px solid #007bff;
+    border-radius: 5px;
+  }
+  .signature {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+
+  select, button, input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    margin: 4px;
+  }
+  select:focus, button:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0,123,255,0.5);
+  }
+  button {
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  button:hover:not(:disabled) {
+    background: #0056b3;
+  }
+
+  /* School settings panel */
+  .school-settings {
+    margin: 1rem auto;
+    max-width: 900px;
+    background: #eef6ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  }
+  .school-settings h3 { margin: 0 0 8px 0; }
+  .school-settings label { display: inline-block; margin-right: 12px; font-size: 14px; vertical-align: middle; }
+  .school-settings .actions { margin-top: 8px; }
+  .school-settings input[type="file"] { padding: 6px 4px; }
+
+  /* Loader */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    font-size: 1.2rem;
+    color: #007bff;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+  }
+  #loader.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  #loader .spinner {
+    border: 5px solid #ddd;
+    border-top: 5px solid #007bff;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    margin-right: 12px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg);} }
+
+  @media print {
+    nav, .filters, #printBtn, .school-settings { display: none !important; }
+    #print-area { box-shadow: none; padding: 20px; border-radius: 0; }
+  }
+  
+  /* ======= MOBILE FRIENDLY UPDATES ======= */
+
+/* Make nav responsive */
+@media (max-width: 768px) {
+  nav {
+    flex-wrap: wrap;
+    padding: 0.6rem 1rem;
+  }
+  nav ul {
+    flex-direction: column;
+    width: 100%;
+    display: none; /* hidden by default on small screens */
+    background: #007bff;
+    padding: 0.5rem 0;
+  }
+  nav ul.show {
+    display: flex;
+  }
+  nav ul li {
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+  nav .menu-toggle {
+    display: block;
+    cursor: pointer;
+    font-size: 1.4rem;
+  }
+}
+
+/* Show menu toggle only on mobile */
+.menu-toggle {
+  display: none;
+  color: white;
+}
+
+/* Filters and inputs full width on mobile */
+@media (max-width: 600px) {
+  .filters select,
+  .school-settings input,
+  .school-settings button {
+    width: 100%;
+    margin: 6px 0;
+  }
+}
+
+/* Make table scrollable on small screens */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><i class="fa fa-graduation-cap"></i> SmartResult</div>
+  <div class="menu-toggle"><i class="fa fa-bars"></i></div>
+  <ul>
+    <li><a href="school-dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+    <li><a href="enter-results.html"><i class="fas fa-pen-to-square"></i> Jaza Matokeo</a></li>
+    <li><a href="view-results.html"><i class="fa fa-chart-bar"></i> Tazama Matokeo</a></li>
+    <li><a href="profile.html"><i class="fas fa-user-cog"></i> Wasifu</a></li>
+  </ul>
+</nav>
+
+
+<div id="main-content" style="padding: 1rem;">
+  <h1 style="text-align:center;color:#007bff"><i class="fa fa-file-alt"></i> Ripoti ya Mwanafunzi</h1>
+
+  <!-- Panel ya kuhariri jina/logo/halmashauri -->
+  <div class="school-settings" aria-label="Marekebisho ya Shule">
+    <h3>⚙️ Badili Taarifa za Shule (zinahifadhiwa kwenye kifaa)</h3>
+    <div>
+      <label>Jina la Shule:
+        <input type="text" id="editSchoolName" placeholder="Andika jina la shule hapa">
+      </label>
+
+      <label>Jina la Halmashauri / Kata:
+        <input type="text" id="editSchoolLocation" placeholder="Andika halmashauri / kata">
+      </label>
+    </div>
+
+    <div style="margin-top:8px;">
+      <label>Logo ya Shule:
+        <input type="file" id="editSchoolLogo" accept="image/*">
+      </label>
+    </div>
+
+    <div class="actions">
+      <button id="saveSchoolDetails" type="button">💾 Hifadhi (Local)</button>
+      <button id="clearLocalSchoolDetails" type="button" style="background:#f44336; margin-left:8px;">♻ Futa Local / Rudisha Firestore</button>
+      <small style="display:block;margin-top:6px;color:#333">Taarifa hizi zinahifadhiwa kwenye browser kwa kutumia <code>localStorage</code>. Ikiwa una data kwenye Firestore, data ya local itaangaliwa kwanza.</small>
+    </div>
+  </div>
+
+  <div class="filters" style="text-align:center; margin-bottom:1rem;">
+    <select id="classSelect"><option value="">-- Chagua Darasa --</option></select>
+    <select id="studentSelect" disabled><option value="">-- Chagua Mwanafunzi --</option></select>
+    <select id="termSelect" disabled>
+      <option value="">-- Chagua Kipindi --</option>
+   <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+        <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+        <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+        <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+        <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+        <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+        <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+        <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+    </select>
+  </div>
+
+  <button id="printBtn" disabled><i class="fa fa-print"></i> Chapisha Ripoti</button>
+
+  <div id="loader"><div class="spinner"></div> Tafadhali subiri...</div>
+
+  <div id="print-area">
+    <div class="report-header">
+      <img src="nembo.png" alt="Nembo ya Shule" id="schoolLogoImg" />
+      <h2 id="schoolName">JINA LA SHULE</h2>
+      <p><strong id="termName">KIPINDI</strong> - <span id="year">MWAKA</span></p>
+      <p id="schoolLocation">HALMASHAURI / KATA</p>
+    </div>
+
+    <div class="student-info">
+      <div><strong>Jina:</strong> <span id="studentName">---</span></div>
+      <div><strong>Darasa:</strong> <span id="className">---</span></div>
+      <div><strong>Wastani:</strong> <span id="average">---</span></div>
+      <div><strong>Daraja:</strong> <span id="grade">---</span></div>
+    </div>
+
+    <table id="resultsTable">
+      <thead>
+        <tr>
+          <th>Somo</th>
+          <th>Alama</th>
+          <th>Daraja</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="remarks">
+      <strong>Maoni ya Mwalimu wa Darasa:</strong>
+      <p id="teacherRemarks">---</p>
+    </div>
+
+    <div class="signature">
+      <div>
+        <p>Sahihi ya Mwalimu wa Darasa:</p>
+        <p>_________________________</p>
+      </div>
+      <div>
+        <p>Sahihi ya Mkuu wa Shule:</p>
+        <p>_________________________</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  // ====== Firebase config ======
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ====== UI elements ======
+  const classSelect = document.getElementById('classSelect');
+  const studentSelect = document.getElementById('studentSelect');
+  const termSelect = document.getElementById('termSelect');
+  const resultsTableBody = document.querySelector('#resultsTable tbody');
+  const printBtn = document.getElementById('printBtn');
+  const loader = document.getElementById('loader');
+
+  const editSchoolName = document.getElementById('editSchoolName');
+  const editSchoolLocation = document.getElementById('editSchoolLocation');
+  const editSchoolLogo = document.getElementById('editSchoolLogo');
+  const saveSchoolDetails = document.getElementById('saveSchoolDetails');
+  const clearLocalSchoolDetails = document.getElementById('clearLocalSchoolDetails');
+
+  const schoolNameEl = document.getElementById('schoolName');
+  const schoolLocationEl = document.getElementById('schoolLocation');
+  const schoolLogoImg = document.getElementById('schoolLogoImg');
+
+  let currentSchoolId = "";
+
+  // ====== Helper functions ======
+  function getGrade(score) {
+    if(score >= 81) return 'A';
+    if(score >= 61) return 'B';
+    if(score >= 41) return 'C';
+    if(score >= 31) return 'D';
+    return 'F';
+  }
+  function showLoader(show) {
+    loader.classList.toggle('active', show);
+  }
+
+  // ====== LocalStorage: load/save/clear ======
+  function loadSchoolDetailsFromLocal() {
+    const name = localStorage.getItem("schoolName");
+    const location = localStorage.getItem("schoolLocation");
+    const logo = localStorage.getItem("schoolLogo");
+
+    let any = false;
+    if (name) {
+      schoolNameEl.textContent = name;
+      editSchoolName.value = name;
+      any = true;
+    }
+    if (location) {
+      schoolLocationEl.textContent = location;
+      editSchoolLocation.value = location;
+      any = true;
+    }
+    if (logo) {
+      schoolLogoImg.src = logo;
+      any = true;
+    }
+    return any; // true if local data exists
+  }
+
+  function saveSchoolDetailsToLocal(name, location, logoDataURL) {
+    if (name !== undefined) {
+      localStorage.setItem("schoolName", name);
+      schoolNameEl.textContent = name;
+    }
+    if (location !== undefined) {
+      localStorage.setItem("schoolLocation", location);
+      schoolLocationEl.textContent = location;
+    }
+    if (logoDataURL !== undefined) {
+      localStorage.setItem("schoolLogo", logoDataURL);
+      schoolLogoImg.src = logoDataURL;
+    }
+  }
+
+  function clearLocalSchoolDetailsAndReload(fromFirestoreData = null) {
+    // Remove keys
+    localStorage.removeItem("schoolName");
+    localStorage.removeItem("schoolLocation");
+    localStorage.removeItem("schoolLogo");
+
+    // Clear form
+    editSchoolName.value = "";
+    editSchoolLocation.value = "";
+    editSchoolLogo.value = "";
+
+    // If Firestore data passed, apply it; otherwise attempt to reload via loadSchoolName()
+    if (fromFirestoreData) {
+      applySchoolDataToUI(fromFirestoreData);
+    } else {
+      // fallback: call loadSchoolName which will attempt Firestore if currentSchoolId set
+      loadSchoolName();
+    }
+  }
+
+  function applySchoolDataToUI(dataObj = {}) {
+    const defName = "SHULE YA MSINGI MFANO";
+    const defLoc = "HALMASHAURI YA MFANO / KATA YA MFANO";
+    const name = dataObj.name || defName;
+    const location = dataObj.location || defLoc;
+    const logo = dataObj.logo || null; // if you store logo URL in Firestore
+
+    // Only set values if localStorage does NOT already have them (local override priority)
+    if (!localStorage.getItem("schoolName")) {
+      schoolNameEl.textContent = name;
+      editSchoolName.value = name;
+    }
+    if (!localStorage.getItem("schoolLocation")) {
+      schoolLocationEl.textContent = location;
+      editSchoolLocation.value = location;
+    }
+    if (!localStorage.getItem("schoolLogo")) {
+      if (logo) {
+        schoolLogoImg.src = logo;
+      } else {
+        // keep default nembo.png if no logo in firestore
+        if (!schoolLogoImg.src || schoolLogoImg.src.endsWith("nembo.png")) {
+          schoolLogoImg.src = "nembo.png";
+        }
+      }
+    }
+  }
+
+  // ====== Firestore: load school name (but respect localStorage override) ======
+  async function loadSchoolName() {
+    // If localStorage has any school info, prefer that and skip overwriting.
+    const hasLocal = loadSchoolDetailsFromLocal();
+    if (!currentSchoolId) {
+      // If no school id from user, but local exists we already loaded it; otherwise set defaults
+      if (!hasLocal) {
+        applySchoolDataToUI({});
+      }
+      return;
+    }
+
+    try {
+      const schoolDocRef = doc(db, "schools", currentSchoolId);
+      const schoolSnap = await getDoc(schoolDocRef);
+      if (schoolSnap.exists()) {
+        const data = schoolSnap.data();
+        // Optional: if your Firestore stores a logo URL, set it via data.logo
+        applySchoolDataToUI({ name: data.name, location: data.location, logo: data.logo });
+      } else {
+        // no school doc: if no local, set defaults
+        if (!hasLocal) applySchoolDataToUI({});
+      }
+    } catch (err) {
+      console.error("Error fetching school from Firestore:", err);
+      // if error and no local, show defaults
+      if (!hasLocal) applySchoolDataToUI({});
+    }
+  }
+
+  // ====== Load classes/students/results (existing logic) ======
+  async function loadClasses() {
+    if(!currentSchoolId) return;
+    const q = query(collection(db, "classes"), where("schoolId", "==", currentSchoolId));
+    const snapshot = await getDocs(q);
+    classSelect.innerHTML = `<option value="">-- Chagua Darasa --</option>`;
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const opt = document.createElement('option');
+      opt.value = docSnap.id;
+      opt.textContent = data.name;
+      classSelect.appendChild(opt);
+    });
+  }
+
+  async function loadStudents(classId) {
+    const q = query(collection(db, "students"), where("schoolId", "==", currentSchoolId), where("classId", "==", classId));
+    const snapshot = await getDocs(q);
+    studentSelect.innerHTML = `<option value="">-- Chagua Mwanafunzi --</option>`;
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const opt = document.createElement('option');
+      opt.value = docSnap.id;
+      opt.textContent = data.name;
+      studentSelect.appendChild(opt);
+    });
+    studentSelect.disabled = false;
+  }
+
+  async function loadResults(studentId, classId, term) {
+    if(!studentId || !classId || !term) return;
+    showLoader(true);
+
+    try {
+      const studentDoc = await getDoc(doc(db, "students", studentId));
+      if(!studentDoc.exists()) { alert("Mwanafunzi hapatikani."); return; }
+      const studentData = studentDoc.data();
+
+      const resultsQ = query(collection(db, "results"),
+        where("schoolId", "==", currentSchoolId),
+        where("classId", "==", classId),
+        where("term", "==", term),
+        where("studentId", "==", studentId)
+      );
+      const resultsSnap = await getDocs(resultsQ);
+      if(resultsSnap.empty) { alert("Hakuna matokeo."); resultsTableBody.innerHTML = ""; return; }
+
+      let resultData = null;
+      resultsSnap.forEach(doc => { resultData = doc.data(); });
+
+      const subjectsQ = query(collection(db, "subjects"), where("schoolId", "==", currentSchoolId), where("classId", "==", classId));
+      const subjectsSnap = await getDocs(subjectsQ);
+      const subjects = {};
+      subjectsSnap.forEach(doc => { subjects[doc.id] = doc.data().name; });
+
+      let total = 0, count = 0, tableHTML = "";
+      for(const subId in subjects) {
+        const mark = resultData.results?.[subId];
+        if(mark !== undefined && mark !== null && mark !== '') {
+          total += mark; count++;
+          const grade = getGrade(mark);
+          tableHTML += `<tr><td class="subject-name">${subjects[subId]}</td><td>${mark}</td><td>${grade}</td></tr>`;
+        } else {
+          tableHTML += `<tr><td class="subject-name">${subjects[subId]}</td><td>-</td><td>-</td></tr>`;
+        }
+      }
+      resultsTableBody.innerHTML = tableHTML;
+
+      const avg = count ? (total / count) : 0;
+      const avgGrade = getGrade(avg);
+
+      document.getElementById("studentName").textContent = studentData.name;
+      const classDoc = await getDoc(doc(db, "classes", classId));
+      document.getElementById("className").textContent = classDoc.exists() ? classDoc.data().name : '---';
+      document.getElementById("average").textContent = avg.toFixed(2);
+      document.getElementById("grade").textContent = avgGrade;
+      document.getElementById("termName").textContent = term;
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      document.getElementById("teacherRemarks").textContent = resultData.teacherRemarks || "-";
+      printBtn.disabled = false;
+    } catch (error) {
+      console.error("Error loading results:", error);
+      alert("Kumetokea hitilafu wakati wa kupakia data.");
+    } finally {
+      showLoader(false);
+    }
+  }
+
+  // ====== Auth state: load school id then data ======
+  onAuthStateChanged(auth, async (user) => {
+    if(!user) { location.href = "index.html"; return; }
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if(userDoc.exists()) {
+        currentSchoolId = userDoc.data().schoolId || "";
+      } else {
+        currentSchoolId = "";
+      }
+    } catch (err) {
+      console.error("Error fetching user doc:", err);
+      currentSchoolId = "";
+    }
+
+    // First try load local values, then merge with Firestore (Firestore values only used if local doesn't exist)
+    loadSchoolDetailsFromLocal();
+    await loadSchoolName(); // will respect localStorage and otherwise pull firestore
+    await loadClasses();
+  });
+
+  // ====== Event listeners ======
+  classSelect.addEventListener('change', async () => {
+    const classId = classSelect.value;
+    if(classId) { await loadStudents(classId); termSelect.disabled = false; }
+  });
+  termSelect.addEventListener('change', async () => {
+    const classId = classSelect.value;
+    const studentId = studentSelect.value;
+    const term = termSelect.value;
+    if(classId && studentId && term) await loadResults(studentId, classId, term);
+  });
+  printBtn.addEventListener('click', () => { window.print(); });
+
+  // Save button: hifadhi jina na halmashauri kwenye localStorage
+  saveSchoolDetails.addEventListener('click', () => {
+    const name = editSchoolName.value.trim();
+    const location = editSchoolLocation.value.trim();
+
+    if (!name && !location) {
+      alert("Tafadhali andika jina la shule au jina la halmashauri kabla ya kuhifadhi.");
+      return;
+    }
+
+    if (name) {
+      localStorage.setItem("schoolName", name);
+      schoolNameEl.textContent = name;
+    }
+    if (location) {
+      localStorage.setItem("schoolLocation", location);
+      schoolLocationEl.textContent = location;
+    }
+
+    alert("Taarifa zimehifadhiwa kwenye kifaa chako (localStorage).");
+  });
+
+  // Logo change: store as DataURL in localStorage
+  editSchoolLogo.addEventListener("change", function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataURL = e.target.result;
+      schoolLogoImg.src = dataURL;
+      localStorage.setItem("schoolLogo", dataURL);
+      alert("Logo imehifadhiwa kwenye kifaa chako.");
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Clear local and reload from firestore (if available)
+  clearLocalSchoolDetails.addEventListener("click", async () => {
+    if (!confirm("Hii itafuta data ya shule iliyohifadhiwa kwenye kifaa (local). Endelea?")) return;
+    // try to fetch firestore doc to reapply
+    if (currentSchoolId) {
+      try {
+        const schoolSnap = await getDoc(doc(db, "schools", currentSchoolId));
+        if (schoolSnap.exists()) {
+          clearLocalSchoolDetailsAndReload({ name: schoolSnap.data().name, location: schoolSnap.data().location, logo: schoolSnap.data().logo });
+          alert("Data ya local imefutwa na imerekebishwa kutoka Firestore (ikiwa ipo).");
+          return;
+        }
+      } catch (err) {
+        console.error("Error reading firestore while clearing local:", err);
+      }
+    }
+    clearLocalSchoolDetailsAndReload(null);
+    alert("Data ya local imefutwa.");
+  });
+
+  // On page load: try load local data immediately (helpful when not logged to Firebase)
+  (function initialLocalLoad() {
+    const hasLocal = loadSchoolDetailsFromLocal();
+    if (!hasLocal) {
+      // set defaults until firestore loads
+      applySchoolDataToUI({});
+    }
+  })();
+
+	// Responsive nav toggle
+document.querySelector(".menu-toggle").addEventListener("click", function() {
+  document.querySelector("nav ul").classList.toggle("show");
+});
+
+</script>
+
+</body>
+</html>

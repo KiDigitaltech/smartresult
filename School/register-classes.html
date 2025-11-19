@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sajili Madarasa - SmartResult</title>
+   <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; margin:0; display:flex; min-height:100vh; flex-direction:column; background:#eef6ff; }
+    
+    header {
+      background:#007bff; 
+      padding:1rem 2rem; 
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center; 
+      color:#fff; 
+      position: relative;
+      z-index: 300;
+      gap: 1rem;
+    }
+    header h1 {
+      flex: 1;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+    header button#btnLogout {
+      background:#dc3545; 
+      border:none; 
+      color:#fff; 
+      padding:.5rem 1rem; 
+      border-radius:5px; 
+      cursor:pointer; 
+      font-size: 1rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    /* New toggle button */
+    header button#btnToggleSidebar {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: none; /* only show on mobile */
+      flex-shrink: 0;
+    }
+
+    /* Dot menu container */
+    #menuWrapper {
+      position: relative;
+    }
+    /* Dot menu button */
+    #btnMenu {
+      background:none; 
+      border:none; 
+      color:#fff; 
+      font-size:1.8rem; 
+      cursor:pointer; 
+      display:none; /* show on mobile only */
+    }
+    /* Dropdown menu */
+    #menuDropdown {
+      display:none; 
+      position:absolute; 
+      right:0; 
+      background:#007bff; 
+      border-radius:4px; 
+      margin-top:0.5rem; 
+      min-width:100px; 
+      box-shadow:0 2px 5px rgba(0,0,0,0.3); 
+      z-index:400;
+    }
+    #menuDropdown button {
+      width:100%; 
+      padding:0.5rem 1rem; 
+      background:transparent; 
+      border:none; 
+      color:#fff; 
+      text-align:left; 
+      cursor:pointer;
+      font-size: 1rem;
+    }
+    #menuDropdown button:hover {
+      background:#0056b3;
+    }
+
+    #container {
+      display:flex; 
+      flex:1; 
+      min-height: 0;
+      overflow: hidden;
+    }
+    #sidebar {
+      background:#0056b3; 
+      width:220px; 
+      flex-shrink:0; 
+      display:flex; 
+      flex-direction:column; 
+      padding-top:1rem; 
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    #sidebar nav a {
+      color:#fff; 
+      padding:1rem 1.5rem; 
+      text-decoration:none; 
+      font-weight:600; 
+      display:flex; 
+      align-items:center; 
+      gap:0.5rem; 
+      border-left:4px solid transparent; 
+      white-space: nowrap;
+    }
+    #sidebar nav a:hover, #sidebar nav a.active { 
+      background:#003d80; 
+      border-left-color:#ffd54f; 
+    }
+    main { 
+      flex:1; 
+      padding:2rem; 
+      max-width:900px; 
+      margin:auto; 
+      overflow-y: auto;
+      min-height: 0;
+    }
+    footer { 
+      background:#f1f5f9; 
+      padding:1rem 2rem; 
+      text-align:center; 
+      color:#555; 
+      border-top:1px solid #ddd; 
+      flex-shrink: 0;
+    }
+    form { 
+      background:#fff; 
+      padding:2rem; 
+      border-radius:8px; 
+      box-shadow:0 4px 8px rgba(0,0,0,0.1); 
+      margin-bottom:2rem; 
+    }
+    input, button { 
+      width:100%; 
+      padding:10px; 
+      margin-bottom:1rem; 
+      border-radius:6px; 
+      border:1px solid #ccc; 
+      font-size:1rem; 
+    }
+    button { 
+      background:#007bff; 
+      color:#fff; 
+      font-weight:700; 
+      cursor:pointer; 
+      border:none; 
+      transition: background 0.3s ease;
+    }
+    button:hover { 
+      background:#0056b3; 
+    }
+    #loaderOverlay { 
+      position:fixed; 
+      inset:0; 
+      background:rgba(255,255,255,0.8); 
+      display:flex; 
+      align-items:center; 
+      justify-content:center; 
+      visibility:hidden; 
+      opacity:0; 
+      transition:.3s; 
+      z-index:100; 
+    }
+    #loaderOverlay.active { 
+      visibility:visible; 
+      opacity:1; 
+    }
+    .loader { 
+      border:8px solid #f3f3f3; 
+      border-top:8px solid #007bff; 
+      border-radius:50%; 
+      width:60px; 
+      height:60px; 
+      animation:spin 1s linear infinite; 
+    }
+    @keyframes spin { 
+      to { transform:rotate(360deg); } 
+    }
+    .class-list { 
+      background:#fff; 
+      padding:1rem; 
+      border-radius:8px; 
+      box-shadow:0 4px 8px rgba(0,0,0,0.1); 
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .class-item { 
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center; 
+      padding:.75rem 0; 
+      border-bottom:1px solid #eee; 
+    }
+    .class-item:last-child { 
+      border-bottom:none; 
+    }
+    .actions i { 
+      margin-left:1rem; 
+      cursor:pointer; 
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+    .actions i.edit:hover { color:#28a745; }
+    .actions i.delete:hover { color:#dc3545; }
+
+    #editPopup { 
+      position:fixed; 
+      inset:0; 
+      background:rgba(0,0,0,0.5); 
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index:200; 
+    }
+    #editPopup .popup { 
+      background:#fff; 
+      padding:2rem; 
+      border-radius:8px; 
+      width:90%;
+      max-width:400px; 
+    }
+
+    /* Close button for sidebar on mobile */
+    #btnCloseSidebar {
+      display: none;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 2rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      align-self: flex-end;
+    }
+
+    /* Responsive Sidebar and header adjustments */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem;
+      }
+      header h1 {
+        font-size: 1.1rem;
+        white-space: normal;
+      }
+      header button#btnLogout {
+        display: none;
+      }
+      header button#btnToggleSidebar {
+        display: block;
+      }
+      #btnMenu {
+        display: block;
+      }
+      #container {
+        position: relative;
+      }
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 220px;
+        background: #0056b3;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        flex-direction: column;
+        padding-top: 0;
+        z-index: 1000;
+        display: flex;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+      }
+      #sidebar.show {
+        transform: translateX(0);
+      }
+      #btnCloseSidebar {
+        display: block;
+      }
+      main {
+        margin: 0;
+        padding: 1rem;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <button id="btnToggleSidebar" aria-label="Fungua sidebar">
+    <i class="fas fa-bars"></i>
+  </button>
+  <h1><i class="fa-solid fa-chalkboard"></i> SmartResult - Sajili Madarasa</h1>
+
+  <div id="menuWrapper">
+    <button id="btnMenu" aria-label="Menyu" aria-haspopup="true" aria-expanded="false" aria-controls="menuDropdown">&#8942;</button>
+    <div id="menuDropdown" role="menu">
+      <button id="btnLogoutDropdown" role="menuitem"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </div>
+  </div>
+
+  <button id="btnLogout" style="white-space: nowrap;">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout
+  </button>
+</header>
+
+<div id="container">
+  <aside id="sidebar" aria-label="Main Navigation">
+    <button id="btnCloseSidebar" aria-label="Funga sidebar">&times;</button>
+    <nav>
+      <a href="school-dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashibodi</span></a>
+      <a href="register-students.html"><i class="fas fa-user-plus"></i> <span>Sajili Wanafunzi</span></a>
+      <a href="register-classes.html" class="active"><i class="fas fa-chalkboard"></i> <span>Sajili Madarasa</span></a>
+      <a href="register-subjects.html"><i class="fas fa-book"></i> <span>Sajili Masomo</span></a>
+      <a href="enter-results.html"><i class="fas fa-pen-to-square"></i> <span>Jaza Matokeo</span></a>
+      <a href="view-results.html"><i class="fas fa-file-alt"></i> <span>Tazama Matokeo</span></a>
+      <a href="subject-results.html"><i class="fas fa-chart-line"></i> <span>Mkeka wa Somo</span></a>
+      <a href="average-subjects.html"><i class="fas fa-percentage"></i> <span>Tathmini Somo</span></a>
+      <a href="students-report.html"><i class="fas fa-user-graduate"></i> <span>Ripoti</span></a>
+      <a href="profile.html"><i class="fas fa-user-cog"></i> <span>Wasifu</span></a>
+    </nav>
+  </aside>
+
+  <main>
+    <h2>Sajili Darasa Jipya</h2>
+    <form id="classForm">
+      <input type="text" id="className" placeholder="Jina la darasa (mfano: Darasa 4)" required />
+      <button type="submit"><i class="fa fa-plus"></i> Sajili</button>
+      <p id="msg"></p>
+    </form>
+
+    <div class="loader" id="loader" style="display:none;"></div>
+
+    <div class="class-list" id="classList"></div>
+  </main>
+</div>
+
+<footer>&copy; 2025 SmartResult</footer>
+
+<!-- Edit Popup -->
+<div id="editPopup">
+  <div class="popup">
+    <h3>Hariri Darasa</h3>
+    <input type="text" id="editClassName" placeholder="Jina jipya la darasa"/>
+    <button id="btnUpdate">Hifadhi Mabadiliko</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import {
+    getFirestore, collection, query, where,
+    getDocs, addDoc, deleteDoc, updateDoc, doc, serverTimestamp, getDoc
+  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app), db = getFirestore(app);
+
+  const form = document.getElementById('classForm');
+  const className = document.getElementById('className');
+  const msg = document.getElementById('msg');
+  const loader = document.getElementById('loader');
+  const classList = document.getElementById('classList');
+  const btnLogout = document.getElementById('btnLogout');
+  const editPopup = document.getElementById('editPopup');
+  const editClassName = document.getElementById('editClassName');
+  const btnUpdate = document.getElementById('btnUpdate');
+  const sidebar = document.getElementById('sidebar');
+  const btnToggleSidebar = document.getElementById('btnToggleSidebar');
+  const btnCloseSidebar = document.getElementById('btnCloseSidebar');
+  const btnMenu = document.getElementById('btnMenu');
+  const menuDropdown = document.getElementById('menuDropdown');
+  const btnLogoutDropdown = document.getElementById('btnLogoutDropdown');
+
+  let currentUser, editID = null, schoolId = null;
+
+  const showLoader = () => loader.style.display = 'block';
+  const hideLoader = () => loader.style.display = 'none';
+  const showMsg = (text, col='green') => { msg.textContent=text; msg.style.color=col; setTimeout(()=> msg.textContent='',3000); };
+
+  // Sidebar toggle for mobile
+  btnToggleSidebar.onclick = () => {
+    sidebar.classList.add('show');
+  };
+  btnCloseSidebar.onclick = () => {
+    sidebar.classList.remove('show');
+  };
+
+  // Close sidebar if click outside (on sidebar overlay area)
+  window.onclick = e => {
+    if (e.target === sidebar) {
+      sidebar.classList.remove('show');
+    }
+  };
+
+  // Dot menu toggle for logout on mobile
+  btnMenu.onclick = (e) => {
+    e.stopPropagation();
+    const isExpanded = btnMenu.getAttribute('aria-expanded') === 'true';
+    if (isExpanded) {
+      menuDropdown.style.display = 'none';
+      btnMenu.setAttribute('aria-expanded', 'false');
+    } else {
+      menuDropdown.style.display = 'block';
+      btnMenu.setAttribute('aria-expanded', 'true');
+    }
+  };
+
+  // Close dropdown menu if click outside
+  window.addEventListener('click', () => {
+    menuDropdown.style.display = 'none';
+    btnMenu.setAttribute('aria-expanded', 'false');
+  });
+
+  // Handle logout from dropdown
+  btnLogoutDropdown.onclick = async () => {
+    await signOut(auth);
+    location.href = 'index.html';
+  };
+
+  // Handle original logout button (desktop)
+  btnLogout.onclick = async () => {
+    await signOut(auth);
+    location.href = 'index.html';
+  };
+
+  onAuthStateChanged(auth, async user => {
+    if (!user) return location.href='index.html';
+    currentUser = user;
+
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      schoolId = userSnap.data().schoolId;
+      loadClasses();
+    } else {
+      alert("Taarifa za mtumiaji hazipatikani.");
+    }
+  });
+
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const name = className.value.trim();
+    if (!name || !schoolId) return;
+
+    showLoader();
+    const q = query(collection(db, 'classes'), where('schoolId','==',schoolId));
+    const snap = await getDocs(q);
+    const dup = snap.docs.some(d=> d.data().name.toLowerCase()===name.toLowerCase());
+
+    if (dup) { hideLoader(); return showMsg('Darasa tayari limesajiliwa','red'); }
+
+    await addDoc(collection(db, 'classes'), {
+      name, schoolId, createdAt: serverTimestamp()
+    });
+
+    className.value='';
+    hideLoader(); showMsg('Darasa limesajiliwa');
+    loadClasses();
+  };
+
+  async function loadClasses(){
+    classList.innerHTML='';
+    if (!schoolId) return;
+    showLoader();
+    const q = query(collection(db,'classes'), where('schoolId','==',schoolId));
+    const snap = await getDocs(q);
+    snap.docs.forEach(docSnap => {
+      const d = docSnap.data();
+      const div = document.createElement('div');
+      div.className='class-item';
+      div.innerHTML = `
+        <span>${d.name}</span>
+        <div class="actions">
+          <i class="fa fa-edit edit" onclick="openEdit('${docSnap.id}','${d.name}')"></i>
+          <i class="fa fa-trash delete" onclick="deleteClass('${docSnap.id}')"></i>
+        </div>`;
+      classList.appendChild(div);
+    });
+    hideLoader();
+  }
+
+  window.openEdit = (id,name)=>{
+    editID=id; editClassName.value=name;
+    editPopup.style.display='flex';
+  };
+
+  btnUpdate.onclick = async()=>{
+    const name = editClassName.value.trim();
+    if(!name||!editID) return;
+    showLoader();
+    await updateDoc(doc(db,'classes',editID), { name });
+    editPopup.style.display='none';
+    hideLoader(); showMsg('Imesasishwa');
+    loadClasses();
+  };
+
+  window.deleteClass = async id=>{
+    if (!confirm('Una uhakika unataka kufuta darasa?')) return;
+    showLoader();
+    await deleteDoc(doc(db,'classes',id));
+    hideLoader(); showMsg('Imefutwa');
+    loadClasses();
+  };
+
+  window.onclick = e => { 
+    if(e.target===editPopup) editPopup.style.display='none'; 
+  };
+</script>
+
+</body>
+</html>

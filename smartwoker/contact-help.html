@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wasiliana Nasi - SmartResult</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f9ff;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .back-btn {
+      background: #ffc107;
+      color: #333;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-decoration: none;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #ffb300;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      color: #007bff;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #eaf4ff;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.2rem;
+      transition: 0.3s;
+    }
+
+    .contact-card:hover {
+      background: #d2eaff;
+    }
+
+    .contact-card i {
+      font-size: 1.5rem;
+      color: #007bff;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contact-info strong {
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .contact-info small a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      main {
+        margin: 1rem;
+        padding: 1.2rem;
+      }
+
+      .back-btn {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fa-solid fa-headset"></i> Wasiliana kwa Msaada</h1>
+  <a href="school-dashboard.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Kurudi Dashboard</a>
+</header>
+
+<main>
+  <h2>Tunapatikana Kupitia Njia Zifuatazo</h2>
+
+  <div class="contact-card">
+    <i class="fa-solid fa-phone-volume"></i>
+    <div class="contact-info">
+      <strong>Piga Simu</strong>
+      <small><a href="tel:+255717173853">+255 717 173 853</a></small>
+    </div>
+  </div>
+
+  <div class="contact-card">
+    <i class="fa-solid fa-message"></i>
+    <div class="contact-info">
+      <strong>Tuma SMS</strong>
+      <small><a href="sms:+255717173853">+255 717 173 853</a></small>
+    </div>
+  </div>
+
+  <div class="contact-card">
+    <i class="fa-brands fa-whatsapp"></i>
+    <div class="contact-info">
+      <strong>WhatsApp</strong>
+      <small><a href="https://wa.me/255717173853" target="_blank">Bofya hapa kuwasiliana</a></small>
+    </div>
+  </div>
+
+  <div class="contact-card">
+    <i class="fa-solid fa-envelope"></i>
+    <div class="contact-info">
+      <strong>Barua Pepe</strong>
+      <small><a href="mailto:imariki035@gmail.com">mrizowtechnology@gmail.com</a></small>
+    </div>
+  </div>
+
+  <div class="contact-card">
+    <i class="fa-brands fa-facebook"></i>
+    <div class="contact-info">
+      <strong>Facebook</strong>
+      <small><a href="https://facebook.com/mrizowtechnology" target="_blank">@mrizowtechnology</a></small>
+    </div>
+  </div>
+
+  <div class="contact-card">
+    <i class="fa-brands fa-instagram"></i>
+    <div class="contact-info">
+      <strong>Instagram</strong>
+      <small><a href="https://instagram.com/mrizowtechnology" target="_blank">@mrizowtechnology</a></small>
+    </div>
+  </div>
+</main>
+
+<footer>
+  &copy; 2025 SmartResult. Haki zote zimehifadhiwa.
+</footer>
+
+</body>
+</html>

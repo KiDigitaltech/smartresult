@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Dashboard - Sajili Shule</title>
+
+<!-- Font Awesome CDN for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: #eef6ff;
+    color: #333;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  /* Header */
+  header {
+    background: #007bff;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  header h1 i {
+    font-size: 1.6rem;
+  }
+
+  header button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  header button:hover {
+    text-decoration: underline;
+  }
+
+  /* Sidebar */
+  #sidebar {
+    background: #0056b3;
+    color: white;
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+  }
+
+  #sidebar nav a {
+    color: white;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    border-left: 4px solid transparent;
+    transition: background 0.3s, border-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #sidebar nav a:hover,
+  #sidebar nav a.active {
+    background: #003d80;
+    border-left-color: #ffd54f;
+  }
+
+  /* Main content area */
+  main {
+    flex-grow: 1;
+    padding: 2rem;
+    max-width: 700px;
+    margin: auto;
+  }
+
+  /* Footer */
+  footer {
+    background: #f1f5f9;
+    color: #555;
+    text-align: center;
+    padding: 1rem 2rem;
+    font-size: 0.9rem;
+    margin-top: auto;
+    border-top: 1px solid #ddd;
+  }
+
+  /* Form styles */
+  h2 {
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  h2 i {
+    font-size: 1.4rem;
+  }
+
+  input, button {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+  }
+
+  button {
+    background: #007bff;
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  button:disabled {
+    background: #5a9ef9;
+    cursor: not-allowed;
+  }
+
+  button:hover:not(:disabled) {
+    background: #0056b3;
+  }
+
+  #btnLogout {
+    background: none;
+    color: white;
+    font-size: 1rem;
+  }
+
+  #btnLogout:hover {
+    text-decoration: underline;
+  }
+
+  #msg {
+    text-align: center;
+    font-weight: 600;
+    margin-top: 15px;
+    min-height: 1.5em;
+  }
+
+  /* Loader styles */
+  #loader {
+    display: none; /* Hidden by default */
+    margin: 20px auto 0;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Responsive: sidebar becomes top nav */
+  @media (max-width: 768px) {
+    body {
+      flex-direction: column;
+    }
+
+    #sidebar {
+      width: 100%;
+      flex-direction: row;
+      padding: 0;
+    }
+
+    #sidebar nav a {
+      flex-grow: 1;
+      padding: 1rem 0;
+      text-align: center;
+      border-left: none;
+      border-bottom: 3px solid transparent;
+      justify-content: center;
+    }
+
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      border-bottom-color: #ffd54f;
+      background: #004a99;
+    }
+
+    main {
+      padding: 1rem;
+      max-width: 100%;
+      margin: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fas fa-school"></i> SmartResult Admin</h1>
+  <button id="btnLogout" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+</header>
+
+<div style="display:flex; flex-grow:1; min-height:0;">
+  <aside id="sidebar">
+    <nav>
+      <a href="admin-dashboard.html" class="active"><i class="fas fa-plus-circle"></i> Sajili Shule</a>
+      <a href="verifications.html"><i class="fas fa-list"></i> Usimamizi wa Watumiaji</a>
+      <a href="school-contacts.html"><i class="fas fa-file-alt"></i> Mawasiliano Shule</a>
+      <a href="profile.html"><i class="fas fa-user"></i> Profaili</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h2><i class="fas fa-plus"></i> Sajili Shule Mpya</h2>
+    <input type="text" id="schoolName" placeholder="Jina la Shule" required autocomplete="off" />
+    <input type="text" id="registrationNumber" placeholder="Namba ya Usajili ya Shule" required autocomplete="off" />
+    <input type="text" id="headTeacherName" placeholder="Jina la Mkuu wa Shule" required autocomplete="off" />
+    <input type="tel" id="headTeacherPhone" placeholder="Namba ya Simu ya Mkuu wa Shule" required autocomplete="off" pattern="[0-9+]+" />
+    <input type="email" id="headTeacherEmail" placeholder="Barua Pepe ya Mkuu wa Shule" required autocomplete="off" />
+    <input type="password" id="headTeacherPassword" placeholder="Nenosiri la Mkuu wa Shule (min 6 chars)" required autocomplete="off" />
+    <button id="btnRegister" aria-live="polite" aria-busy="false"><i class="fas fa-save"></i> Sajili Shule</button>
+    <div id="loader" role="status" aria-hidden="true"></div>
+    <p id="msg" role="alert" aria-live="assertive"></p>
+  </main>
+</div>
+
+<footer>
+  &copy; 2025 SmartResult. Haki zote zimehifadhiwa.
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.firebasestorage.app",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+    measurementId: "G-3W13B73TQS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Elements
+  const btnRegister = document.getElementById("btnRegister");
+  const btnLogout = document.getElementById("btnLogout");
+  const msg = document.getElementById("msg");
+  const loader = document.getElementById("loader");
+
+  // Redirect to login if no admin logged in
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "admin-login.html";
+    }
+  });
+
+  // Helper to toggle loader and button state
+  function toggleLoading(isLoading) {
+    if (isLoading) {
+      loader.style.display = "block";
+      btnRegister.disabled = true;
+      btnRegister.style.opacity = "0.6";
+      btnRegister.setAttribute('aria-busy', 'true');
+    } else {
+      loader.style.display = "none";
+      btnRegister.disabled = false;
+      btnRegister.style.opacity = "1";
+      btnRegister.setAttribute('aria-busy', 'false');
+    }
+  }
+
+  btnRegister.addEventListener("click", async () => {
+    msg.textContent = "";
+    toggleLoading(true);
+
+    // Grab all input values
+    const schoolName = document.getElementById("schoolName").value.trim();
+    const registrationNumber = document.getElementById("registrationNumber").value.trim();
+    const headTeacherName = document.getElementById("headTeacherName").value.trim();
+    const headTeacherPhone = document.getElementById("headTeacherPhone").value.trim();
+    const headTeacherEmail = document.getElementById("headTeacherEmail").value.trim();
+    const headTeacherPassword = document.getElementById("headTeacherPassword").value.trim();
+
+    // Basic validation
+    if (!schoolName || !registrationNumber || !headTeacherName || !headTeacherPhone || !headTeacherEmail || !headTeacherPassword) {
+      toggleLoading(false);
+      msg.style.color = "red";
+      msg.textContent = "Tafadhali jaza taarifa zote muhimu.";
+      return;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(headTeacherEmail)) {
+      toggleLoading(false);
+      msg.style.color = "red";
+      msg.textContent = "Tafadhali ingiza barua pepe halali ya Mkuu wa Shule.";
+      return;
+    }
+
+    // Password length validation
+    if (headTeacherPassword.length < 6) {
+      toggleLoading(false);
+      msg.style.color = "red";
+      msg.textContent = "Nenosiri la Mkuu wa Shule lazima liwe angalau herufi 6.";
+      return;
+    }
+
+    // Phone number validation (basic)
+    if (!/^[0-9+]+$/.test(headTeacherPhone)) {
+      toggleLoading(false);
+      msg.style.color = "red";
+      msg.textContent = "Namba ya simu ya Mkuu wa Shule si sahihi.";
+      return;
+    }
+
+    try {
+      // Create the head teacher user account
+      const userCredential = await createUserWithEmailAndPassword(auth, headTeacherEmail, headTeacherPassword);
+      const uid = userCredential.user.uid;
+
+      // Save school info with explicit keys you want
+      await setDoc(doc(db, "schools", uid), {
+        schoolName: schoolName,
+        schoolId: uid,
+        headTeacherName: headTeacherName,
+        registrationNumber: registrationNumber,
+        createdAt: serverTimestamp()
+      });
+
+      // Save head teacher info linked to school
+      await setDoc(doc(db, "users", uid), {
+        role: "headTeacher",
+        name: headTeacherName,
+        email: headTeacherEmail,
+        phone: headTeacherPhone,
+        schoolId: uid,
+        schoolName: schoolName,
+        createdAt: serverTimestamp()
+      });
+
+      msg.style.color = "green";
+      msg.textContent = "Shule na Mkuu wa Shule vimesajiliwa kikamilifu ✅";
+
+      // Clear form fields
+      document.getElementById("schoolName").value = "";
+      document.getElementById("registrationNumber").value = "";
+      document.getElementById("headTeacherName").value = "";
+      document.getElementById("headTeacherPhone").value = "";
+      document.getElementById("headTeacherEmail").value = "";
+      document.getElementById("headTeacherPassword").value = "";
+
+    } catch (error) {
+      console.error("Error registering head teacher and school:", error);
+      msg.style.color = "red";
+      if (error.code === "auth/email-already-in-use") {
+        msg.textContent = "Barua pepe tayari imetumika.";
+      } else {
+        msg.textContent = "Hitilafu: " + error.message;
+      }
+    } finally {
+      toggleLoading(false);
+    }
+  });
+
+  btnLogout.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "admin-login.html";
+  });
+</script>
+
+</body>
+</html>

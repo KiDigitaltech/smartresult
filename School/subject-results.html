@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Matokeo ya Somo - SmartResult</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f8f9fa;
+      display: flex;
+    }
+
+    #sidebar-container {
+      width: 220px;
+      background: #343a40;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    #main-content {
+      flex: 1;
+      padding: 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff;
+    }
+
+    .filters {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+
+    select {
+      padding: 8px 12px;
+      font-size: 1rem;
+    }
+
+    #info-box {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-family: "Times New Roman", serif;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      table-layout: auto;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 6px 10px;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    td.name {
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    tr:nth-child(even) {
+      background: #f5f5f5;
+    }
+
+    .grade-A { background-color: #d0f0c0; }
+    .grade-B { background-color: #cce5ff; }
+    .grade-C { background-color: #fffacc; }
+    .grade-D { background-color: #ffe5b4; }
+    .grade-F { background-color: #ffcdd2; }
+
+    .print-btn {
+      margin: 1rem auto;
+      display: block;
+      background: #007bff;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    #footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    @media print {
+      #sidebar-container,
+      .filters,
+      .print-btn,
+      #footer {
+        display: none !important;
+      }
+
+      #main-content {
+        margin: 0;
+        padding: 0.5cm;
+        font-family: "Times New Roman", serif;
+      }
+
+      #info-box h2 {
+        font-size: 1.1rem;
+        margin: 0;
+      }
+
+      table {
+        width: 100%;
+        border: 1px solid #000;
+      }
+
+      table th, table td {
+        border: 1px solid #000;
+      }
+
+      @page {
+        margin: 1cm;
+      }
+
+      body::after {
+        content: "Prepared by SmartResultSystem - Page " counter(page);
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        font-size: 0.8rem;
+        color: #000;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar-container"></div>
+  <div id="main-content">
+    <h1><i class="fa fa-book"></i> Matokeo ya Somo</h1>
+
+    <div class="filters">
+      <select id="classSelect"><option value="">-- Chagua Darasa --</option></select>
+      <select id="subjectSelect"><option value="">-- Chagua Somo --</option></select>
+      <select id="termSelect">
+        <option value="">-- Chagua Kipindi --</option>
+        <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+        <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+        <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+        <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+        <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+        <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+        <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+        <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+      </select>
+    </div>
+
+    <div id="info-box">
+      <h2 id="schoolName"></h2>
+      <h2 id="className"></h2>
+      <h2 id="termTitle"></h2>
+    </div>
+
+    <table id="resultsTable"></table>
+
+    <button class="print-btn" onclick="window.print()">
+      <i class="fa fa-print"></i> Chapisha
+    </button>
+
+    <div id="footer"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import {
+      getFirestore, collection, query, where, getDocs, getDoc, doc
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const classSelect = document.getElementById("classSelect");
+    const subjectSelect = document.getElementById("subjectSelect");
+    const termSelect = document.getElementById("termSelect");
+    const resultsTable = document.getElementById("resultsTable");
+    const schoolNameEl = document.getElementById("schoolName");
+    const classNameEl = document.getElementById("className");
+    const termTitleEl = document.getElementById("termTitle");
+
+    let currentSchoolId = "";
+
+    function getGrade(score) {
+      if (score >= 81) return "A";
+      if (score >= 61) return "B";
+      if (score >= 41) return "C";
+      if (score >= 31) return "D";
+      return "F";
+    }
+
+    function gradeClass(g) {
+      return {
+        "A": "grade-A",
+        "B": "grade-B",
+        "C": "grade-C",
+        "D": "grade-D",
+        "F": "grade-F"
+      }[g] || "";
+    }
+
+    async function loadClasses() {
+      const q = query(collection(db, "classes"), where("schoolId", "==", currentSchoolId));
+      const snapshot = await getDocs(q);
+      snapshot.forEach(doc => {
+        const opt = document.createElement('option');
+        opt.value = doc.id;
+        opt.textContent = doc.data().name;
+        classSelect.appendChild(opt);
+      });
+    }
+
+    async function loadSubjects(classId) {
+      subjectSelect.innerHTML = `<option value="">-- Chagua Somo --</option>`;
+      const q = query(collection(db, "subjects"), where("schoolId", "==", currentSchoolId), where("classId", "==", classId));
+      const snapshot = await getDocs(q);
+      snapshot.forEach(doc => {
+        const opt = document.createElement('option');
+        opt.value = doc.id;
+        opt.textContent = doc.data().name;
+        subjectSelect.appendChild(opt);
+      });
+    }
+
+    async function loadResults() {
+      const classId = classSelect.value;
+      const subjectId = subjectSelect.value;
+      const term = termSelect.value;
+      if (!classId || !subjectId || !term) return;
+
+      const studentsQ = query(collection(db, "students"), where("schoolId", "==", currentSchoolId), where("classId", "==", classId));
+      const studentSnap = await getDocs(studentsQ);
+      const students = {};
+      studentSnap.forEach(doc => students[doc.id] = doc.data());
+
+      const resultsQ = query(collection(db, "results"), where("schoolId", "==", currentSchoolId), where("classId", "==", classId), where("term", "==", term));
+      const resultsSnap = await getDocs(resultsQ);
+
+      const rows = [];
+      resultsSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        const student = students[data.studentId];
+        if (!student) return;
+
+        const score = data.results?.[subjectId];
+        if (score === undefined) return;
+        const grade = getGrade(score);
+
+        rows.push({
+          name: student.name,
+          score,
+          grade
+        });
+      });
+
+      rows.sort((a, b) => b.score - a.score);
+      resultsTable.innerHTML = "";
+
+      let thead = `<tr>
+        <th>S/N</th>
+        <th>Jina la Mwanafunzi</th>
+        <th>Alama</th>
+        <th>Gredi</th>
+        <th>Nafasi</th>
+      </tr>`;
+
+      let tbody = "";
+      rows.forEach((row, i) => {
+        tbody += `<tr class="${gradeClass(row.grade)}">
+          <td>${i + 1}</td>
+          <td class="name">${row.name}</td>
+          <td>${row.score}</td>
+          <td>${row.grade}</td>
+          <td>${i + 1}</td>
+        </tr>`;
+      });
+
+      resultsTable.innerHTML = thead + tbody;
+
+      // Set info header
+      const classText = classSelect.options[classSelect.selectedIndex].textContent;
+      const subjectText = subjectSelect.options[subjectSelect.selectedIndex].textContent;
+      const termText = termSelect.options[termSelect.selectedIndex].textContent;
+      classNameEl.textContent = `Darasa: ${classText}`;
+      termTitleEl.textContent = `${subjectText} - ${termText}`;
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) location.href = "index.html";
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        currentSchoolId = userSnap.data().schoolId || "";
+        schoolNameEl.textContent = userSnap.data().schoolName || "SmartResult School";
+        await loadClasses();
+      }
+    });
+
+    classSelect.addEventListener("change", () => {
+      loadSubjects(classSelect.value);
+      resultsTable.innerHTML = "";
+    });
+
+    subjectSelect.addEventListener("change", loadResults);
+    termSelect.addEventListener("change", loadResults);
+  </script>
+
+  <script>
+    fetch('sidebar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('sidebar-container').innerHTML = html;
+      });
+
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('footer').innerHTML = html;
+      });
+  </script>
+</body>
+</html>

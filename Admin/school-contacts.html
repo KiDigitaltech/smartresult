@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orodha ya Shule - Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f4f7fa;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table th, table td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+      font-size: 14px;
+    }
+    table th {
+      background: #007bff;
+      color: white;
+    }
+    table tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 18px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Orodha ya Shule</h2>
+    <table id="schoolsTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Jina la Shule</th>
+          <th>Mkuu wa Shule</th>
+          <th>Namba ya Simu</th>
+          <th>Barua Pepe</th>
+        </tr>
+      </thead>
+      <tbody id="schoolsBody">
+        <tr><td colspan="5" style="text-align:center;">Inapakia...</td></tr>
+      </tbody>
+    </table>
+    <button class="btn" id="exportExcel">📥 Pakua Excel</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    // Firebase Config yako
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.appspot.com",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const tableBody = document.getElementById("schoolsBody");
+    const exportBtn = document.getElementById("exportExcel");
+    let schoolsData = [];
+
+    // Fetch all schools
+    async function loadSchools() {
+      const querySnapshot = await getDocs(collection(db, "schools"));
+      tableBody.innerHTML = "";
+      schoolsData = [];
+      let i = 1;
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        schoolsData.push({
+          "Jina la Shule": data.schoolName || "",
+          "Mkuu wa Shule": data.headTeacherName || "",
+          "Namba ya Simu": data.phone || "",
+          "Barua Pepe": data.email || ""
+        });
+
+        const row = `
+          <tr>
+            <td>${i++}</td>
+            <td>${data.schoolName || ""}</td>
+            <td>${data.headTeacherName || ""}</td>
+            <td>${data.phone || ""}</td>
+            <td>${data.email || ""}</td>
+          </tr>
+        `;
+        tableBody.innerHTML += row;
+      });
+
+      if (schoolsData.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Hakuna shule zilizopatikana</td></tr>`;
+      }
+    }
+
+    // Export to Excel
+    exportBtn.addEventListener("click", () => {
+      if (schoolsData.length === 0) {
+        return alert("Hakuna data ya kuchapisha.");
+      }
+      const worksheet = XLSX.utils.json_to_sheet(schoolsData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Shule");
+      XLSX.writeFile(workbook, "Orodha_ya_Shule.xlsx");
+    });
+
+    // Load schools mara moja
+    loadSchools();
+  </script>
+</body>
+</html>

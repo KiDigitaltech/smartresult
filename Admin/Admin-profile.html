@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profaili - Admin</title>
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #eef6ff;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      user-select: none;
+    }
+    header i {
+      font-size: 1.8rem;
+    }
+
+    .container {
+      display: flex;
+      flex-grow: 1;
+      max-width: 900px;
+      margin: 2rem auto;
+      width: 100%;
+      min-height: 0;
+    }
+
+    #sidebar {
+      background: #0056b3;
+      color: white;
+      width: 220px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding-top: 1rem;
+      border-radius: 10px 0 0 10px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+
+    #sidebar nav a {
+      color: white;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      border-left: 4px solid transparent;
+      transition: background 0.3s, border-color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      user-select: none;
+    }
+    #sidebar nav a i {
+      font-size: 1.2rem;
+    }
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: #003d80;
+      border-left-color: #ffd54f;
+    }
+
+    main {
+      flex-grow: 1;
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 0 10px 10px 0;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+      overflow-y: auto;
+    }
+
+    h2 {
+      color: #007bff;
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+    }
+    h2 i {
+      font-size: 1.6rem;
+    }
+
+    .profile-info {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .profile-info p {
+      font-size: 1.1rem;
+      margin: 0.7rem 0;
+      user-select: text;
+    }
+
+    .profile-info strong {
+      color: #007bff;
+    }
+
+    #btnLogout {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 400px;
+      display: block;
+      transition: background 0.3s;
+      user-select: none;
+    }
+    #btnLogout:hover {
+      background: #a71d2a;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        margin: 1rem;
+      }
+      #sidebar {
+        width: 100%;
+        border-radius: 10px 10px 0 0;
+        flex-direction: row;
+        padding: 0;
+        overflow-x: auto;
+      }
+      #sidebar nav a {
+        flex-grow: 1;
+        text-align: center;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 1rem 0;
+        font-size: 0.9rem;
+      }
+      #sidebar nav a:hover,
+      #sidebar nav a.active {
+        border-bottom-color: #ffd54f;
+        background: #004a99;
+      }
+      main {
+        border-radius: 0 0 10px 10px;
+        padding: 1.5rem 1rem;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header><i class="fas fa-user"></i> Profaili Yangu</header>
+
+  <div class="container">
+    <aside id="sidebar">
+      <nav>
+        <a href="admin-dashboard.html"><i class="fas fa-plus-circle"></i> Sajili Shule</a>
+        <a href="schools-list.html"><i class="fas fa-list"></i> Orodha ya Shule</a>
+        <a href="results.html"><i class="fas fa-chart-bar"></i> Matokeo</a>
+        <a href="profile.html" class="active"><i class="fas fa-user"></i> Profaili</a>
+      </nav>
+    </aside>
+
+    <main>
+      <h2><i class="fas fa-user"></i> Profaili Yangu</h2>
+      <div class="profile-info">
+        <p><strong>Jina Kamili:</strong> <span id="fullName">Loading...</span></p>
+        <p><strong>Barua Pepe:</strong> <span id="email">Loading...</span></p>
+        <p><strong>Role:</strong> <span id="role">Loading...</span></p>
+        <button id="btnLogout" title="Logout">Ondoka</button>
+      </div>
+    </main>
+  </div>
+
+  <footer style="background:#f1f5f9; color:#555; text-align:center; padding:1rem 2rem; font-size:0.9rem; border-top:1px solid #ddd; user-select:none;">
+    &copy; 2025 SmartResult. Haki zote zimehifadhiwa.
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c",
+      storageBucket: "smartresult-6c09c.appspot.com",
+      messagingSenderId: "77722866135",
+      appId: "1:77722866135:web:b0328dcc969b3264acbb92"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const fullNameSpan = document.getElementById('fullName');
+    const emailSpan = document.getElementById('email');
+    const roleSpan = document.getElementById('role');
+    const btnLogout = document.getElementById('btnLogout');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'admin-login.html';
+        return;
+      }
+
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (!userDoc.exists()) {
+          Swal.fire('Hitilafu', 'Taarifa za mtumiaji hazipatikani', 'error');
+          return;
+        }
+        const data = userDoc.data();
+
+        fullNameSpan.textContent = data.fullName || 'Haijajazwa';
+        emailSpan.textContent = data.email || user.email || '-';
+        roleSpan.textContent = data.role || '-';
+      } catch (error) {
+        Swal.fire('Hitilafu', error.message, 'error');
+      }
+    });
+
+    btnLogout.addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'admin-login.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ongeza Admin User</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #eef6ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .container {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    width: 350px;
+  }
+  h2 {
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  input, button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  button {
+    background: #007bff;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+  #msg {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h2>Ongeza Admin User</h2>
+    <input type="text" id="uid" placeholder="Firebase User UID" />
+    <input type="email" id="email" placeholder="Email ya Admin" />
+    <button id="btnAdd">Ongeza Admin</button>
+    <p id="msg"></p>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.firebasestorage.app",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+    measurementId: "G-3W13B73TQS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const btnAdd = document.getElementById("btnAdd");
+  const msg = document.getElementById("msg");
+
+  btnAdd.addEventListener("click", async () => {
+    const uid = document.getElementById("uid").value.trim();
+    const email = document.getElementById("email").value.trim();
+    msg.textContent = "";
+    if (!uid || !email) {
+      msg.style.color = "red";
+      msg.textContent = "Tafadhali jaza UID na email.";
+      return;
+    }
+    try {
+      await setDoc(doc(db, "users", uid), {
+        role: "admin",
+        email: email
+      });
+      msg.style.color = "green";
+      msg.textContent = "Admin user ameongezwa kikamilifu!";
+      document.getElementById("uid").value = "";
+      document.getElementById("email").value = "";
+    } catch (error) {
+      msg.style.color = "red";
+      msg.textContent = "Hitilafu: " + error.message;
+    }
+  });
+</script>
+</body>
+</html>

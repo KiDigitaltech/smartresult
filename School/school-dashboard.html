@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="Dashboard ya kisasa ya SmartResult - Tazama takwimu za wanafunzi, madarasa, na matokeo kwa urahisi." />
+  <meta name="keywords" content="SmartResult, Matokeo, Dashibodi, Mfumo wa Shule, Tanzania, Takwimu za Wanafunzi, Matokeo ya Darasa la Saba, Matokeo Necta, Matokeo MOCK, Mr Izow" />
+  <meta name="author" content="SmartResult Team" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartResult - Dashboard</title>
+  
+ <link rel="icon" type="image/png" href="favicon.png" />
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+
+  <!-- Google Fonts Poppins -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+<!-- Font Awesome kwa icons -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
+<!-- SweetAlert2 CSS and JS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f8fafc;
+      color: #212529;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.4);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #btnToggleSidebar {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      margin-right: 1rem;
+      transition: color 0.3s;
+    }
+    #btnToggleSidebar:hover {
+      color: #93c5fd;
+    }
+    #btnLogout {
+      background: #ef4444;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.3s;
+    }
+    #btnLogout:hover {
+      background: #dc2626;
+    }
+
+    /* LAYOUT */
+    #container {
+      display: flex;
+      flex-grow: 1;
+      min-height: 0;
+      background: #f8fafc;
+    }
+
+    /* SIDEBAR */
+    #sidebar {
+      background: #1e40af;
+      color: white;
+      width: 240px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 1.2rem 0;
+      transition: width 0.3s ease;
+      height: calc(100vh - 68px);
+      position: sticky;
+      top: 68px;
+      box-shadow: 3px 0 8px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+   @media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    height: calc(100vh - 68px);
+    width: 250px;
+    background-color: #4c73f5;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 50;
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  #sidebarBackdrop.show {
+    display: block;
+  }
+}
+
+    #sidebar nav a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.6rem;
+      font-weight: 600;
+      border-left: 4px solid transparent;
+      gap: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.3s, border-color 0.3s;
+      font-size: 0.95rem;
+    }
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: #1e3a8a;
+      border-left-color: #facc15;
+    }
+    #sidebar nav a i {
+      min-width: 20px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    #sidebar.collapsed nav a span {
+      display: none;
+    }
+
+    /* MAIN CONTENT */
+    main {
+      flex-grow: 1;
+      padding: 2rem 2rem 3rem;
+      max-width: 1200px;
+      margin: auto;
+      overflow-y: auto;
+    }
+
+    /* DASHBOARD CARDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.8rem 2rem;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+    }
+    .stat-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+    .stat-icon {
+      font-size: 3rem;
+      color: #2563eb;
+      flex-shrink: 0;
+      width: 64px;
+      height: 64px;
+      background: #dbeafe;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-info {
+      flex-grow: 1;
+    }
+    .stat-info strong {
+      font-size: 1.9rem;
+      display: block;
+      color: #1e40af;
+      font-weight: 700;
+    }
+    .stat-info span {
+      font-size: 1.05rem;
+      color: #475569;
+      user-select: none;
+    }
+
+    /* WELCOME BOX */
+    #welcomeBox h2 {
+      font-weight: 700;
+      font-size: 2.1rem;
+      color: #1e3a8a;
+      margin-bottom: 0.2rem;
+    }
+    #welcomeBox p {
+      font-size: 1.1rem;
+      color: #64748b;
+      margin-bottom: 1.6rem;
+      user-select: none;
+    }
+    .instructions-box {
+      background: #e0e7ff;
+      border-left: 6px solid #6366f1;
+      padding: 1.3rem 1.8rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(99,102,241,0.25);
+      color: #1e40af;
+      margin-bottom: 2.8rem;
+      user-select: none;
+    }
+    .instructions-box h3 {
+      margin-top: 0;
+      font-weight: 700;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .instructions-box ul {
+      margin: 0.8rem 0 0 1.4rem;
+      line-height: 1.5;
+      font-weight: 600;
+      color: #1e40af;
+    }
+    .instructions-box ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* CHART CONTAINERS */
+    .charts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      flex: 1 1 460px;
+      min-width: 320px;
+    }
+    .chart-card h3 {
+      margin: 0 0 1.2rem;
+      color: #1e40af;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    /* LOADER */
+    .loader {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #2563eb;
+      padding: 40px 0;
+      display: none;
+      user-select: none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    height: calc(100vh - 68px);
+    z-index: 1000;
+    transform: translateX(-100%);
+    width: 240px;
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  #container {
+    flex-direction: column;
+  }
+
+  main {
+    padding: 1rem;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    padding: 1rem;
+  }
+
+  .stat-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+  }
+
+  #btnLogout {
+    font-size: 0.9rem;
+    padding: 0.4rem 1rem;
+  }
+
+  header h1 {
+    font-size: 1.2rem;
+  }
+}
+
+
+    /* POPUP MESSAGE */
+    #popupMessage {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 280px;
+      max-width: 320px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 16px;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.7);
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 11000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #popupMessage.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    #popupMessage .icon {
+      font-size: 22px;
+      user-select: none;
+    }
+    #popupMessage.success {
+      background-color: #22c55e;
+    }
+    #popupMessage.error {
+      background-color: #ef4444;
+    }
+    #popupMessage.info {
+      background-color: #3b82f6;
+    }
+    #popupMessage.warning {
+      background-color: #facc15;
+      color: #1e293b;
+    }
+    #popupMessage .closeBtn {
+      margin-left: auto;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 22px;
+      line-height: 1;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg sticky top-0 z-50">
+  <div class="flex items-center justify-between px-4 py-3">
+    <button id="btnToggleSidebar" class="text-2xl hover:text-blue-200 transition-colors">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1 class="flex items-center gap-2 text-lg sm:text-xl font-bold">
+      <i class="fas fa-chart-line"></i> SmartResult Dashboard
+    </h1>
+    <button id="btnLogout" class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-semibold shadow-md transition">
+      <i class="fas fa-sign-out-alt"></i> Toka
+    </button>
+  </div>
+</header>
+
+  <div id="container">
+    <aside id="sidebar">
+      <nav aria-label="Main Navigation">
+        <a href="school-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> <span>Dashibodi</span></a>
+        <a href="register-students.html"><i class="fas fa-user-plus"></i> <span>Sajili Wanafunzi</span></a>
+        <a href="register-classes.html"><i class="fas fa-chalkboard"></i> <span>Sajili Madarasa</span></a>
+        <a href="register-subjects.html"><i class="fas fa-book"></i> <span>Sajili Masomo</span></a>
+        <a href="enter-results.html"><i class="fas fa-pen-to-square"></i> <span>Jaza Matokeo</span></a>
+        <a href="view-results.html"><i class="fas fa-file-alt"></i> <span>Tazama Matokeo</span></a>
+		<a href="subject-results.html"><i class="fas fa-chart-line"></i> <span>Mkeka wa Somo</span></a>
+        <a href="average-subjects.html"><i class="fas fa-percentage"></i> <span>Tathmini Somo</span></a>
+        <a href="students-report.html"><i class="fas fa-user-graduate"></i> <span>Ripoti</span></a>
+        <a href="profile.html"><i class="fas fa-user-cog"></i> <span>Wasifu</span></a>
+      </nav>
+    </aside>
+
+<!-- Backdrop kwa simu -->
+<div id="sidebarBackdrop"></div>
+
+
+
+    <main>
+      <div id="loader" class="loader">
+        <i class="fa-solid fa-spinner fa-spin"></i><br />
+        Inapakia taarifa za shule...
+      </div>
+
+      <section id="welcomeBox" style="display:none;">
+        <h2 id="welcomeTitle">Karibu!</h2>
+        <p id="schoolDescription">
+          Ahsante kwa kuchagua mfumo wa SmartResult. Tafadhali angalia takwimu hapa chini.
+        </p>
+<div class="stat-card" tabindex="0">
+  <div class="stat-icon"><i class="fas fa-male"></i></div>
+  <div class="stat-info">
+    <strong id="totalBoys">0</strong>
+    <span>Wavulana</span>
+  </div>
+</div>
+<div class="stat-card" tabindex="0">
+  <div class="stat-icon"><i class="fas fa-female"></i></div>
+  <div class="stat-info">
+    <strong id="totalGirls">0</strong>
+    <span>Wasichana</span>
+  </div>
+</div>
+        <div class="stats-grid" aria-live="polite" aria-atomic="true" aria-relevant="all">
+          <div class="stat-card" tabindex="0">
+            <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+            <div class="stat-info">
+              <strong id="totalStudents">0</strong>
+              <span>Wanafunzi Wote</span>
+            </div>
+          </div>
+          <div class="stat-card" tabindex="0">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+              <strong id="studentsWithResults">0</strong>
+              <span>Waliojaziwa Matokeo</span>
+            </div>
+          </div>
+          <div class="stat-card" tabindex="0">
+            <div class="stat-icon"><i class="fas fa-chalkboard"></i></div>
+            <div class="stat-info">
+              <strong id="totalClasses">0</strong>
+              <span>Madarasa</span>
+            </div>
+          </div>
+          <div class="stat-card" tabindex="0">
+            <div class="stat-icon"><i class="fas fa-book"></i></div>
+            <div class="stat-info">
+              <strong id="totalSubjects">0</strong>
+              <span>Masomo</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="instructions-box" role="region" aria-label="Maelekezo ya Matumizi">
+          <h3><i class="fa fa-info-circle"></i> Maelekezo ya Matumizi</h3>
+          <ul>
+            <li><strong>Hatua ya 1:</strong> Sajili Madarasa, Masomo, na Wanafunzi kwa usahihi.</li>
+            <li><strong>Hatua ya 2:</strong> Hakikisha Masomo na Madarasa yamejazwa kabla ya kuingiza Matokeo.</li>
+            <li><strong>Hatua ya 3:</strong> Tumia menu kushoto kufikia sehemu mbalimbali za mfumo.</li>
+            <li><strong>MUHIMU:</strong> Hakikisha unatunza taarifa zako za kuingia salama.</li>
+          </ul>
+        </div>
+
+        <div class="charts-row" aria-label="Charts za Takwimu za Shule">
+          <div class="chart-card" role="region" aria-label="Idadi ya Wanafunzi kwa Madarasa">
+            <h3><i class="fas fa-chart-bar"></i> Wanafunzi kwa Madarasa</h3>
+            <canvas id="studentsByClassChart" aria-describedby="descStudentsByClass"></canvas>
+            <p id="descStudentsByClass" class="sr-only">Hii ni chati ya bar kuonyesha idadi ya wanafunzi kwa kila darasa.</p>
+          </div>
+          <div class="chart-card" role="region" aria-label="Mgawanyo wa Matokeo">
+            <h3><i class="fas fa-pie-chart"></i> Mgawanyo wa Matokeo</h3>
+            <canvas id="resultsPieChart" aria-describedby="descResultsPie"></canvas>
+            <p id="descResultsPie" class="sr-only">Hii ni chati ya pie kuonyesha mgawanyo wa wanafunzi waliopata matokeo na wasiotoka.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Popup Message -->
+  <div
+    id="popupMessage"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    aria-relevant="all"
+  >
+    <i class="icon"></i>
+    <span class="message"></span>
+    <span class="closeBtn" title="Funga">&times;</span>
+  </div>
+
+  <script type="module">
+    import {
+      getAuth,
+      signOut,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      getDocs,
+      query,
+      where,
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+      authDomain: "smartresult-6c09c.firebaseapp.com",
+      projectId: "smartresult-6c09c",
+      storageBucket: "smartresult-6c09c.appspot.com",
+      messagingSenderId: "77722866135",
+      appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+      measurementId: "G-3W13B73TQS",
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const btnLogout = document.getElementById("btnLogout");
+    const loader = document.getElementById("loader");
+    const welcomeBox = document.getElementById("welcomeBox");
+    const welcomeTitle = document.getElementById("welcomeTitle");
+    const popup = document.getElementById("popupMessage");
+
+    // Sidebar toggle
+    const btnToggleSidebar = document.getElementById("btnToggleSidebar");
+    const sidebar = document.getElementById("sidebar");
+
+btnToggleSidebar.addEventListener("click", () => {
+  const isMobile = window.innerWidth <= 768;
+  const icon = document.getElementById("toggleIcon");
+
+  if (isMobile) {
+    sidebar.classList.toggle("open");
+    sidebarBackdrop.classList.toggle("show");
+
+    // Badilisha icon
+    icon.classList.toggle("fa-bars");
+    icon.classList.toggle("fa-times");
+  } else {
+    sidebar.classList.toggle("collapsed");
+  }
+});
+
+// Kufunga sidebar uki-click nje (on backdrop)
+sidebarBackdrop.addEventListener("click", () => {
+  sidebar.classList.remove("open");
+  sidebarBackdrop.classList.remove("show");
+const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+
+  // Revert icon
+  const icon = document.getElementById("toggleIcon");
+  icon.classList.add("fa-bars");
+  icon.classList.remove("fa-times");
+});
+
+
+    // Popup functions
+    function showPopup(message, type = "info", duration = 4000) {
+      const iconEl = popup.querySelector(".icon");
+      const msgEl = popup.querySelector(".message");
+      const closeBtn = popup.querySelector(".closeBtn");
+
+      popup.className = "";
+      popup.classList.add(type, "show");
+      msgEl.textContent = message;
+
+      const icons = {
+        success: "✔️",
+        error: "❌",
+        info: "ℹ️",
+        warning: "⚠️",
+      };
+      iconEl.textContent = icons[type] || "";
+      popup.style.display = "flex";
+
+      closeBtn.onclick = () => {
+        hidePopup();
+      };
+
+      clearTimeout(popup.hideTimeout);
+      popup.hideTimeout = setTimeout(() => {
+        hidePopup();
+      }, duration);
+    }
+
+    function hidePopup() {
+      popup.classList.remove("show");
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 300);
+    }
+
+    // Logout handler
+    btnLogout.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        showPopup("Umetoka kwenye mfumo kwa mafanikio.", "success");
+        setTimeout(() => {
+          window.location.href = "../index.html";
+        }, 1500);
+      } catch (err) {
+        showPopup("Tatizo wakati wa kutoka: " + err.message, "error");
+      }
+    });
+
+    // Load statistics and charts
+    async function loadStatsAndCharts(schoolId) {
+    loader.style.display = "block";
+    welcomeBox.style.display = "none";
+
+    try {
+      const studentsSnap = await getDocs(
+        query(collection(db, "students"), where("schoolId", "==", schoolId))
+      );
+
+      let totalStudents = 0;
+      let boysCount = 0;
+      let girlsCount = 0;
+      const studentsByClassCount = {};
+      const studentsWithResultsByClass = {};
+
+      studentsSnap.forEach((docSnap) => {
+        const data = docSnap.data();
+        totalStudents++;
+        if (data.gender === "Me") boysCount++;
+        else if (data.gender === "Ke") girlsCount++;
+
+        const classId = data.classId;
+        if (classId) {
+          if (!studentsByClassCount[classId]) studentsByClassCount[classId] = 0;
+          studentsByClassCount[classId]++;
+        }
+      });
+
+      // Results
+      const resultsSnap = await getDocs(
+        query(collection(db, "results"), where("schoolId", "==", schoolId))
+      );
+
+      const studentsWithResultsSet = new Set();
+      resultsSnap.forEach((docSnap) => {
+        const data = docSnap.data();
+        if (data.studentId) {
+          studentsWithResultsSet.add(data.studentId);
+
+          if (data.classId) {
+            if (!studentsWithResultsByClass[data.classId])
+              studentsWithResultsByClass[data.classId] = new Set();
+            studentsWithResultsByClass[data.classId].add(data.studentId);
+          }
+        }
+      });
+
+      const studentsWithResults = studentsWithResultsSet.size;
+
+      // Classes
+      const classesSnap = await getDocs(
+        query(collection(db, "classes"), where("schoolId", "==", schoolId))
+      );
+
+      const totalClasses = classesSnap.size;
+
+      // Subjects
+      const subjectsSnap = await getDocs(
+        query(collection(db, "subjects"), where("schoolId", "==", schoolId))
+      );
+      const totalSubjects = subjectsSnap.size;
+
+      // Update UI Stats
+      document.getElementById("totalStudents").textContent = totalStudents;
+      document.getElementById("studentsWithResults").textContent = studentsWithResults;
+      document.getElementById("totalClasses").textContent = totalClasses;
+      document.getElementById("totalSubjects").textContent = totalSubjects;
+      document.getElementById("totalBoys").textContent = boysCount;
+      document.getElementById("totalGirls").textContent = girlsCount;
+
+      // Prepare chart data
+      const classNames = [];
+      const studentCounts = [];
+      const resultCounts = [];
+
+      classesSnap.forEach((classDoc) => {
+        const classId = classDoc.id;
+        const className = classDoc.data().name || classId;
+        classNames.push(className);
+        studentCounts.push(studentsByClassCount[classId] || 0);
+        resultCounts.push(
+          studentsWithResultsByClass[classId]?.size || 0
+        );
+      });
+
+      // Bar chart for students per class
+      createBarChart("studentsByClassChart", classNames, studentCounts);
+
+      // Optional: you can add another bar chart for results per class
+      // createBarChart("resultsByClassChart", classNames, resultCounts);
+
+      // Pie chart
+      const studentsWithoutResults = totalStudents - studentsWithResults;
+      createPieChart(
+        "resultsPieChart",
+        ["Waliojaziwa Matokeo", "Bado Hawajajaza"],
+        [studentsWithResults, studentsWithoutResults]
+      );
+
+      loader.style.display = "none";
+      welcomeBox.style.display = "block";
+    } catch (error) {
+      loader.textContent = "Tatizo katika kupakia takwimu.";
+      console.error(error);
+      showPopup("Tatizo katika kupakia takwimu.", "error");
+    }
+  }
+
+    // Chart helpers
+    function createBarChart(canvasId, labels, data) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      if (window[canvasId + "Chart"]) window[canvasId + "Chart"].destroy();
+      window[canvasId + "Chart"] = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Idadi ya Wanafunzi",
+              data: data,
+              backgroundColor: "#2563eb",
+              borderRadius: 6,
+              borderSkipped: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ctx.parsed.y + " wanafunzi",
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 },
+              grid: { color: "#e0e7ff" },
+            },
+            x: {
+              grid: { display: false },
+              ticks: { maxRotation: 45, minRotation: 30 },
+            },
+          },
+        },
+      });
+    }
+
+    function createPieChart(canvasId, labels, data) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      if (window[canvasId + "Chart"]) window[canvasId + "Chart"].destroy();
+      window[canvasId + "Chart"] = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              data: data,
+              backgroundColor: ["#22c55e", "#ef4444"],
+              hoverOffset: 10,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                boxWidth: 16,
+                padding: 10,
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) =>
+                  ctx.label +
+                  ": " +
+                  ctx.parsed +
+                  " (" +
+                  ((ctx.parsed / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1) +
+                  "%)",
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Listen for auth state and load data
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return (window.location.href = "../index.html");
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const schoolName = userData.schoolName || "Shule Yako";
+          const schoolId = userData.schoolId;
+
+          welcomeTitle.textContent = `Karibu ${schoolName}!`;
+
+          if (schoolId) {
+            await loadStatsAndCharts(schoolId);
+          } else {
+            showPopup("Hakuna taarifa za shule kwenye profile yako.", "warning");
+          }
+        } else {
+          welcomeTitle.textContent = "Karibu Mwalimu!";
+          loader.style.display = "none";
+          welcomeBox.style.display = "block";
+        }
+      } catch (error) {
+        loader.textContent = "Tatizo katika kupakia taarifa.";
+        console.error(error);
+        showPopup("Tatizo katika kupakia taarifa.", "error");
+      }
+    });
+	
+  </script>
+
+</body>
+</html>

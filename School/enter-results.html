@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jaza Matokeo - SmartResult</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+   * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #eef6ff;
+      color: #333;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    #btnLogout {
+      background:#dc3545; 
+      color:#fff; 
+      border:none; 
+      padding:0.5rem 1rem; 
+      border-radius:5px; 
+      cursor:pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    #btnLogout:hover {
+      background: #b02a37;
+    }
+    #container {
+      flex-grow: 1;
+      display: flex;
+      min-height: 0;
+    }
+    #sidebar {
+      background: #0056b3;
+      color: white;
+      width: 220px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding-top: 1rem;
+      overflow-y: auto;
+    }
+    #sidebar nav a {
+      color: white;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      border-left: 4px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      transition: background 0.3s, border-color 0.3s;
+      white-space: nowrap;
+    }
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: #003d80;
+      border-left-color: #ffd54f;
+    }
+    main {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 900px;
+      width: 100%;
+      overflow-y: auto;
+    }
+    footer {
+      background: #f1f5f9;
+      color: #555;
+      text-align: center;
+      padding: 1rem 2rem;
+      font-size: 0.9rem;
+      border-top: 1px solid #ddd;
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+    form {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    select, input[type=number] {
+      width: 100%;
+      padding: 10px 14px;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    select:focus, input[type=number]:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    }
+    button {
+      background: #007bff;
+      color: white;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      margin-top: 2rem;
+      width: 100%;
+      transition: background 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    button:disabled {
+      background: #8ab3f5;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      background: #0056b3;
+    }
+    #msg {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: 600;
+      min-height: 1.5em;
+      font-size: 1.1rem;
+    }
+    #loaderOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.8);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #loaderOverlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #007bff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% {transform: rotate(0deg);}
+      100% {transform: rotate(360deg);}
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+      }
+      #sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        padding: 0;
+        overflow-x: auto;
+      }
+      #sidebar nav {
+        display: flex;
+        width: 100%;
+      }
+      #sidebar nav a {
+        flex: 1;
+        justify-content: center;
+        padding: 1rem 0.5rem;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+      }
+      #sidebar nav a:hover,
+      #sidebar nav a.active {
+        border-bottom-color: #ffd54f;
+        background: #003d80;
+      }
+      main {
+        padding: 1rem;
+        max-width: 100%;
+      }
+      form {
+        padding: 1.5rem;
+        margin: 0 1rem;
+      }
+      header {
+        padding: 1rem;
+      }
+      button#btnLogout {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fa-solid fa-pen-to-square"></i> SmartResult - Jaza Matokeo</h1>
+  <button id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+</header>
+
+<div id="container">
+  <aside id="sidebar">
+    <nav>
+      <a href="school-dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>Dashibodi</span></a>
+        <a href="register-students.html"><i class="fas fa-user-plus"></i> <span>Sajili Wanafunzi</span></a>
+        <a href="register-classes.html"><i class="fas fa-chalkboard"></i> <span>Sajili Madarasa</span></a>
+        <a href="register-subjects.html"><i class="fas fa-book"></i> <span>Sajili Masomo</span></a>
+        <a href="enter-results.html" class="active"><i class="fas fa-pen-to-square"></i> <span>Jaza Matokeo</span></a>
+        <a href="view-results.html"><i class="fas fa-file-alt"></i> <span>Tazama Matokeo</span></a>
+		<a href="subject-results.html"><i class="fas fa-chart-line"></i> <span>Mkeka wa Somo</span></a>
+        <a href="average-subjects.html"><i class="fas fa-percentage"></i> <span>Tathmini Somo</span></a>
+        <a href="students-report.html"><i class="fas fa-user-graduate"></i> <span>Ripoti</span></a>
+        <a href="profile.html"><i class="fas fa-user-cog"></i> <span>Wasifu</span></a>
+    </nav>
+  </aside>
+
+  <main>
+    <h2>Jaza Matokeo ya Mwanafunzi</h2>
+ <!-- ✅ Button ya kwenda kwenye filled.html -->
+  <div style="margin-bottom: 1rem; text-align: right;">
+    <a href="filled-results.html" 
+       style="background: #28a745; color: white; padding: 0.6rem 1rem; border-radius: 6px; 
+              font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+      <i class="fa-solid fa-pen"></i> Hariri Waliojazwa
+    </a>
+  </div>
+  
+    <form id="resultForm">
+      <label for="classSelect">Chagua Darasa</label>
+      <select id="classSelect" required>
+        <option value="">-- Chagua darasa --</option>
+      </select>
+
+      <label for="termSelect">Chagua Kipindi (Term)</label>
+      <select id="termSelect" required>
+        <option value="">-- Chagua Term --</option>
+        <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+        <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+        <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+        <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+        <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+        <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+        <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+        <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+      </select>
+	  
+
+      <label for="studentSelect">Chagua Mwanafunzi</label>
+      <select id="studentSelect" required disabled>
+        <option value="">-- Chagua mwanafunzi --</option>
+      </select>
+
+      <div id="subjectsList" style="margin-top: 1rem;"></div>
+
+      <button type="submit" id="saveBtn" disabled><i class="fa-solid fa-floppy-disk"></i> Hifadhi Matokeo</button>
+    </form>
+
+    <p id="msg"></p>
+
+  </main>
+</div>
+
+<footer>
+  &copy; 2025 SmartResult. Haki zote zimehifadhiwa.
+</footer>
+
+<div id="loaderOverlay"><div class="loader"></div></div>
+
+<script type="module">
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import {
+  getFirestore, collection, query, where, getDocs,
+  serverTimestamp, doc, setDoc, getDoc, enableIndexedDbPersistence
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+  authDomain: "smartresult-6c09c.firebaseapp.com",
+  projectId: "smartresult-6c09c"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ✅ Washa offline support
+enableIndexedDbPersistence(db).then(() => {
+  console.log("✅ Offline mode enabled");
+}).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn("⚠️ Offline mode failed: multiple tabs open.");
+  } else if (err.code === 'unimplemented') {
+    console.warn("⚠️ Offline mode not supported by this browser.");
+  }
+});
+
+// ✅ Onyesha hali ya mtandao
+const onlineStatus = document.createElement("div");
+onlineStatus.style.textAlign = "center";
+onlineStatus.style.padding = "0.5rem";
+onlineStatus.style.fontWeight = "bold";
+document.body.insertBefore(onlineStatus, document.body.firstChild);
+
+function updateConnectionStatus() {
+  if (navigator.onLine) {
+    onlineStatus.textContent = "Umeunganishwa na Mtandao.";
+    onlineStatus.style.background = "#d4edda";
+    onlineStatus.style.color = "#155724";
+  } else {
+    onlineStatus.textContent = "Upo Offline. Data zitapandishwa ukirudi online.";
+    onlineStatus.style.background = "#fff3cd";
+    onlineStatus.style.color = "#856404";
+  }
+}
+window.addEventListener("online", updateConnectionStatus);
+window.addEventListener("offline", updateConnectionStatus);
+updateConnectionStatus();
+
+
+  const btnLogout = document.getElementById('btnLogout');
+  const classSelect = document.getElementById('classSelect');
+  const termSelect = document.getElementById('termSelect');
+  const studentSelect = document.getElementById('studentSelect');
+  const subjectsList = document.getElementById('subjectsList');
+  const resultForm = document.getElementById('resultForm');
+  const saveBtn = document.getElementById('saveBtn');
+  const msg = document.getElementById('msg');
+  const loaderOverlay = document.getElementById('loaderOverlay');
+
+  let currentUser = null;
+  let currentSchoolId = '';
+
+  function showLoader() { loaderOverlay.classList.add('active'); }
+  function hideLoader() { loaderOverlay.classList.remove('active'); }
+  function showMsg(text, color = 'green') {
+    msg.textContent = text;
+    msg.style.color = color;
+    setTimeout(() => msg.textContent = '', 4000);
+  }
+
+  async function loadClasses() {
+    classSelect.innerHTML = `<option value="">-- Chagua darasa --</option>`;
+    const q = query(collection(db, 'classes'), where('schoolId', '==', currentSchoolId));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const option = document.createElement('option');
+      option.value = docSnap.id;
+      option.textContent = data.name;
+      classSelect.appendChild(option);
+    });
+  }
+
+async function loadStudents(classId) {
+  studentSelect.innerHTML = `<option value="">-- Chagua mwanafunzi --</option>`;
+  studentSelect.disabled = true;
+  subjectsList.innerHTML = '';
+  saveBtn.disabled = true;
+
+  if (!classId || !termSelect.value) return;
+
+  showLoader();
+
+  const term = termSelect.value;
+
+  // Fetch masomo
+  const subjectsQ = query(collection(db, 'subjects'),
+    where('schoolId', '==', currentSchoolId),
+    where('classId', '==', classId)
+  );
+  const subjectsSnap = await getDocs(subjectsQ);
+  const subjectIds = subjectsSnap.docs.map(doc => doc.id);
+  const totalSubjects = subjectIds.length;
+
+  // Fetch matokeo yote ya darasa husika kwenye term husika
+  const resultsQ = query(
+    collection(db, 'results'),
+    where('schoolId', '==', currentSchoolId),
+    where('classId', '==', classId),
+    where('term', '==', term)
+  );
+  const resultsSnap = await getDocs(resultsQ);
+
+  const resultMap = {};
+  resultsSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    const res = d.results || {};
+    const filled = Object.keys(res).length;
+    let status = 'none';
+    if (filled === 0) status = 'none';
+    else if (filled < totalSubjects) status = 'partial';
+    else status = 'complete';
+
+    resultMap[d.studentId] = status;
+  });
+
+  // Fetch wanafunzi wa darasa husika
+  const q = query(collection(db, 'students'),
+    where('schoolId', '==', currentSchoolId),
+    where('classId', '==', classId)
+  );
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    studentSelect.innerHTML = `<option value="">Hakuna mwanafunzi katika darasa hili</option>`;
+    hideLoader();
+    return;
+  }
+
+  const students = [];
+
+  snapshot.forEach(docSnap => {
+    const s = docSnap.data();
+    const studentId = docSnap.id;
+    const status = resultMap[studentId] || 'none';
+    students.push({ id: studentId, name: s.name, status });
+  });
+
+  students.sort((a, b) => a.name.localeCompare(b.name));
+
+  students.forEach(stu => {
+    const opt = document.createElement('option');
+    opt.value = stu.id;
+
+    if (stu.status === 'complete') {
+      // skip - hatumuonyeshi tena
+      return;
+    } else if (stu.status === 'partial') {
+      opt.textContent = `⚠️ ${stu.name}`;
+    } else {
+      opt.textContent = stu.name;
+      opt.style.color = 'gray';
+    }
+
+    studentSelect.appendChild(opt);
+  });
+
+  studentSelect.disabled = false;
+  hideLoader();
+}
+
+
+
+
+  async function loadResults(studentId, classId) {
+    const term = termSelect.value;
+    if (!studentId || !classId || !term) return;
+
+    try {
+      const docRef = doc(db, 'results', `${currentSchoolId}_${classId}_${studentId}_${term}`);
+      const snapshot = await getDoc(docRef);
+
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        const results = data.results || {};
+        subjectsList.querySelectorAll('input[type="number"]').forEach(input => {
+          input.value = results[input.name] ?? '';
+        });
+      } else {
+        subjectsList.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+      }
+    } catch (error) {
+      console.error("Error loading results:", error);
+    }
+  }
+
+classSelect.addEventListener('change', async () => {
+  if (!termSelect.value) {
+    showMsg("Tafadhali chagua Term kwanza.", "red");
+    return;
+  }
+  await loadStudents(classSelect.value);
+  subjectsList.innerHTML = '';
+  saveBtn.disabled = true;
+});
+
+termSelect.addEventListener('change', async () => {
+  if (classSelect.value) {
+    await loadStudents(classSelect.value);
+  }
+});
+
+
+  termSelect.addEventListener('change', async () => {
+    if (classSelect.value && studentSelect.value) {
+      await loadResults(studentSelect.value, classSelect.value);
+    }
+  });
+
+  studentSelect.addEventListener('change', async () => {
+    const classId = classSelect.value;
+    const studentId = studentSelect.value;
+    const term = termSelect.value;
+
+    msg.textContent = '';
+    subjectsList.innerHTML = '';
+    if (!classId || !studentId || !term) {
+      saveBtn.disabled = true;
+      return;
+    }
+
+    showLoader();
+
+    try {
+      const q = query(
+        collection(db, 'subjects'),
+        where('schoolId', '==', currentSchoolId),
+        where('classId', '==', classId)
+      );
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        subjectsList.innerHTML = '<p style="color:red;">Hakuna masomo ya darasa hili.</p>';
+        saveBtn.disabled = true;
+        hideLoader();
+        return;
+      }
+
+      snapshot.forEach(docSnap => {
+        const subject = docSnap.data();
+        const div = document.createElement('div');
+        div.style.marginTop = '0.7rem';
+        div.innerHTML = `
+          <label for="sub_${docSnap.id}">${subject.name}</label>
+          <input type="number" id="sub_${docSnap.id}" name="${docSnap.id}" min="0" max="100" placeholder="Alama 0-100" />
+        `;
+        subjectsList.appendChild(div);
+      });
+
+      await loadResults(studentId, classId);
+      saveBtn.disabled = false;
+
+    } catch (error) {
+      subjectsList.innerHTML = `<p style="color:red;">Tatizo: ${error.message}</p>`;
+      saveBtn.disabled = true;
+    }
+
+    hideLoader();
+  });
+
+  resultForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg.textContent = '';
+    if (!currentUser) return;
+
+    const classId = classSelect.value;
+    const studentId = studentSelect.value;
+    const term = termSelect.value;
+
+    if (!classId || !studentId || !term) {
+      showMsg('Chagua darasa, mwanafunzi na term.', 'red');
+      return;
+    }
+
+    const results = {};
+    let valid = true;
+
+    subjectsList.querySelectorAll('input[type="number"]').forEach(input => {
+      const val = input.value.trim();
+      if (val === '') return;
+      const num = Number(val);
+      if (isNaN(num) || num < 0 || num > 100) {
+        valid = false;
+        input.style.borderColor = 'red';
+      } else {
+        input.style.borderColor = '#ccc';
+        results[input.name] = num;
+      }
+    });
+
+    if (!valid) {
+      showMsg('Alama ni kati ya 0 hadi 100.', 'red');
+      return;
+    }
+
+    if (Object.keys(results).length === 0) {
+      showMsg('Jaza angalau somo moja.', 'red');
+      return;
+    }
+
+    showLoader();
+
+    try {
+  const docId = `${currentSchoolId}_${classId}_${studentId}_${term}`;
+  const resultData = {
+    schoolId: currentSchoolId,
+    classId,
+    studentId,
+    term,
+    results
+  };
+
+  if (navigator.onLine) {
+    const ref = doc(db, 'results', docId);
+    await setDoc(ref, {
+      ...resultData,
+      timestamp: serverTimestamp()
+    });
+    showMsg('Matokeo yamehifadhiwa kikamilifu!');
+  } else {
+    saveResultOffline(resultData);
+    Swal.fire('Offline', 'Upo offline. Matokeo yamehifadhiwa kwenye kifaa.', 'info');
+  }
+
+studentSelect.value = "";
+subjectsList.innerHTML = '';
+saveBtn.disabled = true;
+await loadStudents(classId); // refresh list after saving
+
+
+} catch (error) {
+  showMsg('Kosa: ' + error.message, 'red');
+}
+
+    hideLoader();
+  });
+
+  onAuthStateChanged(auth, async user => {
+    if (!user) {
+      location.href = 'index.html';
+      return;
+    }
+    currentUser = user;
+
+    // Pata schoolId kutoka collection users
+    const userRef = doc(db, 'users', currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      currentSchoolId = userSnap.data().schoolId || '';
+      await loadClasses();
+    } else {
+      alert('Taarifa za mtumiaji hazikupatikana!');
+      location.href = 'index.html';
+    }
+  });
+
+  btnLogout.onclick = async () => {
+    await signOut(auth);
+    location.href = 'index.html';
+  };
+
+</script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+const OFFLINE_RESULTS_KEY = 'offlineResults';
+
+function saveResultOffline(data) {
+  const existing = JSON.parse(localStorage.getItem(OFFLINE_RESULTS_KEY)) || [];
+  existing.push(data);
+  localStorage.setItem(OFFLINE_RESULTS_KEY, JSON.stringify(existing));
+}
+
+async function uploadOfflineResults() {
+  const offlineData = JSON.parse(localStorage.getItem(OFFLINE_RESULTS_KEY)) || [];
+  if (!offlineData.length) return;
+
+  Swal.fire({
+    title: 'Inapakia Matokeo...',
+    text: 'Tafadhali subiri...',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  for (let data of offlineData) {
+    const docId = `${data.schoolId}_${data.classId}_${data.studentId}_${data.term}`;
+    try {
+      const ref = doc(db, 'results', docId);
+      await setDoc(ref, {
+        ...data,
+        timestamp: serverTimestamp()
+      });
+    } catch (err) {
+      console.error('Kosa la kupakia:', err.message);
+    }
+  }
+
+  localStorage.removeItem(OFFLINE_RESULTS_KEY);
+  Swal.fire('Mafanikio!', 'Matokeo ya offline yamepakiwa mtandaoni.', 'success');
+}
+
+window.addEventListener('online', uploadOfflineResults);
+</script>
+
+</body>
+</html>

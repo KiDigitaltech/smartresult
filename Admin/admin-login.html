@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Login - SmartResult</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/a2e0e6adf3.js" crossorigin="anonymous"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      display: flex; height: 100vh; justify-content: center; align-items: center;
+      overflow: hidden;
+    }
+    .login-box {
+      backdrop-filter: blur(18px);
+      background: rgba(255, 255, 255, 0.15);
+      padding: 40px; border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      width: 360px; color: #fff; position: relative;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .login-box h2 {
+      text-align: center; margin-bottom: 25px; font-weight: 700; font-size: 24px;
+    }
+    .input-group { position: relative; margin-top: 20px; }
+    .input-group input {
+      width: 100%; padding: 14px 16px 14px 40px; border-radius: 10px; border: none;
+      background: rgba(255,255,255,0.2); color: #fff; font-size: 15px; outline: none;
+    }
+    .input-group input::placeholder { color: #ddd; }
+    .input-group i {
+      position: absolute; top: 50%; left: 12px; transform: translateY(-50%);
+      color: #ccc;
+    }
+    .checkbox-group { margin-top: 10px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+    .checkbox-group input { transform: scale(1.2); }
+    button {
+      width: 100%; margin-top: 25px; padding: 12px; font-size: 16px; font-weight: 600;
+      border: none; border-radius: 10px; background: #ffffff; color: #007bff; cursor: pointer; transition: all 0.3s ease;
+    }
+    button:hover { background: #007bff; color: #fff; }
+    button:disabled { background: #ccc; cursor: not-allowed; color: #666; }
+    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; width: 18px; height: 18px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg); } }
+    #msg { text-align: center; margin-top: 15px; font-weight: 500; color: #ffdddd; min-height: 20px; }
+
+    .success-popup {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      backdrop-filter: blur(3px); background: rgba(255,255,255,0.1);
+      display: flex; justify-content: center; align-items: center; z-index: 999;
+      border-radius: 16px; animation: fadeOut 1.5s forwards 1.5s;
+    }
+    .success-popup .check {
+      width: 80px; height: 80px; border-radius: 50%; border: 4px solid #28a745; position: relative;
+    }
+    .success-popup .check::after {
+      content: ''; position: absolute; top: 18px; left: 22px; width: 20px; height: 40px;
+      border: solid #28a745; border-width: 0 6px 6px 0; transform: rotate(45deg);
+    }
+    @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+  </style>
+</head>
+<body>
+
+<div class="login-box" id="loginBox">
+  <h2>Admin Login</h2>
+  <div class="input-group">
+    <i class="fas fa-envelope"></i>
+    <input type="email" id="email" placeholder="Barua Pepe" required />
+  </div>
+  <div class="input-group">
+    <i class="fas fa-lock"></i>
+    <input type="password" id="password" placeholder="Nenosiri" required />
+  </div>
+  <div class="checkbox-group">
+    <input type="checkbox" id="togglePassword" />
+    <label for="togglePassword">Onesha Nenosiri</label>
+  </div>
+  <button id="btnLogin">Ingia</button>
+  <p id="msg"></p>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.appspot.com",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+    measurementId: "G-3W13B73TQS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const btnLogin = document.getElementById("btnLogin");
+  const msg = document.getElementById("msg");
+  const togglePassword = document.getElementById("togglePassword");
+
+  togglePassword.addEventListener("change", () => {
+    const passwordInput = document.getElementById("password");
+    passwordInput.type = togglePassword.checked ? "text" : "password";
+  });
+
+  function setLoading(loading) {
+    if (loading) {
+      btnLogin.disabled = true;
+      btnLogin.innerHTML = `<div class="spinner"></div> Ingia...`;
+    } else {
+      btnLogin.disabled = false;
+      btnLogin.textContent = "Ingia";
+    }
+  }
+
+  let loginAttempts = 0;
+  const maxAttempts = 5;
+
+  async function handleLogin() {
+    if (loginAttempts >= maxAttempts) {
+      msg.textContent = "Umefanya majaribio mengi, jaribu tena baada ya dakika 5.";
+      btnLogin.disabled = true;
+      setTimeout(() => {
+        loginAttempts = 0;
+        btnLogin.disabled = false;
+        msg.textContent = "";
+      }, 5*60*1000);
+      return;
+    }
+
+    msg.textContent = "";
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+      msg.textContent = "Tafadhali jaza barua pepe na nenosiri.";
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
+
+      const docRef = doc(db, "users", uid);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists() || docSnap.data().role !== "admin") {
+        msg.textContent = "Huna ruhusa ya kuingia hapa.";
+        await auth.signOut();
+        loginAttempts++;
+        setLoading(false);
+        return;
+      }
+
+      showSuccessPopup(() => {
+        window.location.href = "admin-dashboard.html";
+      });
+
+    } catch (error) {
+      loginAttempts++;
+      msg.textContent = "Hitilafu: " + error.message;
+      setLoading(false);
+    }
+  }
+
+  function showSuccessPopup(callback) {
+    const box = document.getElementById("loginBox");
+    const popup = document.createElement("div");
+    popup.className = "success-popup";
+    popup.innerHTML = `<div class="check"></div>`;
+    box.appendChild(popup);
+    setTimeout(callback, 2000);
+  }
+
+  btnLogin.addEventListener("click", handleLogin);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter") handleLogin();
+  });
+</script>
+
+</body>
+</html>

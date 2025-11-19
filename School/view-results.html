@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="sw-TZ">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tazama Matokeo - SmartResult</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" />
+  
+  <style>
+    /* ====== Rangi na mandhari ====== */
+    :root{
+      --bg:#f5f7fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
+      --brand:#2563eb; --brand-700:#1d4ed8; --border:#e5e7eb;
+      --table-stripe:#f9fafb; --chip:#eef2ff;
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220; --card:#0f172a; --text:#e5e7eb; --muted:#94a3b8;
+      --brand:#60a5fa; --brand-700:#3b82f6; --border:#1f2937;
+      --table-stripe:#0b1220; --chip:#1e293b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:'Poppins','Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:var(--bg); color:var(--text);
+    }
+    /* ====== Vipengele vya UI ====== */
+    .topbar{position:sticky; top:0; z-index:10; background:var(--card);
+      border-bottom:1px solid var(--border); display:flex; align-items:center;
+      justify-content:space-between; padding:10px 14px;}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px;}
+    .brand .logo{width:36px; height:36px; border-radius:10px; background:var(--chip);
+      display:grid; place-items:center; font-size:18px; color:var(--brand);}
+    .actions{display:flex; gap:8px; align-items:center;}
+    .btn{display:inline-flex; align-items:center; gap:8px; background:var(--brand);
+      color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer;
+      font-weight:600; box-shadow:0 6px 18px rgba(37,99,235,.18); transition:transform .04s ease, background .2s ease;}
+    .btn:hover{background:var(--brand-700)}
+    .btn:active{transform:translateY(1px)}
+    .btn.ghost{background:transparent; color:var(--text); border:1px solid var(--border); box-shadow:none;}
+    .btn.ghost:hover{background:rgba(0,0,0,.04)}
+    [data-theme="dark"] .btn.ghost:hover{background:#111827}
+    .container{max-width:1200px; margin:22px auto; padding:0 16px;}
+    /* ====== Filters ====== */
+    .card{background:var(--card); border:1px solid var(--border); border-radius:14px;
+      padding:16px; box-shadow:0 10px 30px rgba(2,6,23,.06);}
+    .filters{display:grid; grid-template-columns:repeat(12,1fr); gap:12px; align-items:center;}
+    .filters .field{grid-column:span 12;}
+    @media(min-width:720px){.filters .field{grid-column:span 3;}}
+    label{font-size:.85rem; color:var(--muted); display:block; margin-bottom:6px}
+    select, input[type="text"]{width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px;
+      background:transparent; color:var(--text); font-weight:500; outline:none;}
+    .chip{display:inline-flex; align-items:center; gap:8px; background:var(--chip);
+      color:var(--text); border:1px solid var(--border); padding:8px 10px; border-radius:999px;
+      font-size:.85rem; font-weight:600;}
+    /* ====== Jedwali ====== */
+    .table-wrap{margin-top:16px; overflow:auto; border-radius:12px; border:1px solid var(--border); background:var(--card)}
+    table{width:100%; border-collapse:collapse; min-width:820px; table-layout:auto;}
+    th,td{padding:10px 8px; border-bottom:1px solid var(--border); font-size:.95rem; word-break:break-word;}
+    th{text-align:center; position:sticky; top:0; z-index:1; background:var(--card); font-weight:700;}
+    tbody tr:nth-child(even){ background:var(--table-stripe) }
+    td.num{text-align:right; font-variant-numeric:tabular-nums;}
+    td.center{text-align:center}
+    td.left{text-align:left; white-space:nowrap}
+    .rotate{writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap; padding:14px 6px; font-size:.8rem; min-width:54px;}
+    /* ====== Grades ====== */
+    tr.grade-A td:first-child{ border-left:4px solid #22c55e }
+    tr.grade-B td:first-child{ border-left:4px solid #3b82f6 }
+    tr.grade-C td:first-child{ border-left:4px solid #f59e0b }
+    tr.grade-D td:first-child{ border-left:4px solid #f97316 }
+    tr.grade-F td:first-child{ border-left:4px solid #ef4444 }
+    tr.grade-E td:first-child{ border-left:4px solid #ef4444 } /* kwa scheme yenye E */
+    .empty{text-align:center; padding:28px; color:var(--muted); font-weight:600;}
+    /* ====== Overlay ====== */
+    .overlay{position:fixed; inset:0; background:rgba(2,6,23,.25); display:none; place-items:center; z-index:1000;}
+    .overlay.show{display:grid}
+    .spinner{width:54px; height:54px; border-radius:50%; border:6px solid #e5e7eb; border-top-color:var(--brand); animation:spin 1s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .overlay .txt{margin-top:10px; color:#fff; font-weight:600}
+    /* ====== Print Styles ====== */
+    @media print{
+      :root{--brand:#000}
+      body{background:#fff}
+      .topbar, .card.actions-card, .no-print, .dark-toggle{display:none !important;}
+      .table-wrap{border:none; overflow:visible !important;}
+      @page{size:A4; margin:1.5cm;}
+      .report-header{page-break-inside:avoid; break-inside:avoid;}
+      th{position:static !important; top:auto !important;}
+      table{page-break-inside:auto; border-collapse:collapse;}
+      thead{display:table-header-group !important;}
+      tfoot{display:table-footer-group;}
+      tr{page-break-inside:avoid; break-inside:avoid; page-break-after:auto;}
+      td{word-break:break-word;}
+      td.left{white-space:normal;}
+      table, th, td{font-size:11px}
+      table th{
+        background:#e5e7eb !important; color:#000 !important;
+        -webkit-print-color-adjust:exact; print-color-adjust:exact;
+      }
+    }
+    .report-header{display:flex; align-items:center; gap:14px; margin-bottom:14px;
+      background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px;}
+    .report-logo{width:64px; height:64px; border-radius:12px; overflow:hidden;
+      background:#eef2ff; flex:0 0 auto; display:grid; place-items:center; font-weight:800; color:var(--brand);}
+    .report-meta{line-height:1.35}
+    .school-name{font-size:1.15rem; font-weight:800}
+    .report-line{display:flex; flex-wrap:wrap; gap:12px; color:var(--muted); font-weight:600}
+  </style>
+</head>
+<body data-theme="light">
+  <!-- Topbar -->
+  <div class="topbar no-print">
+    <div class="brand">
+      <div class="logo"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></div>
+      <span>SmartResult</span>
+    </div>
+    <div class="actions">
+      <button id="logoBtn" class="btn ghost" title="Weka/Badilisha Logo"><i class="fa-solid fa-image"></i> Weka/Badilisha Logo</button>
+      <button id="themeBtn" class="btn ghost dark-toggle" title="Badili Mwanga/Giza"><i class="fa-solid fa-circle-half-stroke"></i></button>
+      <button id="printBtn" class="btn" title="Chapisha"><i class="fa-solid fa-print"></i> Chapisha</button>
+      <button id="excelBtn" class="btn" title="Excel"><i class="fa-solid fa-file-excel"></i> Excel</button>
+    </div>
+  </div>
+<div class="container">
+    <!-- Filters -->
+    <div class="card actions-card">
+      <div class="filters">
+        <div class="field">
+          <label for="schoolInput">Jina la Shule</label>
+          <input id="schoolInput" type="text" placeholder="Mfano: Kilimani Secondary" />
+        </div>
+        <div class="field">
+          <label for="classSelect">Darasa</label>
+          <select id="classSelect">
+            <option value="">-- Chagua --</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="termSelect">Kipindi cha Mtihani</label>
+          <select id="termSelect">
+            <option value="">-- Chagua --</option>
+           <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+        <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+        <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+        <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+        <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+        <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+        <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+        <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="yearInput">Mwaka</label>
+          <input id="yearInput" type="text" placeholder="Mfano: 2025" />
+        </div>
+
+        <!-- ====== Mfumo wa Alama (Grading Scheme) ====== -->
+        <div class="field">
+          <label for="schemeSelect">Mfumo wa Alama</label>
+          <select id="schemeSelect">
+            <option value="scheme1">81-100 = A, 61-80 = B, 41-60 = C, 31-40 = D, 0-30 = F</option>
+            <option value="scheme2">41-50 = A, 31-40 = B, 21-30 = C, 11-20 = D, 0-10 = E</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap">
+        <span class="chip"><i class="fa-solid fa-lightbulb"></i> Chagua Darasa & Kipindi kisha matokeo yataonekana hapa chini</span>
+        <span class="chip no-print"><i class="fa-solid fa-print"></i> Ukiwa na masomo mengi, chagua <strong>Landscape</strong> kwenye Print dialog</span>
+      </div>
+    </div>
+
+    <!-- Report header (preview + print) -->
+    <div class="report-header" id="reportHeader" aria-hidden="true" style="display:none">
+      <div class="report-logo" id="reportLogo">LOGO</div>
+      <div class="report-meta">
+        <div class="school-name" id="schoolNamePreview">JINA LA SHULE</div>
+        <div class="report-line">
+          <div>Darasa: <strong id="classNamePreview">—</strong></div>
+          <div>Kipindi: <strong id="examNamePreview">—</strong></div>
+          <div>Mwaka: <strong id="yearPreview">—</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table id="resultsTable" aria-label="Jedwali la Matokeo"></table>
+      <div id="emptyState" class="empty" style="display:none">Hakuna matokeo yaliyopatikana. Tafadhali chagua darasa na kipindi.</div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; margin-top:10px; color:var(--muted); font-weight:600">
+      <span id="preparedBy">Prepared by SmartResultSystem</span>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="overlay" class="overlay" role="status" aria-live="polite" aria-busy="true">
+    <div style="display:grid; place-items:center">
+      <div class="spinner"></div>
+      <div class="txt">Inapakia matokeo…</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+  <!-- Firebase (optional; auto-detect) -->
+  <script type="module">
+    // ====== UI Elements ======
+    const overlay = document.getElementById('overlay');
+    const resultsTable = document.getElementById('resultsTable');
+    const emptyState = document.getElementById('emptyState');
+
+    const schoolInput = document.getElementById('schoolInput');
+    const classSelect = document.getElementById('classSelect');
+    const termSelect  = document.getElementById('termSelect');
+    const yearInput   = document.getElementById('yearInput');
+    const schemeSelect = document.getElementById('schemeSelect');
+
+    const reportHeader = document.getElementById('reportHeader');
+    const reportLogo = document.getElementById('reportLogo');
+    const schoolNamePreview = document.getElementById('schoolNamePreview');
+    const classNamePreview = document.getElementById('classNamePreview');
+    const examNamePreview = document.getElementById('examNamePreview');
+    const yearPreview = document.getElementById('yearPreview');
+
+    const printBtn = document.getElementById('printBtn');
+    const excelBtn = document.getElementById('excelBtn');
+    const logoBtn  = document.getElementById('logoBtn');
+    const themeBtn = document.getElementById('themeBtn');
+
+    // ====== Helpers ======
+    const showOverlay = (v)=> overlay.classList.toggle('show', v);
+
+    // ====== Grading Schemes ======
+    const gradingSchemes = {
+      // Mfumo wa kawaida ulio kuwepo (A-F kwa Average out of 100)
+      scheme1: [
+        {min:81, grade:"A"},
+        {min:61, grade:"B"},
+        {min:41, grade:"C"},
+        {min:31, grade:"D"},
+        {min:0,  grade:"F"},
+      ],
+      // Mfumo unaolingana na maelezo yako (A-E kwa ranges 41–50=A)
+      scheme2: [
+        {min:41, grade:"A"},
+        {min:31, grade:"B"},
+        {min:21, grade:"C"},
+        {min:11, grade:"D"},
+        {min:0,  grade:"E"},
+      ]
+    };
+
+    // getGrade sasa inasoma scheme iliyochaguliwa
+    const getGrade = (avg) => {
+      const selectedScheme = schemeSelect?.value || "scheme1";
+      const scheme = gradingSchemes[selectedScheme] || gradingSchemes.scheme1;
+      for (const rule of scheme) {
+        if (avg >= rule.min) return rule.grade;
+      }
+      return "—";
+    };
+    const gradeClass = (g) => ({A:"grade-A",B:"grade-B",C:"grade-C",D:"grade-D",E:"grade-E",F:"grade-F"}[g]||"");
+
+    function rankWithTies(sortedRows, key="avg"){
+      let rank=0, prev=null, seen=0;
+      return sortedRows.map(r=>{
+        seen++;
+        if(prev===null || Number(r[key]) !== Number(prev)){
+          rank = seen; prev = Number(r[key]);
+        }
+        return {...r, position:rank};
+      });
+    }
+
+    function renderTable(subjects, rows){
+      if(!rows.length){
+        resultsTable.innerHTML = "";
+        emptyState.style.display = "block";
+        reportHeader.style.display = "none";
+        return;
+      }
+      emptyState.style.display = "none";
+      reportHeader.style.display = "flex";
+
+      // Header
+      let thead = `<thead><tr>
+        <th>#</th>
+        <th class="left">Jina la Mwanafunzi</th>
+        <th>Jinsia</th>`;
+      for(const s of subjects){
+        thead += `<th><div class="rotate">${s.name}</div></th>`;
+      }
+      thead += `<th>Jumla</th><th>Wastani</th><th>Gredi</th><th>Nafasi</th></tr></thead>`;
+
+      // Body
+      let tbody = "<tbody>";
+      rows.forEach((r,i)=>{
+        tbody += `<tr class="${gradeClass(r.grade)}">
+          <td class="center">${i+1}</td>
+          <td class="left">${r.name}</td>
+          <td class="center">${r.gender||"-"}</td>`;
+        r.scores.forEach(v=>{
+          tbody += `<td class="num">${v!==''? v:'-'}</td>`;
+        });
+        tbody += `<td class="num">${r.total}</td>
+          <td class="num">${r.avg}</td>
+          <td class="center">${r.grade}</td>
+          <td class="center">${r.position}</td>
+        </tr>`;
+      });
+      tbody += "</tbody>";
+
+      resultsTable.innerHTML = thead + tbody;
+    }
+
+    function updateHeaderPreview(){
+      schoolNamePreview.textContent = schoolInput.value?.trim() || "JINA LA SHULE";
+      classNamePreview.textContent  = classSelect.options[classSelect.selectedIndex]?.text || "—";
+      examNamePreview.textContent   = termSelect.value || "—";
+      yearPreview.textContent       = yearInput.value || (new Date()).getFullYear();
+    }
+
+    function restoreLogo(){
+      const src = localStorage.getItem("sr_report_logo");
+      if(src){
+        reportLogo.innerHTML = `<img alt="School Logo" src="${src}" style="width:100%;height:100%;object-fit:cover">`;
+      }else{
+        reportLogo.textContent = "LOGO";
+      }
+    }
+    async function chooseLogo(){
+      const { value:file } = await Swal.fire({
+        title: 'Chagua Logo ya Shule',
+        input: 'file', inputAttributes:{accept:'image/*'},
+        showCancelButton:true, confirmButtonText:'Hifadhi', cancelButtonText:'Ghairi'
+      });
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const dataUrl = reader.result;
+        localStorage.setItem("sr_report_logo", dataUrl);
+        restoreLogo();
+        Swal.fire('Imehifadhiwa','Logo imehifadhiwa kwenye kifaa hiki.','success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ====== Data Adapter (Firebase or Mock) ======
+    const DataAdapter = {
+      type: "mock",
+      currentSchoolId: "",
+      async init(){
+        try{
+          const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js");
+          const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js");
+          const { getFirestore, collection, query, where, getDocs, getDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js");
+
+          const firebaseConfig = {
+            apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+            authDomain: "smartresult-6c09c.firebaseapp.com",
+            projectId: "smartresult-6c09c"
+          };
+          const app = initializeApp(firebaseConfig);
+          const auth = getAuth(app);
+          const db   = getFirestore(app);
+
+          const user = await new Promise(resolve=>{
+            onAuthStateChanged(auth, u=> resolve(u||null));
+          });
+          if(!user){ this.type="mock"; return; }
+
+          const userSnap = await getDoc(doc(db,"users", user.uid));
+          if(!userSnap.exists()){ this.type="mock"; return; }
+          const schoolId = userSnap.data().schoolId || "";
+          if(!schoolId){ this.type="mock"; return; }
+
+          this.type="firebase";
+          this.db=db;
+          this.firebase = { collection, query, where, getDocs, getDoc, doc };
+          this.currentSchoolId = schoolId;
+
+          try{
+            const sch = await this.firebase.getDoc(this.firebase.doc(db, "schools", schoolId));
+            if(sch.exists()){
+              schoolInput.value = sch.data().name || "";
+              updateHeaderPreview();
+            }
+          }catch(_){}
+        }catch(_){
+          this.type="mock";
+        }
+      },
+      async getClasses(){
+        if(this.type==="firebase"){
+          const { collection, query, where, getDocs } = this.firebase;
+          const snap = await getDocs( query(collection(this.db,"classes"), where("schoolId","==",this.currentSchoolId)) );
+          return snap.docs.map(d=>({id:d.id, name:d.data().name}));
+        }
+        return [{id:"c1", name:"Form Two A"}, {id:"c2", name:"Form Two B"}];
+      },
+      async getSubjects(classId){
+        if(this.type==="firebase"){
+          const { collection, query, where, getDocs } = this.firebase;
+          const snap = await getDocs( query(collection(this.db,"subjects"), where("schoolId","==",this.currentSchoolId), where("classId","==",classId)) );
+          const arr = snap.docs.map(d=>({id:d.id, name:d.data().name}));
+          arr.sort((a,b)=> a.name.localeCompare(b.name));
+          return arr;
+        }
+        return [
+          {id:"s1", name:"Kiswahili"},
+          {id:"s2", name:"English"},
+          {id:"s3", name:"Mathematics"},
+          {id:"s4", name:"Civics"},
+          {id:"s5", name:"History"},
+        ];
+      },
+      async getRows(classId, term){
+        if(this.type==="firebase"){
+          const { collection, query, where, getDocs } = this.firebase;
+          const studentsQ = query(collection(this.db,"students"),
+                                  where("schoolId","==",this.currentSchoolId),
+                                  where("classId","==",classId));
+          const studentsSnap = await getDocs(studentsQ);
+          const students = {};
+          studentsSnap.forEach(d=> students[d.id] = d.data());
+
+          const resultsQ = query(collection(this.db,"results"),
+                                 where("schoolId","==",this.currentSchoolId),
+                                 where("classId","==",classId),
+                                 where("term","==",term));
+          const resultsSnap = await getDocs(resultsQ);
+
+          return resultsSnap.docs.map(d=>{
+            const data = d.data();
+            return {
+              studentId: data.studentId,
+              results: data.results || {},
+              gender: students[data.studentId]?.gender || '',
+              name: students[data.studentId]?.name || '(No Name)',
+            };
+          });
+        }
+        const names = [
+          ["Aisha Suleiman","F"],["Juma Mohamed","M"],["Fatma Ally","F"],["Neema John","F"],["Michael Peter","M"],
+          ["Glory James","F"],["Hamisi Saidi","M"],["Zainabu Musa","F"]
+        ];
+        return names.map(([n,g],i)=>({
+          studentId: "st"+(i+1),
+          name:n, gender:g,
+          results:{ s1:60+Math.floor(Math.random()*40), s2:50+Math.floor(Math.random()*45), s3:45+Math.floor(Math.random()*50), s4:55+Math.floor(Math.random()*40), s5:50+Math.floor(Math.random()*40) }
+        }));
+      }
+    };
+
+    // ====== Load + Bind ======
+    async function initPage(){
+      restoreLogo();
+      await DataAdapter.init();
+
+      // Populate classes
+      showOverlay(true);
+      try{
+        const classes = await DataAdapter.getClasses();
+        classSelect.innerHTML = `<option value="">-- Chagua --</option>` +
+          classes.map(c=> `<option value="${c.id}">${c.name}</option>`).join("");
+      }catch(err){
+        console.error(err);
+        Swal.fire('Hitilafu','Imeshindikana kupakia madarasa.','error');
+      }finally{
+        showOverlay(false);
+      }
+    }
+
+    function computeRows(subjects, rawRows){
+      const subjectIds = subjects.map(s=>s.id);
+      const rows = rawRows.map(r=>{
+        let total=0, count=0;
+        const scores = subjectIds.map(id=>{
+          const v = (r.results?.[id] ?? '');
+          if(v !== ''){
+            const num = Number(v);
+            if(!Number.isNaN(num)){ total += num; count++; return num; }
+          }
+          return '';
+        });
+        const avg = count? (total/count): 0;
+        const grade = getGrade(avg);
+        return { name:r.name, gender:r.gender, scores, total, avg: Number(avg.toFixed(1)), grade };
+      });
+      rows.sort((a,b)=> b.avg - a.avg || a.name.localeCompare(b.name));
+      return rankWithTies(rows, "avg");
+    }
+
+    async function loadAndRender(){
+      updateHeaderPreview();
+      const classId = classSelect.value;
+      const term    = termSelect.value;
+      if(!classId || !term){
+        resultsTable.innerHTML = "";
+        emptyState.style.display = "block";
+        reportHeader.style.display = "none";
+        return;
+      }
+
+      showOverlay(true);
+      try{
+        const [subjects, rawRows] = await Promise.all([
+          DataAdapter.getSubjects(classId),
+          DataAdapter.getRows(classId, term)
+        ]);
+
+        const ranked = computeRows(subjects, rawRows);
+        renderTable(subjects, ranked);
+      }catch(err){
+        console.error(err);
+        Swal.fire('Hitilafu','Imeshindikana kupakia matokeo.','error');
+      }finally{
+        showOverlay(false);
+      }
+    }
+
+    // ====== Events ======
+    schoolInput.addEventListener('input', updateHeaderPreview);
+    classSelect.addEventListener('change', loadAndRender);
+    termSelect.addEventListener('change', loadAndRender);
+    yearInput.addEventListener('input', updateHeaderPreview);
+    schemeSelect.addEventListener('change', loadAndRender); // kubadili scheme
+
+    const printBtnHandler = ()=>{
+      if(!resultsTable.innerHTML.trim()){
+        Swal.fire('Taarifa','Hakuna matokeo ya kuchapisha.','info');
+        return;
+      }
+      window.print();
+    };
+    printBtn.addEventListener('click', printBtnHandler);
+
+    excelBtn.addEventListener('click', ()=>{
+      if(!resultsTable.innerHTML.trim()){
+        Swal.fire('Taarifa','Chagua darasa na kipindi kwanza.','info');
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.table_to_sheet(resultsTable);
+      XLSX.utils.book_append_sheet(wb, ws, "Matokeo");
+
+      const school = (schoolInput.value||"Shule").replace(/\s+/g,'_');
+      const klass  = (classSelect.options[classSelect.selectedIndex]?.text || "Darasa").replace(/\s+/g,'_');
+      const term   = (termSelect.value || "Kipindi").replace(/\s+/g,'_');
+      const year   = (yearInput.value || new Date().getFullYear());
+
+      XLSX.writeFile(wb, `${school}_${klass}_${term}_${year}.xlsx`);
+    });
+
+    logoBtn.addEventListener('click', chooseLogo);
+
+    themeBtn.addEventListener('click', ()=>{
+      const root = document.body;
+      const cur = root.getAttribute('data-theme') || 'light';
+      const next = cur==='light' ? 'dark':'light';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('sr_theme', next);
+    });
+
+    (function(){
+      const saved = localStorage.getItem('sr_theme');
+      if(saved) document.body.setAttribute('data-theme', saved);
+    })();
+
+    initPage();
+	
+	
+  </script>
+  
+</body>
+</html>

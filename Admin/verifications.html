@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Verification - SmartResult</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+  body {font-family: 'Segoe UI', sans-serif; background:#eef6ff; margin:0; padding:0;}
+  header {background:#007bff; color:white; padding:1rem; text-align:center;}
+  h2 {color:#007bff; text-align:center; margin-top:1.5rem;}
+  table {width:90%; margin:1.5rem auto; border-collapse: collapse; background:white; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+  th, td {padding:12px; border-bottom:1px solid #ddd; text-align:left;}
+  th {background:#007bff; color:white;}
+  button {padding:6px 12px; border:none; border-radius:5px; cursor:pointer; color:white; margin:2px;}
+  button.verify {background:#10b981;}
+  button.verify:hover {background:#059669;}
+  button.disable {background:#ef4444;}
+  button.disable:hover {background:#b91c1c;}
+  button.enable {background:#f59e0b;}
+  button.enable:hover {background:#d97706;}
+  @media(max-width:768px){table{width:100%; font-size:0.9rem;}}
+</style>
+</head>
+<body>
+
+<header><h1><i class="fas fa-user-check"></i> Admin Verification Dashboard</h1></header>
+
+<h2>Watumiaji Wasio Halali (Inactive)</h2>
+<table>
+  <thead>
+    <tr><th>Jina</th><th>Email</th><th>Role</th><th>Action</th></tr>
+  </thead>
+  <tbody id="inactiveUsers">
+    <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+  </tbody>
+</table>
+
+<h2>Watumiaji Waliothibitishwa (HeadTeachers)</h2>
+<table>
+  <thead>
+    <tr><th>Jina</th><th>Email</th><th>Role</th><th>Action</th></tr>
+  </thead>
+  <tbody id="verifiedUsers">
+    <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+  </tbody>
+</table>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+  authDomain: "smartresult-6c09c.firebaseapp.com",
+  projectId: "smartresult-6c09c",
+  storageBucket: "smartresult-6c09c.appspot.com",
+  messagingSenderId: "77722866135",
+  appId: "1:77722866135:web:b0328dcc969b3264acbb92"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const inactiveTable = document.getElementById("inactiveUsers");
+const verifiedTable = document.getElementById("verifiedUsers");
+
+// Check admin login
+onAuthStateChanged(auth, (user) => {
+  if (!user) window.location.href = "admin-login.html";
+  loadUsers();
+});
+
+// Load all users
+async function loadUsers() {
+  const snapshot = await getDocs(collection(db, "users"));
+  inactiveTable.innerHTML = "";
+  verifiedTable.innerHTML = "";
+
+  let hasInactive = false;
+  let hasVerified = false;
+
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    const id = docSnap.id;
+
+    if(data.role === "Inactive") {
+      hasInactive = true;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${data.name || '-'}</td>
+        <td>${data.email || '-'}</td>
+        <td>${data.role}</td>
+        <td><button class="verify" onclick="verifyUser('${id}')">Thibitisha</button></td>
+      `;
+      inactiveTable.appendChild(tr);
+    }
+
+    if(data.role === "headTeacher" || data.role === "Disabled") {
+      hasVerified = true;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${data.name || '-'}</td>
+        <td>${data.email || '-'}</td>
+        <td>${data.role}</td>
+        <td>
+          ${data.role === "headTeacher" 
+            ? `<button class="disable" onclick="disableUser('${id}')">Disable</button>` 
+            : `<button class="enable" onclick="enableUser('${id}')">Enable</button>`}
+        </td>
+      `;
+      verifiedTable.appendChild(tr);
+    }
+  });
+
+  if(!hasInactive){
+    inactiveTable.innerHTML = `<tr><td colspan="4" style="text-align:center;">Hakuna watumiaji wa Inactive</td></tr>`;
+  }
+  if(!hasVerified){
+    verifiedTable.innerHTML = `<tr><td colspan="4" style="text-align:center;">Hakuna waliothibitishwa bado</td></tr>`;
+  }
+}
+
+// Verify user
+window.verifyUser = async (userId) => {
+  const result = await Swal.fire({
+    title: 'Unataka kuthibitisha mtumiaji huyu?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Thibitisha',
+    cancelButtonText: 'Ghairi'
+  });
+  if(result.isConfirmed){
+    await updateDoc(doc(db, "users", userId), { role: "headTeacher" });
+    Swal.fire('Imethibitishwa!', 'Mtumiaji sasa ni Head Teacher', 'success');
+    loadUsers();
+  }
+}
+
+// Disable user
+window.disableUser = async (userId) => {
+  const result = await Swal.fire({
+    title: 'Unataka kudisable mtumiaji huyu?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ndiyo, Disable',
+    cancelButtonText: 'Ghairi'
+  });
+  if(result.isConfirmed){
+    await updateDoc(doc(db, "users", userId), { role: "Disabled" });
+    Swal.fire('Amewekwa Disabled!', '', 'success');
+    loadUsers();
+  }
+}
+
+// Enable user
+window.enableUser = async (userId) => {
+  const result = await Swal.fire({
+    title: 'Unataka kum-enable mtumiaji huyu?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ndiyo, Enable',
+    cancelButtonText: 'Ghairi'
+  });
+  if(result.isConfirmed){
+    await updateDoc(doc(db, "users", userId), { role: "headTeacher" });
+    Swal.fire('Amewekwa tena kama Head Teacher!', '', 'success');
+    loadUsers();
+  }
+}
+</script>
+
+</body>
+</html>

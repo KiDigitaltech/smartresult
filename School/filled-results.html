@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kuhariri Matokeo</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f1f3f6;
+    }
+    main {
+      padding: 2rem;
+      max-width: 1100px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+    select, input[type="text"] {
+      padding: 10px;
+      font-size: 1rem;
+      margin: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .btn {
+      background: #007bff;
+      color: white;
+      padding: 9px 18px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+    th {
+      background: #343a40;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+    #searchInput {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    /* MODAL */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+    }
+    .overlay.active {
+      display: block;
+    }
+    .modal {
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translate(-50%, 0);
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      z-index: 1001;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: none;
+    }
+    .modal.active {
+      display: block;
+    }
+    .modal-header {
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+      color: #007bff;
+      text-align: center;
+    }
+    .modal label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .modal input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 5px;
+    }
+	.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  background: #28a745;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+.back-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+
+  </style>
+</head>
+<body>
+
+<main>
+<a href="#" id="backBtn" class="btn back-btn"><i class="fa fa-arrow-left"></i> Rudi Kujaza Matokeo</a>
+
+  <h2>Orodha ya Wanafunzi Waliojaziwa Matokeo</h2>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+    <select id="classSelect"><option value="">-- Chagua Darasa --</option></select>
+    <select id="termSelect">
+      <option value="">-- Chagua Kipindi --</option>
+     <option value="MTIHANI NUSU MUHULA 1">MTIHANI NUSU MUHULA 1</option>
+        <option value="MTIHANI KUMALIZA MUHULA 1">MTIHANI KUMALIZA MUHULA 1</option>
+        <option value="MTIHANI NUSU MUHULA 2">MTIHANI NUSU MUHULA 2</option>
+        <option value="MTIHANI KUMALIZA MUHULA 2">MTIHANI KUMALIZA MUHULA 2</option>
+        <option value="MID TERM 1 EXAMINATION">MID TERM 1 EXAMINATION</option>
+        <option value="TERMINAL EXAMINATION">TERMINAL EXAMINATION</option>
+        <option value="MID TERM 2 EXAMINATION">MID TERM 2 EXAMINATION</option>
+        <option value="ANNUAL EXAMINATION">ANNUAL EXAMINATION</option>
+    </select>
+    <button class="btn" id="loadBtn">Tafuta</button>
+  </div>
+
+  <input type="text" id="searchInput" placeholder="🔍 Tafuta kwa jina la mwanafunzi..." />
+
+  <div id="resultsTable"></div>
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay"></div>
+<div class="modal" id="editModal">
+  <div class="modal-header">Hariri Matokeo ya <span id="studentNameModal"></span></div>
+  <form id="editForm"></form>
+  <button class="btn" style="width: 100%; margin-top: 15px;" onclick="saveChanges()">💾 Hifadhi Mabadiliko</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getFirestore, collection, doc, getDoc, getDocs, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+  authDomain: "smartresult-6c09c.firebaseapp.com",
+  projectId: "smartresult-6c09c"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let schoolId = "";
+let allRows = [];
+
+const classSelect = document.getElementById("classSelect");
+const termSelect = document.getElementById("termSelect");
+const loadBtn = document.getElementById("loadBtn");
+const resultsTable = document.getElementById("resultsTable");
+const searchInput = document.getElementById("searchInput");
+
+const editModal = document.getElementById("editModal");
+const overlay = document.getElementById("overlay");
+const editForm = document.getElementById("editForm");
+const studentNameModal = document.getElementById("studentNameModal");
+
+let currentResultDocId = "";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return window.location.href = "index.html";
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  schoolId = userSnap.data().schoolId;
+  await loadClasses();
+});
+
+async function loadClasses() {
+  const q = query(collection(db, "classes"), where("schoolId", "==", schoolId));
+  const snapshot = await getDocs(q);
+  snapshot.forEach(docSnap => {
+    const opt = document.createElement("option");
+    opt.value = docSnap.id;
+    opt.textContent = docSnap.data().name;
+    classSelect.appendChild(opt);
+  });
+}
+
+loadBtn.onclick = async () => {
+  const classId = classSelect.value;
+  const term = termSelect.value;
+  if (!classId || !term) return Swal.fire("Chagua darasa na term");
+
+  Swal.fire({
+    title: "Inatafuta matokeo...",
+    text: "Tafadhali subiri kidogo",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  const q = query(
+    collection(db, "results"),
+    where("schoolId", "==", schoolId),
+    where("classId", "==", classId),
+    where("term", "==", term)
+  );
+  const snapshot = await getDocs(q);
+
+  allRows = [];
+
+  let tableRows = await Promise.all(snapshot.docs.map(async (docSnap) => {
+    const data = docSnap.data();
+    const studentSnap = await getDoc(doc(db, "students", data.studentId));
+    const studentName = studentSnap.exists() ? studentSnap.data().name : "(Haijulikani)";
+    const results = data.results || {};
+
+    let marks = "";
+    for (const [subId, score] of Object.entries(results)) {
+      const subSnap = await getDoc(doc(db, "subjects", subId));
+      const subName = subSnap.exists() ? subSnap.data().name : subId;
+      marks += `<strong>${subName}</strong>: ${score}<br>`;
+    }
+
+    allRows.push({
+      id: docSnap.id,
+      name: studentName,
+      results,
+    });
+
+    return `<tr><td>${studentName}</td><td>${marks}</td>
+      <td><button class="btn" onclick="editResult('${docSnap.id}')">✏️ Hariri</button></td></tr>`;
+  }));
+
+  let html = `<table><thead><tr><th>Jina</th><th>Alama</th><th>Tendo</th></tr></thead><tbody>`;
+  html += tableRows.join('');
+  html += `</tbody></table>`;
+  resultsTable.innerHTML = html;
+
+  Swal.close();
+};
+
+
+
+window.editResult = async (docId) => {
+  Swal.fire({
+    title: 'Inafungua fomu ya uhariri...',
+    text: 'Tafadhali subiri...',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  const data = allRows.find(r => r.id === docId);
+  currentResultDocId = docId;
+  studentNameModal.textContent = data.name;
+
+  editForm.innerHTML = "";
+  for (const [subjectId, score] of Object.entries(data.results)) {
+    const subSnap = await getDoc(doc(db, "subjects", subjectId));
+    const subName = subSnap.exists() ? subSnap.data().name : subjectId;
+
+    editForm.innerHTML += `
+      <label>${subName}</label>
+      <input type="number" name="${subjectId}" value="${score}" min="0" max="100" required />
+    `;
+  }
+
+  Swal.close();
+  overlay.classList.add("active");
+  editModal.classList.add("active");
+};
+
+window.saveChanges = async () => {
+  const inputs = editForm.querySelectorAll("input");
+  const newResults = {};
+  inputs.forEach(input => {
+    newResults[input.name] = parseInt(input.value);
+  });
+
+  Swal.fire({
+    title: "Inahifadhi mabadiliko...",
+    text: "Tafadhali subiri...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  await updateDoc(doc(db, "results", currentResultDocId), {
+    results: newResults
+  });
+
+  Swal.fire("Imehifadhiwa!", "Matokeo yamebadilishwa", "success");
+  overlay.classList.remove("active");
+  editModal.classList.remove("active");
+  loadBtn.click();
+};
+
+
+overlay.onclick = () => {
+  overlay.classList.remove("active");
+  editModal.classList.remove("active");
+};
+
+searchInput.addEventListener("input", () => {
+  const filter = searchInput.value.toLowerCase();
+  const rows = resultsTable.querySelectorAll("tbody tr");
+  rows.forEach(row => {
+    const nameCell = row.querySelector("td").textContent.toLowerCase();
+    row.style.display = nameCell.includes(filter) ? "" : "none";
+  });
+});
+
+document.getElementById('backBtn').addEventListener('click', function (e) {
+  e.preventDefault();
+  Swal.fire({
+    title: 'Tafadhali subiri...',
+    text: 'Inarudi kwenye ukurasa wa Jaza Matokeo...',
+    timer: 1500,
+    showConfirmButton: false,
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  setTimeout(() => {
+    window.location.href = 'enter-results.html';
+  }, 1500);
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+</script>
+</body>
+</html>

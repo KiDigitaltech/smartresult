@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sera ya Faragha - SmartResult</title>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #sidebar-container {
+      width: 240px;
+      background: linear-gradient(to bottom, #0056b3, #003d80);
+      color: white;
+      height: 100vh;
+      overflow-y: auto;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .main-content {
+      margin-left: 240px;
+      padding: 30px;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar-container {
+        transform: translateX(-100%);
+      }
+
+      #sidebar-container.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      #menu-toggle {
+        display: inline-block;
+      }
+    }
+
+    #menu-toggle {
+      display: none;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 15px;
+      font-size: 18px;
+      border-radius: 4px;
+    }
+
+    h2 {
+      color: #0d6efd;
+      font-weight: 600;
+      margin-bottom: 25px;
+    }
+
+    footer {
+      background: #0d6efd;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Toggle button for mobile -->
+    <button id="menu-toggle"><i class="fas fa-bars"></i> Menyu</button>
+
+    <div class="container">
+      <h2><i class="fa fa-shield-alt"></i> Sera ya Faragha</h2>
+      <p>
+        SmartResult inathamini na kulinda faragha ya watumiaji wake. Taarifa binafsi zinazokusanywa hutumika kuboresha huduma na kuhakikisha usalama wa taarifa zako.
+      </p>
+
+      <h5>1. Taarifa Tunazokusanya</h5>
+      <ul>
+        <li>Jina la shule na usajili wake</li>
+        <li>Majina ya walimu na wanafunzi</li>
+        <li>Matokeo na takwimu za mahudhurio</li>
+      </ul>
+
+      <h5>2. Matumizi ya Taarifa</h5>
+      <p>Taarifa zinatumika kwa madhumuni ya:</p>
+      <ul>
+        <li>Kuhifadhi na kuonyesha matokeo</li>
+        <li>Kuwezesha ufuatiliaji wa maendeleo ya kitaaluma</li>
+        <li>Kuboresha uzoefu wa mtumiaji ndani ya mfumo</li>
+      </ul>
+
+      <h5>3. Ulinzi wa Taarifa</h5>
+      <p>
+        Tunatumia teknolojia salama kama Firebase Authentication na Firestore ili kuhakikisha data zako zinalindwa dhidi ya upotevu au matumizi mabaya.
+      </p>
+
+      <h5>4. Haki za Mtumiaji</h5>
+      <p>
+        Unaweza kuomba kufuta au kusasisha taarifa zako wakati wowote kupitia sehemu ya wasifu ndani ya mfumo.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Load sidebar
+    fetch("sidebar.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("sidebar-container").innerHTML = data;
+      });
+
+    // Load footer
+    fetch("footer.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("footer").innerHTML = data;
+      });
+
+    // Toggle sidebar on mobile
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggleBtn = document.getElementById("menu-toggle");
+      toggleBtn.addEventListener("click", () => {
+        const sidebar = document.getElementById("sidebar-container");
+        sidebar.classList.toggle("show");
+      });
+    });
+  </script>
+</body>
+</html>

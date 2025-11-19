@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin - Futa Taarifa Zote</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9faff;
+    margin: 0; padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    color: #007bff;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s;
+  }
+
+  button:disabled {
+    background: #f5a3a6;
+    cursor: not-allowed;
+  }
+
+  button:hover:not(:disabled) {
+    background: #b02a37;
+  }
+
+  #msg {
+    margin-top: 1.5rem;
+    font-weight: 700;
+    min-height: 1.5em;
+    color: #333;
+    text-align: center;
+    max-width: 400px;
+  }
+
+  #loader {
+    margin-top: 20px;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    display: none;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+</style>
+</head>
+<body>
+
+<h1><i class="fas fa-trash-alt"></i> Futa Taarifa Zote</h1>
+
+<button id="btnDeleteAll"><i class="fas fa-exclamation-triangle"></i> Futa Taarifa Zote (Reset System)</button>
+
+<div id="loader" role="status" aria-hidden="true"></div>
+<p id="msg" role="alert" aria-live="assertive"></p>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  // Firebase config - badilisha na zako
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c",
+    storageBucket: "smartresult-6c09c.firebasestorage.app",
+    messagingSenderId: "77722866135",
+    appId: "1:77722866135:web:b0328dcc969b3264acbb92",
+    measurementId: "G-3W13B73TQS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const btnDeleteAll = document.getElementById("btnDeleteAll");
+  const msg = document.getElementById("msg");
+  const loader = document.getElementById("loader");
+
+  // Check if user logged in (admin)
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      // redirect to login if not logged in
+      window.location.href = "admin-login.html";
+    }
+  });
+
+  // Helper function to delete all docs in a collection in batches (max 500 per batch)
+  async function deleteCollection(collectionName) {
+    const colRef = collection(db, collectionName);
+    let docsSnapshot = await getDocs(colRef);
+
+    // If no documents, return early
+    if (docsSnapshot.empty) return;
+
+    // Batch deletion (Firestore limit 500 per batch)
+    let batch = writeBatch(db);
+    let batchCount = 0;
+
+    docsSnapshot.forEach(docSnap => {
+      batch.delete(doc(db, collectionName, docSnap.id));
+      batchCount++;
+      if (batchCount === 500) {
+        batch.commit();
+        batch = writeBatch(db);
+        batchCount = 0;
+      }
+    });
+
+    if (batchCount > 0) {
+      await batch.commit();
+    }
+  }
+
+  btnDeleteAll.addEventListener("click", async () => {
+    const confirmDelete = confirm(
+      "Hii itafuta taarifa zote za mfumo kwenye database (shule, watumiaji, matokeo nk). " +
+      "Je, una hakika unataka kuendelea?"
+    );
+    if (!confirmDelete) return;
+
+    // Start loading
+    btnDeleteAll.disabled = true;
+    loader.style.display = "block";
+    msg.textContent = "Inafuta taarifa... Tafadhali subiri.";
+    msg.style.color = "#333";
+
+    try {
+      // Hapa ongeza collections unazotaka kufuta, chukua majina yao sawa na database yako
+      const collectionsToDelete = ["schools", "users", "results", "students", "classes", "subjects"];
+
+      for (const colName of collectionsToDelete) {
+        msg.textContent = `Inafuta taarifa za "${colName}"...`;
+        await deleteCollection(colName);
+      }
+
+      msg.style.color = "green";
+      msg.textContent = "Taarifa zote zimefutwa kikamilifu ✅";
+
+    } catch (err) {
+      console.error("Error deleting collections:", err);
+      msg.style.color = "red";
+      msg.textContent = "Hitilafu wakati wa kufuta taarifa: " + err.message;
+    } finally {
+      loader.style.display = "none";
+      btnDeleteAll.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profaili ya Shule - SmartResult</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #eef6ff;
+      display: flex;
+      min-height: 100vh;
+    }
+    #sidebar-container {
+      width: 220px;
+    }
+    #main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      animation: fadeInDown 0.5s ease;
+    }
+    main {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      margin-top: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      animation: fadeIn 1s ease;
+    }
+    .info-group {
+      margin-bottom: 1.2rem;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    .info-value {
+      background: #f1f5f9;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    footer {
+      text-align: center;
+      background: #f1f5f9;
+      color: #555;
+      padding: 1rem;
+      border-top: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      transform: scale(1.03);
+    }
+    .backup-btn { background-color: #28a745; color: white; }
+    .restore-btn { background-color: #ffc107; color: black; margin-left: 1rem; }
+    .delete-btn { background-color: #dc3545; color: white; margin-left: 1rem; }
+    #restoreInput { display: none; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      #sidebar-container {
+        display: none;
+      }
+      header, main {
+        margin: 0;
+        border-radius: 0;
+      }
+      main {
+        box-shadow: none;
+        padding: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div id="main-content">
+  <header>
+    <h1><i class="fa-solid fa-user"></i> Profaili ya Mtumiaji</h1>
+    <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </header>
+
+  <main>
+    <div style="text-align:center; margin-bottom: 2rem;">
+      <i class="fa-solid fa-school" style="font-size: 60px; color: #0056b3;"></i>
+      <h2 id="schoolTitle">Inapakia...</h2>
+      <p id="headTeacherName">Mkuu wa Shule: Inapakia...</p>
+    </div>
+
+    <div class="info-group"><label>Jina la Shule</label><div class="info-value" id="schoolName">Inapakia...</div></div>
+    <div class="info-group"><label>Mkuu wa Shule</label><div class="info-value" id="headName">Inapakia...</div></div>
+    <div class="info-group"><label>Barua Pepe</label><div class="info-value" id="schoolEmail">Inapakia...</div></div>
+    <div class="info-group"><label>Tarehe ya Kujiunga</label><div class="info-value" id="enrollDate">Inapakia...</div></div>
+
+    <input type="file" id="restoreInput" accept=".json" />
+
+    <div style="text-align:center; margin-top:2rem;">
+      <button class="backup-btn" id="backupBtn"><i class="fa-solid fa-download"></i> Backup Data</button>
+      <button class="restore-btn" id="restoreBtn"><i class="fa-solid fa-upload"></i> Rejesha Data</button>
+      <button class="delete-btn" id="deleteBtn"><i class="fa-solid fa-trash"></i> Futa Data Zote</button>
+    </div>
+  </main>
+
+  <footer>&copy; 2025 SmartResult. Haki zote zimehifadhiwa.</footer>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, where, getDocs, deleteDoc, setDoc
+  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
+    authDomain: "smartresult-6c09c.firebaseapp.com",
+    projectId: "smartresult-6c09c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  const schoolTitle = document.getElementById('schoolTitle');
+  const schoolName = document.getElementById('schoolName');
+  const headName = document.getElementById('headName');
+  const schoolEmail = document.getElementById('schoolEmail');
+  const enrollDate = document.getElementById('enrollDate');
+  const headTeacherName = document.getElementById('headTeacherName');
+  const backupBtn = document.getElementById('backupBtn');
+  const restoreBtn = document.getElementById('restoreBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const restoreInput = document.getElementById('restoreInput');
+
+  let currentUser = null;
+  let schoolId = null;
+
+  function formatDate(date) {
+    if (!date) return 'Haijulikani';
+    if (date.toDate) date = date.toDate();
+    if (typeof date === 'string') date = new Date(date);
+    if (!(date instanceof Date)) return 'Haijulikani';
+    return date.toISOString().split('T')[0];
+  }
+
+  async function loadUserProfile() {
+    const docRef = doc(db, 'users', currentUser.uid);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      schoolId = data.schoolId;
+      schoolTitle.textContent = data.schoolName || 'Haipo';
+      schoolName.textContent = data.schoolName || 'Haipo';
+      headTeacherName.textContent = "Mkuu wa Shule: " + (data.name || 'Haijulikani');
+      headName.textContent = data.name || 'Haijulikani';
+      schoolEmail.textContent = currentUser.email || 'Haipo';
+      enrollDate.textContent = formatDate(data.createdAt || data.registeredAt || null);
+    }
+  }
+
+  async function backupData() {
+    const result = await Swal.fire({
+      title: 'Backup Data?',
+      text: 'Unataka kuhifadhi data zako?',
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Ndiyo',
+      cancelButtonText: 'Hapana',
+      showClass: { popup: 'animate__animated animate__fadeInDown' },
+      hideClass: { popup: 'animate__animated animate__fadeOutUp' }
+    });
+    if (!result.isConfirmed) return;
+
+    const collections = ['students', 'subjects', 'classes', 'results'];
+    const backup = {};
+    for (const col of collections) {
+      const q = query(collection(db, col), where('schoolId', '==', schoolId));
+      const snap = await getDocs(q);
+      backup[col] = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_${schoolId}.json`;
+    a.click();
+
+    Swal.fire('Imehifadhiwa!', 'Backup imefanikiwa.', 'success');
+  }
+
+  async function restoreData(file) {
+    const text = await file.text();
+    const data = JSON.parse(text);
+
+    const result = await Swal.fire({
+      title: 'Thibitisha Rejesho',
+      text: 'Data zitafutwa na kuwekwa upya. Endelea?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      confirmButtonText: 'Rejesha',
+      cancelButtonText: 'Ghairi'
+    });
+    if (!result.isConfirmed) return;
+
+    const collections = ['students', 'subjects', 'classes', 'results'];
+    for (const col of collections) {
+      if (data[col]) {
+        for (const item of data[col]) {
+          const newItem = { ...item };
+          delete newItem.id;
+          newItem.schoolId = schoolId;
+          await setDoc(doc(db, col, item.id), newItem);
+        }
+      }
+    }
+    Swal.fire('Imerejeshwa!', 'Data zimewekwa upya.', 'success');
+  }
+
+  async function deleteAllData() {
+    const result = await Swal.fire({
+      title: 'Futa Data Zote?',
+      text: 'Taarifa zote zitafutwa kabisa!',
+      icon: 'error',
+      showCancelButton: true,
+      confirmButtonText: 'Futa',
+      cancelButtonText: 'Ghairi'
+    });
+    if (!result.isConfirmed) return;
+
+    const collections = ['students', 'subjects', 'classes', 'results'];
+    for (const col of collections) {
+      const q = query(collection(db, col), where('schoolId', '==', schoolId));
+      const snap = await getDocs(q);
+      for (const docSnap of snap.docs) {
+        await deleteDoc(docSnap.ref);
+      }
+    }
+    Swal.fire('Imefutwa!', 'Taarifa zote zimeondolewa.', 'success');
+  }
+
+  onAuthStateChanged(auth, user => {
+    if (!user) return location.href = 'index.html';
+    currentUser = user;
+    loadUserProfile();
+  });
+
+  logoutBtn.onclick = () => {
+    Swal.fire({
+      title: 'Unatoka?',
+      text: 'Unakaribia kutoka kwenye akaunti yako.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ndiyo, toka',
+      cancelButtonText: 'Ghairi'
+    }).then(res => {
+      if (res.isConfirmed) signOut(auth).then(() => location.href = 'index.html');
+    });
+  }
+
+  backupBtn.onclick = backupData;
+  deleteBtn.onclick = deleteAllData;
+  restoreBtn.onclick = () => restoreInput.click();
+  restoreInput.onchange = () => {
+    const file = restoreInput.files[0];
+    if (file) restoreData(file);
+  };
+
+  // Load sidebar
+  fetch('sidebar.html')
+    .then(res => res.text())
+    .then(html => document.getElementById('sidebar-container').innerHTML = html);
+</script>
+
+</body>
+</html>
