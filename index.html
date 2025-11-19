@@ -1,166 +1,307 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
- <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SRS - Smart Result System | Mfumo wa Matokeo</title>
+  <link rel="icon" type="image/png" href="https://result.smarteducation.co.tz/favicon.png" />
 
-<title>SRS-Smart Result System |Mfumo wa Matokeo</title>
- <link rel="icon" type="image/png" href="https://www.smarteducation.co.tz/smart-result-system/school/favicon.png" />
-<meta name="description" content="SmartResult ni mfumo rahisi wa kuandaa matokeo ya shule za msingi na sekondari Tanzania. Unaokoa muda na unarahisisha kazi za walimu.">
-<meta name="keywords" content="SmartResult, mfumo wa matokeo, kuandaa matokeo, matokeo ya shule, Darasa la Saba Results, Form Four Results, mfumo wa shule, result management system, Tanzania education software">
-<meta name="author" content="Mr Izow">
-<meta name="robots" content="index, follow">
+  <!-- SEO / Open Graph (kept minimal) -->
+  <meta name="description" content="SmartResult - Mfumo rahisi wa kuandaa matokeo kwa shule za Tanzania." />
+  <meta property="og:title" content="SmartResult - Mfumo Rahisi wa Kuandaa Matokeo" />
+  <meta property="og:image" content="https://result.smarteducation.co.tz/logo.png" />
 
-<!-- English SEO -->
-<meta name="description" lang="en" content="SmartResult is a simple school results management system for Tanzanian schools. Helps teachers prepare reports, Form Four Results, and Primary School Results easily.">
-<meta name="keywords" lang="en" content="SmartResult, result management system, school results Tanzania, Form Four Results, Primary School Results, education software, report generator, school system">
-
-<!-- Canonical -->
-<link rel="canonical" href="https://www.smarteducation.co.tz/" />
-
-<!-- Alternate Language Tags (hreflang) -->
-<link rel="alternate" hreflang="sw-TZ" href="https://www.smarteducation.co.tz/sw/" />
-<link rel="alternate" hreflang="en" href="https://www.smarteducation.co.tz/en/" />
-<link rel="alternate" hreflang="x-default" href="https://www.smarteducation.co.tz/smart-result-system/index.html
-<!-- Open Graph -->
-<meta property="og:title" content="SmartResult - Mfumo Rahisi wa Kuandaa Matokeo" />
-<meta property="og:description" content="Mfumo rahisi wa kuandaa matokeo ya shule Tanzania. Okoa muda na rahisisha kazi za walimu kwa kutumia SmartResult." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://www.smarteducation.co.tz/smart-result-system/index.html" />
-<meta property="og:image" content="https://www.smarteducation.co.tz/smart-result-system/school/favicon.png" />
-<meta property="og:locale" content="sw_TZ" />
-<meta property="og:locale:alternate" content="en_US" />
-
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="SmartResult - School Results Management System" />
-<meta name="twitter:description" content="SmartResult makes it easy for Tanzanian schools to prepare results and reports. Save time, reduce errors, and simplify teachers' work." />
-<meta name="twitter:image" content="https://www.smarteducation.co.tz/smart-result-system/school/favicon.png" />
-
- 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- Schema.org JSON-LD -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "SmartResult",
-  "operatingSystem": "Web-based",
-  "applicationCategory": "EducationalApplication",
-  "author": {
-    "@type": "Person",
-    "name": "Mr Izow Technology"
-  },
-  "description": {
-    "@language": "sw",
-    "@value": "SmartResult ni mfumo rahisi wa kuandaa matokeo ya shule za msingi na sekondari Tanzania."
-  },
-  "alternateName": "SmartResult - School Results Management System",
-  "url": "https://smarteducation.co.tz/smart-result-system/index.html",
-  "image": "https://www.smarteducation.co.tz/smart-result-system/school/favicon.png",
-  "publisher": {
-    "@type": "Organization",
-    "name": "SmartResult System"
-  }
-}
-</script>
+
+  <!-- Styles: Modern Glassmorphism Split Screen -->
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Poppins', sans-serif; background: linear-gradient(to right, #4facfe, #00f2fe); min-height: 100vh; }
-    .splash { position: fixed; top:0;left:0;right:0;bottom:0; background:white; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column; animation:fadeOut 1s ease 2s forwards; }
-    .splash img { width:150px; animation:zoomIn 1.2s ease; }
-    .splash p { margin-top:15px; font-size:16px; color:#007bff; }
-    @keyframes fadeOut { to { opacity:0; visibility:hidden; } }
-    @keyframes zoomIn { 0%{transform:scale(0.7);opacity:0;}100%{transform:scale(1);opacity:1;} }
-    .wrapper { display:flex; justify-content:center; align-items:center; height:100vh; padding:20px; }
-    .login-box { display:flex; background:#fff; border-radius:20px; overflow:hidden; box-shadow:0 15px 30px rgba(0,0,0,0.1); max-width:900px; width:100%; flex-wrap:wrap; }
-    .logo-side { background:linear-gradient(180deg,#007bff,#00c6ff); color:white; flex:1; display:flex; justify-content:center; align-items:center; padding:40px; min-width:250px; }
-    .logo-side img { width:100%; max-width:250px; }
-    .form-side { flex:1.3; padding:40px 30px; min-width:300px; max-width:600px; }
-    h2 { text-align:center; color:#0d6efd; margin-bottom:10px; }
-    p.description { text-align:center; font-size:14px; margin-bottom:20px; color:#555; }
-    input { width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:1px solid #ccc; font-size:15px; }
-    .password-group { position:relative; }
-    .toggle-password { position:absolute; top:50%; right:12px; transform:translateY(-50%); cursor:pointer; user-select:none; }
-    .checkbox-group { display:flex; align-items:center; font-size:14px; margin-bottom:10px; }
-    .checkbox-group input { margin-right:8px; }
-    .forgot-password { text-align:right; font-size:14px; margin-bottom:15px; }
-    .forgot-password a { color:#0d6efd; text-decoration:none; }
-    button { width:100%; padding:12px; background:linear-gradient(to right,#0d6efd,#00c6ff); color:white; font-weight:bold; border:none; border-radius:10px; font-size:16px; cursor:pointer; transition:0.3s ease; }
-    button:disabled { opacity:0.6; cursor:not-allowed; }
-    .lang-toggle { text-align:center; margin-top:15px; font-size:13px; color:#007bff; cursor:pointer; user-select:none; }
-    .help-desk { margin-top:25px; font-size:13px; text-align:center; color:#555; }
-    .tab-switcher { display:flex; justify-content:center; margin-bottom:20px; gap:20px; }
-    .tab-switcher button { width:auto; padding:10px 25px; border-radius:30px; background:#eee; color:#555; font-weight:600; border:none; cursor:pointer; transition:background 0.3s,color 0.3s; }
-    .tab-switcher button.active { background:linear-gradient(to right,#0d6efd,#00c6ff); color:white; box-shadow:0 4px 12px rgba(13,110,253,0.3); }
-    @media (max-width:768px){ .login-box{flex-direction:column;} .logo-side{padding:20px;} .form-side{padding:25px 20px;} .logo-side img{max-width:180px;} }
+    :root{
+      --bg1: #0f172a; /* deep navy */
+      --accent1: rgba(13,110,253,0.95); /* blue */
+      --accent2: rgba(0,198,255,0.9); /* cyan */
+      --glass: rgba(255,255,255,0.08);
+      --glass-2: rgba(255,255,255,0.06);
+      --text: #e6eef8;
+      --muted: rgba(230,238,248,0.75);
+      --radius: 16px;
+      --card-width: 520px;
+      --ease: cubic-bezier(.2,.9,.2,1);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Poppins',system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(135deg, #071130 0%, #071a2a 30%, #001428 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:stretch;
+      min-height:100vh;
+    }
+
+    /* Layout: Split screen */
+    .split {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      width:100%;
+      align-items:stretch;
+    }
+
+    /* Left banner */
+    .banner {
+      padding:48px;
+      background:
+        radial-gradient(600px 300px at 10% 20%, rgba(0,198,255,0.07), transparent 10%),
+        linear-gradient(180deg, rgba(13,110,253,0.08), rgba(0,198,255,0.03));
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:24px;
+    }
+    .brand {
+      display:flex;
+      gap:16px;
+      align-items:center;
+    }
+    .brand img{width:76px; height:76px; object-fit:contain; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.4)}
+    .brand h1{font-size:20px; margin:0; letter-spacing:0.2px; font-weight:700}
+    .brand p{margin:0; font-size:13px; color:var(--muted)}
+
+    .banner-hero {
+      margin-top:10px;
+      max-width:520px;
+      color:var(--text);
+    }
+    .banner-hero h2{
+      font-size:34px;
+      margin:0 0 10px 0;
+      line-height:1.02;
+      text-shadow:0 6px 28px rgba(0,0,0,0.5);
+    }
+    .banner-hero p{color:var(--muted); margin:0 0 18px 0; font-size:15px}
+
+    /* Animated neon shapes */
+    .glow-shape{
+      position:absolute;
+      border-radius:50%;
+      filter:blur(60px);
+      opacity:0.45;
+      transform:translateZ(0);
+    }
+    .g1{width:380px;height:380px; background:linear-gradient(90deg,var(--accent1),var(--accent2)); top:-60px; right:-80px}
+    .g2{width:300px;height:300px; background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(13,110,253,0.08)); bottom:-80px; left:-100px}
+
+    /* Right form area */
+    .panel {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:48px;
+    }
+
+    /* Glass card */
+    .card {
+      width:100%;
+      max-width:var(--card-width);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius:var(--radius);
+      padding:32px;
+      box-shadow: 0 10px 40px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      backdrop-filter: blur(10px) saturate(110%);
+      border: 1px solid rgba(255,255,255,0.06);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card-header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+    .card-header h3{margin:0; font-size:18px; color:var(--text)}
+    .card-header small{color:var(--muted); font-size:13px}
+
+    /* Tab buttons */
+    .tabs { display:flex; gap:8px; margin-bottom:18px; }
+    .tab-btn {
+      padding:8px 14px; border-radius:999px; border:none; background:transparent;
+      color:var(--muted); cursor:pointer; font-weight:600; font-size:13px; transition: all .25s var(--ease);
+    }
+    .tab-btn.active { color:var(--text); background: linear-gradient(90deg,var(--accent1),var(--accent2)); box-shadow:0 8px 24px rgba(0,138,255,0.12); transform:translateY(-2px) }
+
+    /* Form styles */
+    form { display:grid; gap:12px; }
+    .input {
+      position:relative;
+    }
+    .input input, .input select {
+      width:100%;
+      padding:14px 44px 14px 14px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      color:var(--text);
+      font-size:14px;
+      outline:none;
+      transition:box-shadow .15s, border-color .15s;
+    }
+    .input input:focus { box-shadow:0 6px 20px rgba(2,6,23,0.6); border-color:rgba(13,110,253,0.55) }
+
+    .input .icon {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:16px; pointer-events:none;
+    }
+
+    /* Password group: toggle clickable */
+    .password-toggle { cursor:pointer; pointer-events:auto; right:12px; top:50%; transform:translateY(-50%); position:absolute; background:transparent; border:none; color:var(--muted); font-size:16px; padding:6px; border-radius:8px; transition:all .12s }
+    .password-toggle:hover { color:var(--text); transform:translateY(-50%) scale(1.06) }
+
+    .row { display:flex; gap:12px; align-items:center; }
+    .remember { display:flex; gap:8px; align-items:center; color:var(--muted); font-size:14px }
+    .remember input{width:16px;height:16px}
+
+    .btn-primary {
+      padding:12px 16px; border-radius:10px; border:none; cursor:pointer; font-weight:700; font-size:15px;
+      color:white; background: linear-gradient(90deg,var(--accent1),var(--accent2)); box-shadow:0 10px 30px rgba(0,134,255,0.12);
+      transition:transform .12s ease, box-shadow .12s;
+    }
+    .btn-primary:active{ transform:translateY(1px) }
+    .btn-ghost { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted); padding:10px 12px; border-radius:10px; cursor:pointer; }
+
+    .help { margin-top:12px; font-size:13px; color:var(--muted); text-align:center; }
+
+    /* Footer small */
+    .legal { margin-top:18px; font-size:12px; color:rgba(230,238,248,0.5); text-align:center }
+
+    /* Responsive */
+    @media (max-width:980px){
+      .split{grid-template-columns:1fr;}
+      .banner{order:2; padding:28px; text-align:center}
+      .panel{order:1;padding:28px}
+      .card{margin:0 auto}
+    }
   </style>
 </head>
 <body>
-  <div class="splash">
-    <img src="logo.png" alt="SmartResult Logo" />
-    <p>SmartResult | Loading...</p>
-  </div>
-
-  <div class="wrapper">
-    <div class="login-box">
-      <div class="logo-side"><img src="logo.png" alt="SmartResult Logo" /></div>
-      <div class="form-side">
-        <div class="tab-switcher">
-          <button id="loginTab" class="active">Ingia</button>
-          <button id="registerTab">Jisajili</button>
-        </div>
-
-        <!-- Login Form -->
-        <div id="loginForm">
-          <h2>Ingia</h2>
-          <p class="description">Weka taarifa zako kuingia kwenye mfumo.</p>
-          <input type="email" id="email" placeholder="Barua Pepe" />
-          <div class="password-group">
-            <input type="password" id="password" placeholder="Nenosiri" />
-            <span class="toggle-password" id="togglePasswordLogin">ðŸ‘ï¸</span>
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="rememberMe" />
-            <label for="rememberMe">Kumbuka</label>
-          </div>
-          <div class="forgot-password"><a href="#" id="forgotLink">Umesahau nenosiri?</a></div>
-          <button id="btnLogin">Ingia</button>
-        </div>
-
-        <!-- Register Form -->
-        <div id="registerForm" style="display:none;">
-          <h2>Jisajili</h2>
-          <p class="description">Unda akaunti mpya kuendelea.</p>
-          <input type="text" id="schoolName" placeholder="Jina la Shule" />
-          <input type="text" id="principalName" placeholder="Jina Mkuu wa Shule" />
-          <input type="tel" id="phoneNumber" placeholder="Namba ya Simu" />
-          <input type="email" id="regEmail" placeholder="Barua Pepe ya Mkuu wa Shule" />
-          <div class="password-group">
-            <input type="password" id="regPassword" placeholder="Nenosiri" />
-            <span class="toggle-password" id="togglePasswordRegister">ðŸ‘ï¸</span>
-          </div>
-          <button id="btnRegister">Jisajili</button>
-        </div>
-
-        <div class="lang-toggle" id="langSwitch">English</div>
-        <div class="help-desk">
-          <strong>Msaada:</strong><br>
-          Simu: +255 717 173 853<br>
-          Email: support@smartresult.co.tz<br>
-          WhatsApp: +255 717 173 853
+  <div class="split">
+    <!-- LEFT BANNER -->
+    <aside class="banner" aria-hidden="false">
+      <div class="brand">
+        <img src="https://result.smarteducation.co.tz/logo.png" alt="SmartResult logo" />
+        <div>
+          <h1>SmartResult</h1>
+          <p>System ya kisasa ya kuandaa matokeo - Tanzania</p>
         </div>
       </div>
-    </div>
+
+      <div class="banner-hero" role="region" aria-label="Taarifa za Mfumo">
+        <h2>Haraka. Rahisi na Salama.</h2>
+        <p>Andaa matokeo kwa urahisi, chapisha ripoti, na uhifadhi data ya shule kwa usalama. SmartResult imeundwa kwa walimu na shule zote.</p>
+        <div style="display:flex;gap:12px;margin-top:18px;">
+          <button class="btn-primary" id="discoverBtn"><i class="fa fa-download" style="margin-right:8px"></i> Pakua Demo</button>
+          <button class="btn-ghost" id="contactBtn"><i class="fa fa-headset" style="margin-right:8px"></i> Wasiliana nasi</button>
+        </div>
+      </div>
+
+      <div class="glow-shape g1" aria-hidden="true"></div>
+      <div class="glow-shape g2" aria-hidden="true"></div>
+    </aside>
+
+    <!-- RIGHT PANEL -->
+    <main class="panel">
+      <div class="card" role="main" aria-labelledby="loginTitle">
+        <div class="card-header">
+          <div>
+            <h3 id="loginTitle">Karibu SmartResult</h3>
+            <small>Ingia au jisajili kwa shule yako</small>
+          </div>
+          <div class="card-actions">
+            <small style="color:var(--muted)">Result System v1.0</small>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs" role="tablist" aria-label="Forms">
+          <button class="tab-btn active" id="tabLogin" role="tab" aria-selected="true">Ingia</button>
+          <button class="tab-btn" id="tabRegister" role="tab" aria-selected="false">Jisajili</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" autocomplete="on" novalidate>
+          <div class="input">
+            <input id="email" name="email" type="email" placeholder="Barua pepe" aria-label="Barua pepe" required />
+            <span class="icon"><i class="fa fa-envelope"></i></span>
+          </div>
+
+          <div class="input" style="position:relative;">
+            <input id="password" name="password" type="password" placeholder="Nenosiri" aria-label="Nenosiri" required />
+            <button type="button" class="password-toggle" id="togglePasswordLogin" aria-label="Onyesha nenosiri"><i class="fa fa-eye"></i></button>
+          </div>
+
+          <div class="row" style="justify-content:space-between;">
+            <label class="remember"><input type="checkbox" id="rememberMe" /> Kumbuka</label>
+            <a href="#" id="forgotLink" style="color:var(--accent2); text-decoration:none; font-size:14px;">Umesahau nenosiri?</a>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:6px;">
+            <button class="btn-primary" id="btnLogin" type="button"><i class="fa fa-right-to-bracket" style="margin-right:8px"></i> Ingia</button>
+            <button class="btn-ghost" id="btnSso" type="button" title="Ingia kwa Google/Federated"><i class="fa fa-circle-nodes" style="margin-right:8px"></i> SSO</button>
+          </div>
+
+        
+          <div class="legal">Msaada: support@smartresult.co.tz | +255 717 173 853</div>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="registerForm" style="display:none; margin-top:6px;" autocomplete="on" novalidate>
+          <div class="input">
+            <input id="schoolName" name="schoolName" type="text" placeholder="Jina la Shule" required />
+            <span class="icon"><i class="fa fa-school"></i></span>
+          </div>
+
+          <div class="input">
+            <input id="principalName" name="principalName" type="text" placeholder="Jina la Mkuu wa Shule" required />
+            <span class="icon"><i class="fa fa-user-tie"></i></span>
+          </div>
+
+          <div class="input">
+            <input id="phoneNumber" name="phoneNumber" type="tel" placeholder="Namba ya Simu (tarehe +255...)" required />
+            <span class="icon"><i class="fa fa-phone"></i></span>
+          </div>
+
+          <div class="input">
+            <input id="regEmail" name="regEmail" type="email" placeholder="Barua Pepe ya Mkuu" required />
+            <span class="icon"><i class="fa fa-envelope"></i></span>
+          </div>
+
+          <div class="input" style="position:relative;">
+            <input id="regPassword" name="regPassword" type="password" placeholder="Nenosiri (angalau 6)" required />
+            <button type="button" class="password-toggle" id="togglePasswordRegister" aria-label="Onyesha nenosiri"><i class="fa fa-eye"></i></button>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:6px;">
+            <button class="btn-primary" id="btnRegister" type="button"><i class="fa fa-user-plus" style="margin-right:8px"></i> Jisajili</button>
+            <button class="btn-ghost" id="btnDemo" type="button"><i class="fa fa-eye" style="margin-right:8px"></i> Ona Demo</button>
+          </div>
+
+          <div class="help">Baada ya usajili, akaunti itawekwa kama <strong>Inactive User</strong> mpaka malipo/uthibitisho.</div>
+        </form>
+      </div>
+    </main>
   </div>
 
+  <!-- Firebase + App Logic -->
   <script type="module">
+    // Firebase SDK imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
+    // ======= Put your Firebase config here (kept from your previous file) =======
     const firebaseConfig = {
       apiKey: "AIzaSyCJrWJouAt8xDPm5zOTOw1EcpNd997flQ8",
       authDomain: "smartresult-6c09c.firebaseapp.com",
@@ -170,234 +311,206 @@
       appId: "1:77722866135:web:b0328dcc969b3264acbb92",
       measurementId: "G-3W13B73TQS"
     };
+    // ========================================================================
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Elements - Login
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const btnLogin = document.getElementById("btnLogin");
-    const togglePasswordLogin = document.getElementById("togglePasswordLogin");
-    const forgotLink = document.getElementById("forgotLink");
+    // UI elements
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
 
-    // Elements - Register
-    const schoolNameInput = document.getElementById("schoolName");
-    const principalNameInput = document.getElementById("principalName");
-    const phoneNumberInput = document.getElementById("phoneNumber");
-    const regEmailInput = document.getElementById("regEmail");
-    const regPasswordInput = document.getElementById("regPassword");
-    const btnRegister = document.getElementById("btnRegister");
-    const togglePasswordRegister = document.getElementById("togglePasswordRegister");
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const btnLogin = document.getElementById('btnLogin');
+    const togglePasswordLogin = document.getElementById('togglePasswordLogin');
+    const forgotLink = document.getElementById('forgotLink');
 
-    // Tabs
-    const loginTab = document.getElementById("loginTab");
-    const registerTab = document.getElementById("registerTab");
-    const loginForm = document.getElementById("loginForm");
-    const registerForm = document.getElementById("registerForm");
+    const schoolName = document.getElementById('schoolName');
+    const principalName = document.getElementById('principalName');
+    const phoneNumber = document.getElementById('phoneNumber');
+    const regEmail = document.getElementById('regEmail');
+    const regPassword = document.getElementById('regPassword');
+    const btnRegister = document.getElementById('btnRegister');
+    const togglePasswordRegister = document.getElementById('togglePasswordRegister');
 
-    // Splash
-    window.addEventListener("load", () => {
-      const splash = document.querySelector(".splash");
-      splash.style.animationPlayState = "running";
-      setTimeout(()=>{ splash.style.display="none"; },3000);
-    });
+    // Tab behavior
+    function showLogin(){
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      loginForm.style.display = 'grid';
+      registerForm.style.display = 'none';
+      tabLogin.setAttribute('aria-selected','true');
+      tabRegister.setAttribute('aria-selected','false');
+    }
+    function showRegister(){
+      tabLogin.classList.remove('active');
+      tabRegister.classList.add('active');
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'grid';
+      tabLogin.setAttribute('aria-selected','false');
+      tabRegister.setAttribute('aria-selected','true');
+    }
+    tabLogin.addEventListener('click', showLogin);
+    tabRegister.addEventListener('click', showRegister);
 
-    // Utility to reset login button
-    function resetLoginBtn(){
-      btnLogin.disabled = false;
-      btnLogin.innerHTML = "Ingia";
+    // Toggle password show/hide
+    function togglePassword(toggleBtnId, inputId){
+      const btn = document.getElementById(toggleBtnId);
+      const input = document.getElementById(inputId);
+      btn.addEventListener('click', () => {
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+          btn.setAttribute('aria-label','Ficha nenosiri');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+          btn.setAttribute('aria-label','Onyesha nenosiri');
+        }
+      });
+    }
+    togglePassword('togglePasswordLogin','password');
+    togglePassword('togglePasswordRegister','regPassword');
+
+    // Small helpers
+    function setLoading(button, state, text){
+      if (state){
+        button.disabled = true;
+        button.innerHTML = `<i class="fa fa-spinner fa-spin" style="margin-right:8px"></i> ${text || 'Inapakia...'}`;
+      } else {
+        button.disabled = false;
+        // restore default labels
+        if (button.id === 'btnLogin') button.innerHTML = '<i class="fa fa-right-to-bracket" style="margin-right:8px"></i> Ingia';
+        if (button.id === 'btnRegister') button.innerHTML = '<i class="fa fa-user-plus" style="margin-right:8px"></i> Jisajili';
+      }
     }
 
-    // Login
-    btnLogin.addEventListener("click", async () => {
+    // LOGIN action
+    btnLogin.addEventListener('click', async () => {
       const email = emailInput.value.trim();
       const password = passwordInput.value.trim();
+      if (!email || !password) return Swal.fire('Tafadhali jaza barua pepe na nenosiri','', 'warning');
 
-      if (!email || !password) return Swal.fire("Tafadhali jaza taarifa zote", "", "warning");
-
-      btnLogin.disabled = true;
-      btnLogin.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Inapakia...`;
-
+      setLoading(btnLogin, true, 'Ingia...');
       try {
         const userCred = await signInWithEmailAndPassword(auth, email, password);
         const uid = userCred.user.uid;
-        const docRef = doc(db, "users", uid);
-        const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists()) {
-          Swal.fire("Hujathibitishwa", "Mtumiaji hayupo kwenye mfumo", "error");
-          resetLoginBtn();
-          return;
+        // fetch user doc for role & redirect
+        const docRef = doc(db, 'users', uid);
+        const snap = await getDoc(docRef);
+        if (!snap.exists()){
+          setLoading(btnLogin, false);
+          return Swal.fire('Mtumiaji haipo', 'Tafadhali wasiliana na admin', 'error');
         }
-
-        const data = docSnap.data();
-        const role = data.role || "User";
-
-        // If account disabled -> send to disabled page
-        if (role === "Disabled") {
-          Swal.fire({
-            title: "Akaunti Imezuiwa",
-            text: "Akaunti yako imezuiwa. Tafadhali wasiliana na admin kupata msaada.",
-            icon: "error",
-            confirmButtonText: "Sawa"
-          }).then(() => {
-            // Redirect to disabled page
-            window.location.href = "school/disabled.html";
-          });
-          resetLoginBtn();
-          return;
-        }
-
-        // If inactive -> show message and redirect (old behaviour retained)
-        if (role === "Inactive") {
-          Swal.fire({
-            title: "Akaunti Haijawezeshwa",
-            text: "Tafadhali lipia ili kuwezesha akaunti yako.",
-            icon: "warning",
-            confirmButtonText: "Sawa"
-          }).then(() => {
-            window.location.href = "school/dashboard.html";
-          });
-          resetLoginBtn();
-          return;
-        }
-
-        // If HeadTeacher -> proceed normally to school dashboard
-        if (role === "HeadTeacher") {
-          Swal.fire({ title: "Karibu!", text: "Umefanikiwa, Asante kwa Kuchagua Mfumo wetu.", icon: "success", timer: 1200, showConfirmButton: false });
-          setTimeout(() => {
-            window.location.href = "school/school-dashboard.html";
-          }, 1200);
-          return;
-        }
-
-        // Default: other roles continue to general dashboard
-        Swal.fire({ title: "Karibu!", text: `Umeingia kama ${role}`, icon: "success", timer: 1200, showConfirmButton: false });
-        setTimeout(() => {
-          window.location.href = "school/dashboard.html";
-        }, 1200);
-
+        const user = snap.data();
+        const role = user.role || 'User';
+        Swal.fire({ title: 'Karibu!', text: `Umeingia kama ${role}`, icon:'success', timer:1200, showConfirmButton:false });
+        // Redirect logic (example)
+        setTimeout(()=> {
+          if (role === 'HeadTeacher') window.location.href = '/school/school-dashboard.html';
+          else window.location.href = '/school/dashboard.html';
+        }, 900);
       } catch (err) {
-        console.error("Login error:", err);
-        Swal.fire("Hitilafu", err.message || "Tatizo la kuingia", "error");
-        resetLoginBtn();
+        console.error('Login error', err);
+        Swal.fire('Hitilafu', err.message || 'Tatizo la kuingia', 'error');
+      } finally {
+        setLoading(btnLogin, false);
       }
     });
 
-    // Register
-    btnRegister.addEventListener("click", async () => {
-      const schoolName = schoolNameInput.value.trim();
-      const principalName = principalNameInput.value.trim();
-      const phoneNumber = phoneNumberInput.value.trim();
-      const email = regEmailInput.value.trim();
-      const password = regPasswordInput.value.trim();
-
-      // Validations
-      if (!schoolName || !principalName || !phoneNumber || !email || !password) {
-        return Swal.fire("Tafadhali jaza taarifa zote", "", "warning");
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return Swal.fire("Barua pepe si sahihi", "", "warning");
-      }
-      if (!/^[0-9+]+$/.test(phoneNumber)) {
-        return Swal.fire("Namba ya simu si sahihi", "", "warning");
-      }
-      if (password.length < 6) {
-        return Swal.fire("Nenosiri liwe angalau herufi 6", "", "warning");
-      }
-
-      btnRegister.disabled = true;
-      btnRegister.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Inasajili...`;
-
+    // FORGOT PASSWORD
+    forgotLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if (!email) return Swal.fire('Andika barua pepe kwanza', '', 'info');
       try {
-        // Sajili user mpya
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        if (!methods || methods.length === 0) return Swal.fire('Haijasajiliwa', 'Email haipo kwenye mfumo', 'warning');
+        await sendPasswordResetEmail(auth, email);
+        Swal.fire('Imefanikiwa', 'Tafadhali angalia barua pepe yako kwa maelekezo', 'success');
+      } catch (err) {
+        console.error('Reset error', err);
+        Swal.fire('Hitilafu', err.message || 'Tatizo la kutuma barua', 'error');
+      }
+    });
+
+    // REGISTER action
+    btnRegister.addEventListener('click', async () => {
+      const sName = schoolName.value.trim();
+      const pName = principalName.value.trim();
+      const phone = phoneNumber.value.trim();
+      const email = regEmail.value.trim();
+      const pwd = regPassword.value.trim();
+
+      if (!sName || !pName || !phone || !email || !pwd) return Swal.fire('Tafadhali jaza taarifa zote', '', 'warning');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return Swal.fire('Barua pepe haiko sahihi', '', 'warning');
+      if (pwd.length < 6) return Swal.fire('Nenosiri liwe angalau herufi 6', '', 'warning');
+
+      setLoading(btnRegister, true, 'Kusajili...');
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, pwd);
         const uid = userCred.user.uid;
 
-        // Weka taarifa za shule kwenye collection "schools"
-        await setDoc(doc(db, "schools", uid), {
-          schoolName: schoolName,
+        // Save school and user docs
+        await setDoc(doc(db, 'schools', uid), {
+          schoolName: sName,
           schoolId: uid,
-          headTeacherName: principalName,
-          phone: phoneNumber,
-          email: email,
+          headTeacherName: pName,
+          phone,
+          email,
           createdAt: new Date()
         });
 
-        // Weka taarifa za mkuu wa shule kwenye "users" (Inactive by default)
-        await setDoc(doc(db, "users", uid), {
-          role: "Inactive",
-          name: principalName,
-          email: email,
-          phone: phoneNumber,
+        await setDoc(doc(db, 'users', uid), {
+          role: 'Inactive', // default
+          name: pName,
+          email,
+          phone,
           schoolId: uid,
-          schoolName: schoolName,
+          schoolName: sName,
           createdAt: new Date()
         });
 
         Swal.fire({
-          title: "Hongera!",
-          html: "Umefanikiwa Kujisajili.<br><br><strong>Tafadhali Lipia Tsh.10,000</strong> ili kuwezesha akaunti yako.<br>au Wasiliana nasi <strong>+255 717 173 853</strong><br><br>Ahsante kwa kuchagua Smart Result!",
-          icon: "success",
-          confirmButtonText: "Sawa"
+          title:'Hongera!',
+          html:'Umefanikiwa kusajili. <br><strong>Tafadhali lipa Tsh.10,000</strong> ili kuwezesha akaunti yako.',
+          icon:'success'
         });
 
-        // Clear fields
-        schoolNameInput.value = "";
-        principalNameInput.value = "";
-        phoneNumberInput.value = "";
-        regEmailInput.value = "";
-        regPasswordInput.value = "";
-
-        // Rendeshwa kwenye login tab
-        setTimeout(() => {
-          showLoginForm();
-        }, 500);
-
+        // clear fields & go to login
+        schoolName.value = principalName.value = phoneNumber.value = regEmail.value = regPassword.value = '';
+        showLogin();
       } catch (err) {
-        console.error("Registration Error:", err);
-        Swal.fire("Hitilafu", err.message || "Tatizo la usajili", "error");
+        console.error('Register error', err);
+        Swal.fire('Hitilafu', err.message || 'Tatizo la usajili', 'error');
       } finally {
-        btnRegister.disabled = false;
-        btnRegister.textContent = "Jisajili";
+        setLoading(btnRegister, false);
       }
     });
 
-    // Toggle password
-    togglePasswordLogin.addEventListener("click", () => {
-      const type = passwordInput.type === "password" ? "text" : "password";
-      passwordInput.type = type;
-      togglePasswordLogin.textContent = type === "password" ? "ðŸ‘ï¸" : "ðŸ™ˆ";
+    // Demo buttons - basic behaviors
+    document.getElementById('discoverBtn').addEventListener('click', () => {
+      Swal.fire('Pakua Demo', 'Demo ya SmartResult inapatikana kwa tovuti yetu.', 'info');
     });
-    togglePasswordRegister.addEventListener("click", () => {
-      const type = regPasswordInput.type === "password" ? "text" : "password";
-      regPasswordInput.type = type;
-      togglePasswordRegister.textContent = type === "password" ? "ðŸ‘ï¸" : "ðŸ™ˆ";
+    document.getElementById('contactBtn').addEventListener('click', () => {
+      window.location.href = 'mailto:support@smartresult.co.tz';
     });
-
-    // Forgot password
-    forgotLink.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      if (!email) return Swal.fire("Andika barua pepe kwanza", "", "info");
-      try {
-        const methods = await fetchSignInMethodsForEmail(auth, email);
-        if (!methods || methods.length === 0) return Swal.fire("Haijasajiliwa", "Email haipo kwenye mfumo", "warning");
-        await sendPasswordResetEmail(auth, email);
-        Swal.fire("Imetumwa", "Angalia email yako kuweka nenosiri jipya", "success");
-      } catch (err) {
-        console.error("Password reset error:", err);
-        Swal.fire("Hitilafu", err.message || "Tatizo la kutuma kuanzisha nenosiri", "error");
-      }
+    document.getElementById('btnDemo').addEventListener('click', () => {
+      Swal.fire('Demo', 'Utapokea maelekezo ya demo baada ya kuwasiliana nasi.', 'info');
     });
 
-    // Switch forms
-    loginTab.addEventListener("click", showLoginForm);
-    registerTab.addEventListener("click", showRegisterForm);
-    function showLoginForm() { loginForm.style.display = "block"; registerForm.style.display = "none"; loginTab.classList.add("active"); registerTab.classList.remove("active"); }
-    function showRegisterForm() { loginForm.style.display = "none"; registerForm.style.display = "block"; loginTab.classList.remove("active"); registerTab.classList.add("active"); }
+    // Accessibility: enter to submit login
+    [emailInput, passwordInput].forEach(el => el.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') btnLogin.click();
+    }));
   </script>
 </body>
 </html>
