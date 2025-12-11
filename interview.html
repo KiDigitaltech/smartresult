@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Meta Description -->
+<meta name="description" content="Fanya Mtihani Maalumu wa Interview kwa Walimu walioomba ajira kupitia Ajira Portal. Mtihani huu wa SmartEducation.co.tz unapima uelewa, maadili ya ualimu, mbinu za ufundishaji na uwezo wa kufikisha maarifa kwa mwanafunzi. Imetolewa na Smart Education – smarteducation.co.tz.">
+
+<!-- Meta Keywords -->
+<meta name="keywords" content="Mtihani wa Interview kwa Walimu, Ajira Portal, Ualimu, Smart Education, SmartEducation.co.tz, Majibu ya Interview, Maswali ya Interview ya Ualimu, Ajira za Ualimu Tanzania, Teacher Interview Test, Teacher Recruitment Tanzania, Online Assessment for Teachers">
+
+<!-- Author -->
+<meta name="author" content="SmartEducation.co.tz">
+
+<!-- OpenGraph for Social Media -->
+<meta property="og:title" content="Mtihani wa Interview kwa Walimu – SmartEducation.co.tz">
+<meta property="og:description" content="Mtihani maalumu kwa walimu walioomba ajira kupitia Ajira Portal. Pima uelewa, mbinu za ufundishaji, maadili ya ualimu na uwezo wa kufundisha. Imetolewa na SmartEducation.co.tz.">
+<meta property="og:url" content="https://www.smarteducation.co.tz">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SmartEducation.co.tz">
+<meta property="og:image" content="https://result.smarteducation.co.tz/favicon.png">
+
+<!-- Favicon (Optional) -->
+<link rel="icon" type="image/png" href="https://result.smarteducation.co.tz/favicon.png">
+
+<title>Mtihani wa Usaili Kada ya Ualimu</title>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f1f5f9;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 95%;
+        max-width: 900px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(20px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+
+    h2 {
+        text-align: center;
+        color: #0f172a;
+    }
+
+    .question {
+        margin: 20px 0;
+        padding: 15px;
+        border-left: 5px solid #3b82f6;
+        background: #f8fafc;
+        border-radius: 10px;
+    }
+
+    label {
+        display: block;
+        padding: 8px;
+        background: #e2e8f0;
+        margin: 8px 0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    label:hover {
+        background: #cbd5e1;
+    }
+
+    button {
+        width: 100%;
+        padding: 15px;
+        background: #2563eb;
+        color: white;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        transition: 0.3s;
+        margin-top: 20px;
+    }
+
+    button:hover {
+        background: #1e40af;
+    }
+
+    #timer {
+        text-align: center;
+        font-size: 20px;
+        color: #dc2626;
+        font-weight: bold;
+    }
+
+    #restartBtn {
+        display: none;
+        background: #16a34a;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h2>Mtihani wa Ualimu Online</h2>
+    <div id="timer">Muda: 01:00:00</div>
+
+    <form id="quizForm"></form>
+
+    <button id="submitBtn" onclick="submitExam()">Wasilisha Majibu</button>
+    <button id="restartBtn" onclick="restartExam()">Rudia Mtihani</button>
+</div>
+
+<script>
+// =========================
+// MASWALI + MAJIBU
+// =========================
+const questions = [
+    {
+        q:"Lengo kuu la mbinu shirikishi ni:",
+        options:["Kufundisha kwa haraka","Kukariri vizuri","Kuhamasisha ushiriki wa wanafunzi","Kupunguza kazi ya mwalimu"],
+        answer:"Kuhamasisha ushiriki wa wanafunzi"
+    },
+    {
+        q:"Sifa ya mwalimu mwenye maadili bora ni:",
+        options:["Kuchelewa kazini","Kutoa adhabu bila sababu","Kuwapendelea wanafunzi","Kufika kazini kwa wakati"],
+        answer:"Kufika kazini kwa wakati"
+    },
+    {
+        q:"Sera ya Elimu 2014 inalenga:",
+        options:["Kufuta mtihani wa taifa","Elimu ya lazima msingi na sekondari","Kupunguza walimu","Kuongeza ada"],
+        answer:"Elimu ya lazima msingi na sekondari"
+    },
+    {
+        q:"Mbinu ya mradi humwezesha mwanafunzi:",
+        options:["Kukariri","Kufanya kazi kwa vitendo","Kusikiliza tu","Kuepuka kazi"],
+        answer:"Kufanya kazi kwa vitendo"
+    },
+    {
+        q:"Kigezo cha mbinu shirikishi ni:",
+        options:["Mwalimu kuzungumza muda wote","Wanafunzi kushiriki kikamilifu","Kutumia vitabu pekee","Kutoa kazi ya nyumbani"],
+        answer:"Wanafunzi kushiriki kikamilifu"
+    },
+    {
+        q:"Mwalimu mwenye maadili hafai kufanya nini?",
+        options:["Kutoa msaada","Kushirikiana na wazazi","Kutoa siri za wanafunzi","Kuelimisha jamii"],
+        answer:"Kutoa siri za wanafunzi"
+    },
+    {
+        q:"Mbinu ya masimulizi inafaa zaidi kufundisha:",
+        options:["Hisabati","Maadili na historia","Sayansi","Michezo"],
+        answer:"Maadili na historia"
+    },
+    {
+        q:"Lugha rasmi ya kufundishia shule za msingi Tanzania ni:",
+        options:["Kiingereza","Kiswahili","Kifaransa","Kichina"],
+        answer:"Kiswahili"
+    },
+    {
+        q:"Learning by doing inasisitiza:",
+        options:["Kusikiliza tu","Mazoezi ya vitendo","Kuepuka kazi","Vitabu pekee"],
+        answer:"Mazoezi ya vitendo"
+    },
+    {
+        q:"Kazi ya mwalimu katika mbinu shirikishi ni:",
+        options:["Kutoa majibu yote","Kuelekeza na kuwezesha","Kukaa kimya","Kutawala mjadala"],
+        answer:"Kuelekeza na kuwezesha"
+    },
+    {
+        q:"Mbinu ya kiushirikishi zaidi ni:",
+        options:["Hotuba","Majadiliano ya vikundi","Kusoma kimya","Kuandika kwa kunakili"],
+        answer:"Majadiliano ya vikundi"
+    },
+    {
+        q:"Maadili ya kitaaluma ni pamoja na:",
+        options:["Kutokujali wanafunzi","Kufika kazini kwa wakati","Kuchelewa darasani","Kukwepa kazi"],
+        answer:"Kufika kazini kwa wakati"
+    },
+    {
+        q:"Sera ya elimu inalenga:",
+        options:["Elimu ilipwe zaidi","Elimu kwa wote","Kupunguza walimu","Kufunga shule"],
+        answer:"Elimu kwa wote"
+    },
+    {
+        q:"Mbinu ya kuigiza husaidia:",
+        options:["Kukariri","Kujifunza kwa kushiriki","Kukaa kimya","Kusikiliza tu"],
+        answer:"Kujifunza kwa kushiriki"
+    },
+    {
+        q:"Mbinu ya majadiliano huchochea:",
+        options:["Uoga wa kujieleza","Mawazo ya wanafunzi","Kukariri","Kunyamaza darasani"],
+        answer:"Mawazo ya wanafunzi"
+    },
+    {
+        q:"Sifa ya mwalimu bora ni:",
+        options:["Kukasirika","Subira na huruma","Kutokujali","Kuchelewa"],
+        answer:"Subira na huruma"
+    },
+    {
+        q:"Kazi ya vikundi husaidia:",
+        options:["Kufanya peke yao","Kushirikiana","Kukwepa kazi","Kuepuka mjadala"],
+        answer:"Kushirikiana"
+    },
+    {
+        q:"Mwalimu akikiuka maadili jamii:",
+        options:["Inampenda","Inampotezea heshima","Inampa zawadi","Inampongeza"],
+        answer:"Inampotezea heshima"
+    },
+    {
+        q:"Siyo sehemu ya maadili ya ualimu:",
+        options:["Uadilifu","Uwajibikaji","Upendeleo","Uaminifu"],
+        answer:"Upendeleo"
+    },
+    {
+        q:"Mwalimu bora ni mfano wa:",
+        options:["Uvivu","Nidhamu na maadili","Kukwepa kazi","Kukasirika"],
+        answer:"Nidhamu na maadili"
+    }
+];
+
+// =========================
+// RANDOMIZE ANSWERS
+// =========================
+function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
+
+// =========================
+// PREVENT RETAKE
+// =========================
+if(localStorage.getItem("doneExam") === "yes"){
+    document.getElementById("submitBtn").style.display="none";
+    document.getElementById("restartBtn").style.display="block";
+
+    Swal.fire({
+        icon:'info',
+        title:'Ulishafanya Mtihani',
+        text:'Bonyeza "Rudia Mtihani" kuanza upya.',
+    });
+}
+
+// =========================
+// DISPLAY QUESTIONS
+// =========================
+let quizForm = document.getElementById("quizForm");
+
+questions.forEach((q, i)=>{
+    let opts = shuffle([...q.options]);
+
+    let div = document.createElement("div");
+    div.className="question";
+
+    div.innerHTML = `
+        <p><b>${i+1}. ${q.q}</b></p>
+        ${opts.map(o => 
+            `<label>
+               <input type="radio" name="q${i}" value="${o}"> ${o}
+             </label>`
+        ).join("")}
+    `;
+    quizForm.appendChild(div);
+});
+
+// =========================
+// TIMER 1 HOUR
+// =========================
+let timeLeft = 3600;
+
+let timer = setInterval(()=>{
+    let h = Math.floor(timeLeft/3600);
+    let m = Math.floor((timeLeft%3600)/60);
+    let s = timeLeft%60;
+
+    document.getElementById("timer").innerHTML =
+        `Muda: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+    if(timeLeft <= 0){
+        clearInterval(timer);
+        submitExam();
+    }
+
+    timeLeft--;
+},1000);
+
+
+// =========================
+// SUBMIT EXAM
+// =========================
+function submitExam(){
+    let score = 0;
+
+    questions.forEach((q,i)=>{
+        let ans = document.querySelector(`input[name="q${i}"]:checked`);
+        if(ans && ans.value === q.answer) score++;
+    });
+
+    let percent = (score * 5);
+
+    localStorage.setItem("doneExam","yes");
+
+    Swal.fire({
+        icon:'success',
+        title:'Matokeo Yako',
+        html:`<h3>Umefaulu: <b>${percent}%</b></h3>`,
+        confirmButtonText:'Sawa'
+    });
+
+    document.getElementById("submitBtn").style.display="none";
+    document.getElementById("restartBtn").style.display="block";
+}
+
+// =========================
+// RESTART EXAM
+// =========================
+function restartExam(){
+    localStorage.removeItem("doneExam");
+    location.reload();
+}
+</script>
+
+</body>
+</html>
