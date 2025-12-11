@@ -4,29 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Meta Description -->
-<meta name="description" content="Fanya Mtihani Maalumu wa Interview kwa Walimu walioomba ajira kupitia Ajira Portal. Mtihani huu wa SmartEducation.co.tz unapima uelewa, maadili ya ualimu, mbinu za ufundishaji na uwezo wa kufikisha maarifa kwa mwanafunzi. Imetolewa na Smart Education – smarteducation.co.tz.">
+<meta name="description" content="Fanya Mtihani Maalumu wa Interview kwa Walimu walioomba ajira kupitia Ajira Portal. Maswali ya kina yanayopima maarifa, maadili, ufundishaji na uwezo wa kutatua changamoto darasani. Imetolewa na SmartEducation.co.tz.">
 
-<!-- Meta Keywords -->
-<meta name="keywords" content="Mtihani wa Interview kwa Walimu, Ajira Portal, Ualimu, Smart Education, SmartEducation.co.tz, Majibu ya Interview, Maswali ya Interview ya Ualimu, Ajira za Ualimu Tanzania, Teacher Interview Test, Teacher Recruitment Tanzania, Online Assessment for Teachers">
+<meta name="keywords" content="Mtihani wa Interview kwa Walimu, Ajira Portal, Maswali ya Ualimu, Ufundishaji, SmartEducation.co.tz">
 
-<!-- Author -->
 <meta name="author" content="SmartEducation.co.tz">
 
-<!-- OpenGraph for Social Media -->
 <meta property="og:title" content="Mtihani wa Interview kwa Walimu – SmartEducation.co.tz">
-<meta property="og:description" content="Mtihani maalumu kwa walimu walioomba ajira kupitia Ajira Portal. Pima uelewa, mbinu za ufundishaji, maadili ya ualimu na uwezo wa kufundisha. Imetolewa na SmartEducation.co.tz.">
+<meta property="og:description" content="Mtihani wa kina kwa walimu walioomba ajira kupitia Ajira Portal. Pima ujuzi, mbinu za ufundishaji na maadili ya taaluma ya ualimu.">
 <meta property="og:url" content="https://www.smarteducation.co.tz">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="SmartEducation.co.tz">
 <meta property="og:image" content="https://result.smarteducation.co.tz/favicon.png">
 
-<!-- Favicon (Optional) -->
 <link rel="icon" type="image/png" href="https://result.smarteducation.co.tz/favicon.png">
 
-<title>Mtihani wa Usaili Kada ya Ualimu</title>
+<title>Mtihani wa Usaili Kada ya Ualimu – SmartEducation</title>
 
-<!-- SweetAlert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
@@ -36,6 +29,31 @@
         margin: 0;
         padding: 0;
     }
+
+    #glowBtn {
+        display: block;
+        width: 95%;
+        max-width: 900px;
+        margin: 20px auto;
+        text-align: center;
+        padding: 15px;
+        background: linear-gradient(90deg, #2563eb, #3b82f6);
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 12px;
+        text-decoration: none;
+        animation: glow 1.8s infinite;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    @keyframes glow {
+        0% { box-shadow: 0 0 8px #3b82f6; }
+        50% { box-shadow: 0 0 20px #2563eb; }
+        100% { box-shadow: 0 0 8px #3b82f6; }
+    }
+
+    #glowBtn:hover { transform: scale(1.05); }
 
     .container {
         width: 95%;
@@ -76,9 +94,7 @@
         transition: 0.3s;
     }
 
-    label:hover {
-        background: #cbd5e1;
-    }
+    label:hover { background: #cbd5e1; }
 
     button {
         width: 100%;
@@ -93,9 +109,7 @@
         margin-top: 20px;
     }
 
-    button:hover {
-        background: #1e40af;
-    }
+    button:hover { background: #1e40af; }
 
     #timer {
         text-align: center;
@@ -108,41 +122,17 @@
         display: none;
         background: #16a34a;
     }
-	#glowBtn {
-    display: inline-block;
-    padding: 14px 25px;
-    background: linear-gradient(90deg, #2563eb, #3b82f6);
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 12px;
-    text-decoration: none;
-    animation: glow 1.8s infinite;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    margin-bottom: 20px;
-}
-
-@keyframes glow {
-    0% { box-shadow: 0 0 8px #3b82f6; }
-    50% { box-shadow: 0 0 20px #2563eb; }
-    100% { box-shadow: 0 0 8px #3b82f6; }
-}
-
-#glowBtn:hover {
-    transform: scale(1.05);
-}
 </style>
 
 </head>
 <body>
-<a href="https://stopperscared.com/k4yhqg5s?key=10401f06008814decec959050cc4febe" 
-   id="glowBtn" 
-   target="_blank">
+
+<a href="https://stopperscared.com/k4yhqg5s?key=10401f06008814decec959050cc4febe" id="glowBtn" target="_blank">
     PAKUA MATOKEO
 </a>
 
 <div class="container">
-    <h2>Mtihani wa Ualimu Online</h2>
+    <h2>Mtihani wa Ualimu Online (Higher Order Thinking)</h2>
     <div id="timer">Muda: 01:00:00</div>
 
     <form id="quizForm"></form>
@@ -152,120 +142,215 @@
 </div>
 
 <script>
-// =========================
-// MASWALI + MAJIBU
-// =========================
+// ========== MASWALI YA KUFIKIRI KWA KINA ==========
+
 const questions = [
     {
-        q:"Lengo kuu la mbinu shirikishi ni:",
-        options:["Kufundisha kwa haraka","Kukariri vizuri","Kuhamasisha ushiriki wa wanafunzi","Kupunguza kazi ya mwalimu"],
-        answer:"Kuhamasisha ushiriki wa wanafunzi"
+        q:"Mwanafunzi mwenye uwezo mdogo wa kuelewa haraka anaonyesha kubadilika baada ya kutumia mbinu fulani. Kigezo bora cha kutathmini ufanisi wa mbinu hiyo ni:",
+        options:[
+            "Anamaliza kazi zote kwa wakati",
+            "Anaongeza kasi ya kujifunza bila kusaidiwa",
+            "Anakumbuka maswali aliyofundishwa tu",
+            "Anategemea mwalimu kumwelekeza kila hatua"
+        ],
+        answer:"Anaongeza kasi ya kujifunza bila kusaidiwa"
     },
     {
-        q:"Sifa ya mwalimu mwenye maadili bora ni:",
-        options:["Kuchelewa kazini","Kutoa adhabu bila sababu","Kuwapendelea wanafunzi","Kufika kazini kwa wakati"],
-        answer:"Kufika kazini kwa wakati"
+        q:"Darasa lina mgawanyiko mkubwa wa vipaji. Mwalimu anapaswa kuanza kwa kufanya nini?",
+        options:[
+            "Kuwagawa wanafunzi kwa uwezo",
+            "Kutumia tathmini ya awali kufahamu viwango vyao",
+            "Kutoa kazi moja kwa wote",
+            "Kuwaacha wanafunzi wajifunze peke yao"
+        ],
+        answer:"Kutumia tathmini ya awali kufahamu viwango vyao"
     },
     {
-        q:"Sera ya Elimu 2014 inalenga:",
-        options:["Kufuta mtihani wa taifa","Elimu ya lazima msingi na sekondari","Kupunguza walimu","Kuongeza ada"],
-        answer:"Elimu ya lazima msingi na sekondari"
+        q:"Katika mbinu shirikishi, ishara kuwa wanafunzi hawashiriki kikamilifu ni:",
+        options:[
+            "Wanaandika mambo mengi",
+            "Wanauliza maswali ya kufuatilia hoja",
+            "Wanakaa kimya hata wanapoulizwa maswali",
+            "Wanajadili kwa makundi madogo"
+        ],
+        answer:"Wanakaa kimya hata wanapoulizwa maswali"
     },
     {
-        q:"Mbinu ya mradi humwezesha mwanafunzi:",
-        options:["Kukariri","Kufanya kazi kwa vitendo","Kusikiliza tu","Kuepuka kazi"],
-        answer:"Kufanya kazi kwa vitendo"
+        q:"Mwanafunzi anaonesha tabia ya kuongoza wenzake vibaya. Mwalimu bora atafanya nini?",
+        options:[
+            "Kumpa adhabu kali ili kuwa mfano",
+            "Kumjadili mbele ya darasa",
+            "Kumshirikisha katika majukumu chanya ili kurekebisha tabia",
+            "Kumpeleka kwa mwalimu mkuu"
+        ],
+        answer:"Kumshirikisha katika majukumu chanya ili kurekebisha tabia"
     },
     {
-        q:"Kigezo cha mbinu shirikishi ni:",
-        options:["Mwalimu kuzungumza muda wote","Wanafunzi kushiriki kikamilifu","Kutumia vitabu pekee","Kutoa kazi ya nyumbani"],
-        answer:"Wanafunzi kushiriki kikamilifu"
+        q:"Wakati wa kufundisha somo gumu, mwalimu anapaswa kuanza na:",
+        options:[
+            "Mifano halisi kutoka mazingira yao",
+            "Kuwapa swali gumu moja kwa moja",
+            "Kuchora mchoro mgumu ubao",
+            "Kusoma maandishi marefu"
+        ],
+        answer:"Mifano halisi kutoka mazingira yao"
     },
     {
-        q:"Mwalimu mwenye maadili hafai kufanya nini?",
-        options:["Kutoa msaada","Kushirikiana na wazazi","Kutoa siri za wanafunzi","Kuelimisha jamii"],
-        answer:"Kutoa siri za wanafunzi"
+        q:"Katika kufundisha kwa vitendo, jukumu kuu la mwalimu ni:",
+        options:[
+            "Kufanya kila kitu wakati wanafunzi wanaangalia",
+            "Kuwezesha wanafunzi kutatua changamoto kwa kutumia maarifa yao",
+            "Kusimulia hatua zote kwa undani",
+            "Kupunguza muda wa majadiliano"
+        ],
+        answer:"Kuwezesha wanafunzi kutatua changamoto kwa kutumia maarifa yao"
     },
     {
-        q:"Mbinu ya masimulizi inafaa zaidi kufundisha:",
-        options:["Hisabati","Maadili na historia","Sayansi","Michezo"],
-        answer:"Maadili na historia"
+        q:"Dalili kuwa somo limeeleweka sio:",
+        options:[
+            "Wanafunzi wanaweza kufundisha wenzao",
+            "Wanafunzi wanaweza kutumia maarifa katika mazingira mapya",
+            "Wanafunzi wanakumbuka kila walichofundishwa",
+            "Wanafunzi wanaunda hoja zao wenyewe"
+        ],
+        answer:"Wanafunzi wanakumbuka kila walichofundishwa"
     },
     {
-        q:"Lugha rasmi ya kufundishia shule za msingi Tanzania ni:",
-        options:["Kiingereza","Kiswahili","Kifaransa","Kichina"],
-        answer:"Kiswahili"
+        q:"Kwenye mgogoro wa wanafunzi wawili, mwalimu anapaswa kuanza na:",
+        options:[
+            "Kuwapa adhabu wote mara moja",
+            "Kusikiliza pande zote kwa usawa",
+            "Kumlaumu aliyedaiwa kuwa mkosaji",
+            "Kuwaita wazazi bila mazungumzo"
+        ],
+        answer:"Kusikiliza pande zote kwa usawa"
     },
     {
-        q:"Learning by doing inasisitiza:",
-        options:["Kusikiliza tu","Mazoezi ya vitendo","Kuepuka kazi","Vitabu pekee"],
-        answer:"Mazoezi ya vitendo"
+        q:"Mwalimu anapotumia maswali ya kuchochea fikra (probing questions), lengo kuu ni:",
+        options:[
+            "Kuwafanya wanafunzi wajibu haraka",
+            "Kupunguza muda wa somo",
+            "Kupanua uelewa wa mwanafunzi kupitia uchambuzi wa kina",
+            "Kutathmini kukariri tu"
+        ],
+        answer:"Kupanua uelewa wa mwanafunzi kupitia uchambuzi wa kina"
     },
     {
-        q:"Kazi ya mwalimu katika mbinu shirikishi ni:",
-        options:["Kutoa majibu yote","Kuelekeza na kuwezesha","Kukaa kimya","Kutawala mjadala"],
-        answer:"Kuelekeza na kuwezesha"
+        q:"Katika somo, mwanafunzi anatoa jibu batili lakini lina mantiki kiasi. Mwalimu bora atafanya nini?",
+        options:[
+            "Kukemea darasani ili wengine waogope kukosea",
+            "Kumrekebisha moja kwa moja",
+            "Kuuliza maswali ya ziada ili kumwelekeza kwenye jibu sahihi",
+            "Kupuuza jibu lake"
+        ],
+        answer:"Kuuliza maswali ya ziada ili kumwelekeza kwenye jibu sahihi"
     },
     {
-        q:"Mbinu ya kiushirikishi zaidi ni:",
-        options:["Hotuba","Majadiliano ya vikundi","Kusoma kimya","Kuandika kwa kunakili"],
-        answer:"Majadiliano ya vikundi"
+        q:"Ikiwa wanafunzi hawashiriki kwenye majadiliano, sababu kuu inaweza kuwa:",
+        options:[
+            "Wameelewa sana",
+            "Majadiliano hayana mwongozo wa wazi",
+            "Wanafunzi ni wachache",
+            "Somo ni rahisi sana"
+        ],
+        answer:"Majadiliano hayana mwongozo wa wazi"
     },
     {
-        q:"Maadili ya kitaaluma ni pamoja na:",
-        options:["Kutokujali wanafunzi","Kufika kazini kwa wakati","Kuchelewa darasani","Kukwepa kazi"],
-        answer:"Kufika kazini kwa wakati"
+        q:"Katika kuandaa maandalio ya somo, kipengele muhimu zaidi katika kufundisha kwa ufanisi ni:",
+        options:[
+            "Kukikariri",
+            "Kuweka malengo ya ujifunzaji yanayopimika",
+            "Kuandika maswali mengi",
+            "Kuongeza kazi ya nyumbani"
+        ],
+        answer:"Kuweka malengo ya ujifunzaji yanayopimika"
     },
     {
-        q:"Sera ya elimu inalenga:",
-        options:["Elimu ilipwe zaidi","Elimu kwa wote","Kupunguza walimu","Kufunga shule"],
-        answer:"Elimu kwa wote"
+        q:"Mwalimu bora hutumia tathmini endelevu kwa sababu:",
+        options:[
+            "Inaongeza makaratasi ya kuwahakiki",
+            "Inasaidia kubaini changamoto mapema kabla hazijakomaa",
+            "Ni lazima kwa kufuata taratibu",
+            "Hupunguza muda wa kufundisha"
+        ],
+        answer:"Inasaidia kubaini changamoto mapema kabla hazijakomaa"
     },
     {
-        q:"Mbinu ya kuigiza husaidia:",
-        options:["Kukariri","Kujifunza kwa kushiriki","Kukaa kimya","Kusikiliza tu"],
-        answer:"Kujifunza kwa kushiriki"
+        q:"Katika mazingira yenye rasilimali chache, njia bora ya kufundisha somo la sayansi ni:",
+        options:[
+            "Kutumia vitabu pekee",
+            "Kutumia vifaa vinavyopatikana mazingira ya karibu",
+            "Kusubiri hadi vifaa vipatikane",
+            "Kufundisha kwa maelezo tu"
+        ],
+        answer:"Kutumia vifaa vinavyopatikana mazingira ya karibu"
     },
     {
-        q:"Mbinu ya majadiliano huchochea:",
-        options:["Uoga wa kujieleza","Mawazo ya wanafunzi","Kukariri","Kunyamaza darasani"],
-        answer:"Mawazo ya wanafunzi"
+        q:"Matumizi ya teknolojia darasani yanakuwa na maana tu pale:",
+        options:[
+            "Ni ya kisasa na ya gharama kubwa",
+            "Inachukua nafasi ya mwalimu",
+            "Inakuza uelewa na ushiriki wa wanafunzi",
+            "Inatumika kila kipindi"
+        ],
+        answer:"Inakuza uelewa na ushiriki wa wanafunzi"
     },
     {
-        q:"Sifa ya mwalimu bora ni:",
-        options:["Kukasirika","Subira na huruma","Kutokujali","Kuchelewa"],
-        answer:"Subira na huruma"
+        q:"Mwalimu anapogundua kuwa somo limechelewa sana, hatua sahihi ni:",
+        options:[
+            "Kuharakisha ufundishaji bila maelezo",
+            "Kuongeza kazi ya nyumbani kufidia",
+            "Kurekebisha mbinu ili kuwezesha uelewa bila kupoteza ubora",
+            "Kufundisha nusu ya maudhui"
+        ],
+        answer:"Kurekebisha mbinu ili kuwezesha uelewa bila kupoteza ubora"
     },
     {
-        q:"Kazi ya vikundi husaidia:",
-        options:["Kufanya peke yao","Kushirikiana","Kukwepa kazi","Kuepuka mjadala"],
-        answer:"Kushirikiana"
+        q:"Nini humsaidia mwalimu kufundisha wanafunzi wenye mitindo tofauti ya ujifunzaji?",
+        options:[
+            "Kutumia mbinu moja kwa wote",
+            "Kutumia mbinu mbalimbali zenye ushirikishwaji",
+            "Kupunguza majadiliano",
+            "Kutoa somo kwa maelezo pekee"
+        ],
+        answer:"Kutumia mbinu mbalimbali zenye ushirikishwaji"
     },
     {
-        q:"Mwalimu akikiuka maadili jamii:",
-        options:["Inampenda","Inampotezea heshima","Inampa zawadi","Inampongeza"],
-        answer:"Inampotezea heshima"
+        q:"Dalili kuwa mwanafunzi anatumia fikra za juu (higher order skills) ni:",
+        options:[
+            "Anaweza kunukuu alichofundishwa",
+            "Anaweza kuchambua hoja na kutoa suluhisho jipya",
+            "Anaandika haraka zaidi",
+            "Anamaliza kazi mapema"
+        ],
+        answer:"Anaweza kuchambua hoja na kutoa suluhisho jipya"
     },
     {
-        q:"Siyo sehemu ya maadili ya ualimu:",
-        options:["Uadilifu","Uwajibikaji","Upendeleo","Uaminifu"],
-        answer:"Upendeleo"
+        q:"Mwalimu anapaswa kufanya nini ili kujenga uhusiano mzuri na mwanafunzi mwenye changamoto za tabia?",
+        options:[
+            "Kutomkaribia kabisa",
+            "Kumchukulia kama tatizo",
+            "Kumjengea mazingira ya kujiamini na kumshirikisha zaidi",
+            "Kumzuia kushiriki"
+        ],
+        answer:"Kumjengea mazingira ya kujiamini na kumshirikisha zaidi"
     },
     {
-        q:"Mwalimu bora ni mfano wa:",
-        options:["Uvivu","Nidhamu na maadili","Kukwepa kazi","Kukasirika"],
-        answer:"Nidhamu na maadili"
+        q:"Sifa muhimu ya mwalimu kiongozi ni:",
+        options:[
+            "Kutawala darasa kwa nguvu",
+            "Kushirikisha wanafunzi katika kufanya maamuzi madogo ya ujifunzaji",
+            "Kutumia muda mwingi kuzungumza",
+            "Kutoa majibu yote"
+        ],
+        answer:"Kushirikisha wanafunzi katika kufanya maamuzi madogo ya ujifunzaji"
     }
 ];
 
-// =========================
-// RANDOMIZE ANSWERS
-// =========================
+// ========== RANDOMIZE OPTIONS ==========
 function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
 
-// =========================
-// PREVENT RETAKE
-// =========================
+// ========== PREVENT RETAKE ==========
 if(localStorage.getItem("doneExam") === "yes"){
     document.getElementById("submitBtn").style.display="none";
     document.getElementById("restartBtn").style.display="block";
@@ -277,9 +362,7 @@ if(localStorage.getItem("doneExam") === "yes"){
     });
 }
 
-// =========================
-// DISPLAY QUESTIONS
-// =========================
+// ========== DISPLAY QUESTIONS ==========
 let quizForm = document.getElementById("quizForm");
 
 questions.forEach((q, i)=>{
@@ -299,9 +382,7 @@ questions.forEach((q, i)=>{
     quizForm.appendChild(div);
 });
 
-// =========================
-// TIMER 1 HOUR
-// =========================
+// ========== TIMER ==========
 let timeLeft = 3600;
 
 let timer = setInterval(()=>{
@@ -320,10 +401,7 @@ let timer = setInterval(()=>{
     timeLeft--;
 },1000);
 
-
-// =========================
-// SUBMIT EXAM
-// =========================
+// ========== SUBMIT ==========
 function submitExam(){
     let score = 0;
 
@@ -347,9 +425,7 @@ function submitExam(){
     document.getElementById("restartBtn").style.display="block";
 }
 
-// =========================
-// RESTART EXAM
-// =========================
+// ========== RESTART ==========
 function restartExam(){
     localStorage.removeItem("doneExam");
     location.reload();
