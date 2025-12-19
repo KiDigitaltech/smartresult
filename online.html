@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- TITLE -->
+<title>Online Interview Exam – Smart Education Network</title>
+
+<!-- META DESCRIPTION -->
+<meta name="description" content="Fanya mtihani wa interview mtandaoni kwa Smart Education Network. Jaza majibu yako, pata matokeo na nafasi yako moja kwa moja.">
+
+<!-- META KEYWORDS -->
+<meta name="keywords" content="interview exam, mtihani wa online, Smart Education Network, Tanzania, elimu mtandaoni, PSRS">
+
+<!-- META AUTHOR -->
+<meta name="author" content="Smart Education Network">
+
+<!-- FAVICON -->
+<link rel="icon" href="https://result.smarteducation.co.tz/favicon.png" type="image/x-icon">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:Segoe UI,Arial;
+background:linear-gradient(135deg,#2563eb,#0f172a);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:15px;
+}
+.container{
+width:100%;
+max-width:800px;
+background:#fff;
+padding:20px;
+border-radius:20px;
+box-shadow:0 25px 40px rgba(0,0,0,.3);
+display:none;
+}
+h2{text-align:center}
+input{
+width:100%;
+padding:14px;
+border-radius:14px;
+border:2px solid #e5e7eb;
+margin-bottom:10px;
+font-size:16px;
+}
+input:focus{outline:none;border-color:#2563eb}
+#timer{
+text-align:center;
+font-size:18px;
+font-weight:bold;
+color:#dc2626;
+margin:10px 0;
+}
+.question{
+background:#f8fafc;
+padding:15px;
+border-radius:16px;
+margin-bottom:15px;
+border:1px solid #e5e7eb;
+}
+.option{
+display:block;
+padding:12px;
+border-radius:12px;
+border:2px solid #e5e7eb;
+margin-bottom:8px;
+cursor:pointer;
+}
+.option input{display:none}
+.option.selected{
+background:#dbeafe;
+border-color:#2563eb;
+font-weight:600;
+}
+button{
+width:100%;
+padding:16px;
+border:none;
+border-radius:16px;
+background:#2563eb;
+color:#fff;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+}
+#loader{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:999;
+}
+.spinner{
+width:60px;height:60px;
+border:6px solid #c7d2fe;
+border-top:6px solid #2563eb;
+border-radius:50%;
+animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+
+<body>
+
+<div id="loader"><div class="spinner"></div></div>
+
+<div class="container" id="examBox">
+<h2>MTIHANI WA USAILI KADA YA UALIMU</h2>
+
+<input id="name" placeholder="Jina Kamili">
+<input id="interview" placeholder="Interview No (PSRS123)">
+
+<div id="timer">Muda: 40:00</div>
+<div id="exam"></div>
+
+<button onclick="confirmSubmit()">WASILISHA</button>
+</div>
+
+<script>
+// ===== FIREBASE =====
+firebase.initializeApp({
+apiKey:"AIzaSyATHMGlTsboMxtuCESqhcZbt3RHA-JpnKU",
+authDomain:"election-6c728.firebaseapp.com",
+projectId:"election-6c728"
+});
+const db=firebase.firestore();
+
+let questions=[];
+let timeLeft=40*60;
+let timerInterval;
+
+// ===== INSTRUCTIONS =====
+window.onload=()=>{
+Swal.fire({
+title:"MAELEKEZO YA MTIHANI",
+icon:"info",
+html:`
+<ul style="text-align:left">
+<li>⏱ Muda wa mtihani ni <b>dakika 40</b></li>
+<li>📘 Mtihani una maswali <b>50</b></li>
+<li>✏ Chagua jibu moja sahihi</li>
+<li>🚫 Ukimaliza muda mtihani utasubmit moja kwa moja</li>
+<li>📌 Hakikisha unaweka <b>jina</b> na <b>Interview No</b> sahihi</li>
+</ul>
+`,
+confirmButtonText:"ANZA MTIHANI"
+}).then(()=>{
+document.getElementById("examBox").style.display="block";
+loadExam();
+});
+};
+
+// ===== TIMER =====
+function startTimer(){
+timerInterval=setInterval(()=>{
+let m=Math.floor(timeLeft/60);
+let s=timeLeft%60;
+timer.innerText=`Muda: ${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+if(timeLeft===300){
+Swal.fire("Tahadhari","Dakika 5 zimebaki","warning");
+}
+if(timeLeft<=0){
+clearInterval(timerInterval);
+submitExam(true);
+}
+timeLeft--;
+},1000);
+}
+
+// ===== LOAD QUESTIONS =====
+async function loadExam(){
+loader.style.display="flex";
+const snap=await db.collection("questions").orderBy("number").get();
+exam.innerHTML="";
+questions=[];
+
+snap.forEach(d=>{
+const q=d.data();
+questions.push(q);
+exam.innerHTML+=`
+<div class="question">
+<b>${q.number}. ${q.q}</b>
+${q.options.map(o=>`
+<label class="option">
+<input type="radio" name="q${q.number}" value="${o}">
+${o}
+</label>`).join("")}
+</div>`;
+});
+
+document.querySelectorAll(".option").forEach(o=>{
+o.onclick=()=>{
+const p=o.parentElement;
+p.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));
+o.classList.add("selected");
+o.querySelector("input").checked=true;
+};
+});
+
+loader.style.display="none";
+startTimer();
+}
+
+// ===== CONFIRM =====
+function confirmSubmit(){
+Swal.fire({
+title:"Wasilisha Mtihani?",
+text:"Huwezi kubadilisha majibu",
+icon:"question",
+showCancelButton:true
+}).then(r=>{
+if(r.isConfirmed) submitExam(false);
+});
+}
+
+// ===== SUBMIT =====
+async function submitExam(auto){
+const nameInput=document.getElementById("name");
+const intInput=document.getElementById("interview");
+
+const nameV=nameInput.value.trim();
+const intV=intInput.value.trim();
+
+if(!auto){
+if(!nameV || !/^PSRS\d+$/i.test(intV)){
+Swal.fire("ERROR","Jaza jina & interview sahihi","error");
+return;
+}
+}
+
+loader.style.display="flex";
+clearInterval(timerInterval);
+
+let score=0;
+questions.forEach(q=>{
+const sel=document.querySelector(`input[name="q${q.number}"]:checked`);
+if(sel && sel.value===q.answer) score++;
+});
+
+const total=questions.length;
+const percent=Math.round(score/total*100);
+const status=percent>=50?"PASS":"FAIL";
+
+// SAVE
+const ref=await db.collection("interviewResults").add({
+name:nameV||"AUTO",
+interview:intV||"AUTO",
+score,percent,status,
+date:firebase.firestore.Timestamp.now()
+});
+
+// RANK
+const snap=await db.collection("interviewResults").get();
+let arr=[];
+snap.forEach(d=>arr.push({...d.data(),id:d.id}));
+arr.sort((a,b)=>b.percent-a.percent);
+const pos=arr.findIndex(x=>x.id===ref.id)+1;
+
+loader.style.display="none";
+
+Swal.fire({
+icon:status==="PASS"?"success":"error",
+title:"MATOKEO YA MTIHANI",
+html:`
+<b>${nameV}</b><br><br>
+Alama: <b>${score}/${total}</b><br>
+Asilimia: <b>${percent}%</b><br>
+Nafasi: <b>${pos}</b> kati ya <b>${arr.length}</b><br>
+Hali: <b>${status}</b>
+`
+});
+}
+
+// START
+</script>
+</body>
+</html>
